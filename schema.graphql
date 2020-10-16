@@ -1,0 +1,156 @@
+type Factory @entity {
+    # factory address
+    id: ID!
+
+    perpetualCount: BigInt!
+
+    # total volume
+    totalVolumeUSD: BigDecimal!
+    totalVolumeETH: BigDecimal!
+
+    # total liquidity
+    totalLiquidityUSD: BigDecimal!
+    totalLiquidityETH: BigDecimal!
+
+    # transactions
+    txCount: BigInt!
+}
+
+type User @entity {
+    # user address
+    id: ID!
+    collaterals: [DepositCollateral!] @derivedFrom(field:"user")
+    positions: [Position!] @derivedFrom(field:"user")
+    closedPositions: [ClosedPosition!] @derivedFrom(field:"user")
+    liquidityPositions: [LiquidityPosition!] @derivedFrom(field:"user")
+}
+
+type Token @entity {
+    # token address
+    id: ID!
+    symbol: String!
+    name: String!
+    decimals: String!
+    totalSupply: BigDecimal!
+}
+
+type Perpetual @entity {
+    # perpetual address
+    id: ID!
+    # underlying: Token!
+    collateral: String!
+    oracle: String!
+    amm: String!
+    operator: String!
+
+    # set params
+    spread: BigDecimal!
+    feeRate: BigDecimal!
+    maintanceMargin: BigDecimal!
+    initMargin: BigDecimal!
+    minMaintanceMargin: BigDecimal!
+
+
+    # volume stats
+    # volumeUSD: BigDecimal!
+    # volumeUnderlying: BigDecimal!
+    # volumeCollateral: BigDecimal!
+    # txCount: BigInt!
+
+    # liquidity
+    # liquidityTokenBalance: BigDecimal!
+    # liquidityProviderCount: BigInt!
+    # liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "perpetual")
+
+    createdAtTimestamp: BigInt!
+    createdAtBlockNumber: BigInt!
+
+    # fee data
+    # totalFee: BigDecimal!
+    # currentFee: BigDecimal!
+
+    # perpetual status
+    stat: Int!
+    lastPrice: BigDecimal!
+    # trade data
+    # price24h: BigDecimal!
+    # fundingRate8h: BigDecimal!
+}
+
+type DepositCollateral @entity {
+    # collater address + "-" + user address
+    id: ID!
+    collateral: String!
+    user: User!
+    collateralTokenbalance: BigDecimal!
+}
+
+type LiquidityPosition @entity {
+    # perpetual address + "-" + user address
+    id: ID!
+    user: User!
+    perpetual: Perpetual!
+    liquidityTokenBalance: BigDecimal!
+}
+
+type Trade @entity {
+    # trasaction hash + "-" + index
+    id: ID!
+    perpetual: Perpetual!
+    trader: User!
+    amount: BigDecimal!
+    price: BigDecimal!
+    side: Int!
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+}
+
+type Position @entity {
+    # perpetual address + "-" + user address
+    id: ID!
+    user: User!
+    perpetual: Perpetual!
+    amount: BigDecimal!
+    entryPrice: BigDecimal!
+    entryValue: BigDecimal!
+    side: Int!
+}
+
+type ClosedPosition @entity {
+    # transaction hash + "-" + index
+    id: ID!
+    user: User!
+    perpetual: Perpetual!
+    amount: BigDecimal!
+    entryPrice: BigDecimal!
+    exitPrice: BigDecimal!
+    pnl: BigDecimal!
+    side: Int!
+}
+
+type PerpHourData @entity {
+    id: ID!
+    hourStartUnix: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    volume: BigDecimal!
+}
+
+type PerpDayData @entity {
+    id: ID!
+    dayStartUnix: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    volume: BigDecimal!
+}
+
+type PerpFundingRateHourData @entity {
+    id: ID!
+    hourStartUnix: Int!
+    fundingRate8h: BigDecimal!
+}
