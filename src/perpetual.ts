@@ -67,6 +67,7 @@ export function handleTrade(event: TradeEvent): void {
     trade.logIndex = event.logIndex
     perp.lastPrice = trade.price
     perp.save()
+    trade.save()
 }
 
 export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): void {

@@ -52,14 +52,6 @@ export function fetchPerpetual(address: Address): Perpetual {
       perp.createdAtTimestamp = ZERO_BI
       perp.createdAtBlockNumber = ZERO_BI
 
-      // contract state: Normal, Emergency, Shutdown
-      perp.state = 0
-    
-      // contract param
-      perp.redeemingLockPeriod = ZERO_BD
-      perp.entranceFeeRate = ZERO_BD
-      perp.streamingFeeRate = ZERO_BD
-
       // create the tracked contract based on the template
       shareTokenTemplate.create(address)
 
