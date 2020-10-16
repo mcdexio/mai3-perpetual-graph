@@ -104,6 +104,7 @@ type Trade @entity {
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
+    logIndex: BigInt!
 }
 
 type Position @entity {
@@ -115,6 +116,10 @@ type Position @entity {
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
     side: Int!
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    logIndex: BigInt!
 }
 
 type ClosedPosition @entity {
@@ -127,6 +132,10 @@ type ClosedPosition @entity {
     exitPrice: BigDecimal!
     pnl: BigDecimal!
     side: Int!
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    logIndex: BigInt!
 }
 
 type PerpHourData @entity {

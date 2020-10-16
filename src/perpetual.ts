@@ -3,14 +3,8 @@ import {
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
     Trade as TradeEvent,
-    UpdatePositionAccount as UpdatePositionAccountEvent,
-    UpdateState as UpdateStateEvent
+    UpdatePositionAccount as UpdatePositionAccountEvent
 } from '../generated/mai-v3-graph/Perpetual'
-
-import {
-    Mint as MintEvent,
-    Burn as BurnEvent
-} from '../generated/templates/shareToken/ERC20'
 
 import {
     fetchPerpetual,
@@ -70,5 +64,53 @@ export function handleTrade(event: TradeEvent): void {
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
     trade.timestamp = event.block.timestamp
+    trade.logIndex = event.logIndex
+    perp.lastPrice = trade.price
+    perp.save()
 }
 
+export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): void {
+    let perp = fetchPerpetual(event.address)
+    let user = fetchUser(event.params.trader)
+    let transactionHash = event.transaction.hash.toHexString()
+    let id = event.address.toHexString()
+        .concat('-')
+        .concat(event.params.trader.toHexString())
+    let position = Position.load(id)
+    if (position === null) {
+        position = new Position(id)
+        position.user = user.id
+        position.perpetual = perp.id
+    } else {
+        let size = convertToDecimal(event.params.account.size, BI_18)
+        if (position.side != event.params.account.side || size < position.amount)  {
+            let closedPosition = new ClosedPosition(
+                transactionHash
+                .concat('-')
+                .concat(event.logIndex.toString())
+            )
+            closedPosition.user = user.id
+            closedPosition.perpetual = perp.id
+            closedPosition.amount = position.amount.minus(size)
+            closedPosition.entryPrice = position.entryPrice
+            closedPosition.exitPrice = convertToDecimal(event.params.price, BI_18)
+            closedPosition.pnl = closedPosition.amount.plus(closedPosition.exitPrice.minus(closedPosition.entryPrice))
+            closedPosition.side = position.side
+            closedPosition.transactionHash = transactionHash
+            closedPosition.blockNumber = event.block.number
+            closedPosition.timestamp = event.block.timestamp
+            closedPosition.logIndex = event.logIndex
+            closedPosition.save()
+        }
+    }
+
+    position.amount = convertToDecimal(event.params.account.size, BI_18)
+    position.entryPrice = convertToDecimal(event.params.price, BI_18)
+    position.entryValue = convertToDecimal(event.params.account.entryValue, BI_18)
+    position.side = event.params.account.side
+    position.transactionHash = transactionHash
+    position.blockNumber = event.block.number
+    position.timestamp = event.block.timestamp
+    position.logIndex = event.logIndex
+    position.save()
+}
