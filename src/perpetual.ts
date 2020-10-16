@@ -15,7 +15,7 @@ import {
     convertToDecimal
 } from './utils'
 
-import { User, Token, Perpetual, Transaction, DepositCollateral, LiquidityPosition, Trade, Position, ClosedPosition, PerpHourData} from '../generated/schema'
+import { User, Token, Perpetual, DepositCollateral, LiquidityPosition, Trade, Position, ClosedPosition, PerpHourData} from '../generated/schema'
 
 export function handleDeposit(event: DepositEvent): void {
     let perp = fetchPerpetual(event.address)

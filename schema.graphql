@@ -70,7 +70,7 @@ type Perpetual @entity {
     # currentFee: BigDecimal!
 
     # perpetual status
-    stat: Int!
+    state: Int!
     lastPrice: BigDecimal!
     # trade data
     # price24h: BigDecimal!
