@@ -9,6 +9,7 @@ import {
 import {
     fetchPerpetual,
     fetchUser,
+    fetchPerpetualHourData,
     ZERO_BD,
     BI_18,
     ADDRESS_ZERO,
@@ -68,6 +69,34 @@ export function handleTrade(event: TradeEvent): void {
     perp.lastPrice = trade.price
     perp.save()
     trade.save()
+
+    // update perp hour data
+    let timestamp = event.block.timestamp.toI32()
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
+    let hourPerpID = event.address
+        .toHexString()
+        .concat('-')
+        .concat(BigInt.fromI32(hourIndex).toString())
+    let perpHourData = PerpHourData.load(hourPerpID)
+    if (perpHourData === null) {
+        perpHourData = new PerpHourData(hourPerpID)
+        perpHourData.hourStartUnix = hourStartUnix
+        perpHourData.open = trade.price
+        perpHourData.low = trade.price
+        perpHourData.high = trade.price
+        perpHourData.close = trade.price
+        perpHourData.volume = trade.amount.times(trade.price)
+    } else {
+        perpHourData.close = trade.price
+        if (perpHourData.high < trade.price) {
+            perpHourData.high = trade.price
+        } else if(perpHourData.low > trade.price) {
+            perpHourData.low = trade.price
+        }
+        perpHourData.volume = perpHourData.volume.plus(trade.amount.times(trade.price))
+    }
+    perpHourData.save()
 }
 
 export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): void {
@@ -92,7 +121,11 @@ export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): 
             )
             closedPosition.user = user.id
             closedPosition.perpetual = perp.id
-            closedPosition.amount = position.amount.minus(size)
+            if (position.side != event.params.account.side) {
+                closedPosition.amount = position.amount
+            } else {
+                closedPosition.amount = position.amount.minus(size)
+            }
             closedPosition.entryPrice = position.entryPrice
             closedPosition.exitPrice = convertToDecimal(event.params.price, BI_18)
             closedPosition.pnl = closedPosition.amount.plus(closedPosition.exitPrice.minus(closedPosition.entryPrice))
