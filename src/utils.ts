@@ -1,4 +1,4 @@
-import { log, BigInt, BigDecimal, Address, EthereumEvent } from '@graphprotocol/graph-ts'
+import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
 import { Perpetual, User, PerpHourData } from '../generated/schema'
 
@@ -67,24 +67,6 @@ export function fetchUser(address: Address): User {
     user.save()
   }
   return user as User
-}
-
-export function fetchPerpetualHourData(event: EthereumEvent): PerpHourData {
-  let timestamp = event.block.timestamp.toI32()
-  let hourIndex = timestamp / 3600
-  let hourStartUnix = hourIndex * 3600
-  let hourPerpID = event.address
-  .toHexString()
-  .concat('-')
-  .concat(BigInt.fromI32(hourIndex).toString())
-  let perp = Perpetual.load(event.address.toHexString())
-  let perpHourData = PerpHourData.load(hourPerpID)
-  if (perpHourData === null) {
-    perpHourData = new PerpHourData(hourPerpID)
-    perpHourData.hourStartUnix = hourStartUnix
-    perpHourData.save()
-  }
-  return perpHourData as PerpHourData
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
