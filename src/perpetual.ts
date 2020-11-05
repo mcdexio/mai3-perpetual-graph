@@ -6,7 +6,7 @@ import {
     UpdatePositionAccount as UpdatePositionAccountEvent
 } from '../generated/mai-v3-graph/Perpetual'
 
-import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dayUpdates'
+import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
 
 import {
     fetchPerpetual,

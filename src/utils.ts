@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { Perpetual, User, PerpHourData } from '../generated/schema'
+import { Perpetual, User } from '../generated/schema'
 
 import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
 import { AMM as AMMContract } from '../generated/mai-v3-graph/AMM'
