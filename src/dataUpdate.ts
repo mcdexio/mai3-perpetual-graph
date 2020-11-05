@@ -25,7 +25,7 @@ export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHo
     if (tradeHourData === null) {
         tradeHourData = new TradeHourData(hourPerpID)
         tradeHourData.perpetual = perp.id
-        tradeHourData.hourStartUnix = hourStartUnix
+        tradeHourData.timestamp = hourStartUnix
         tradeHourData.open = price
         tradeHourData.low = price
         tradeHourData.high = price
@@ -59,7 +59,7 @@ export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDay
     if (tradeDayData === null) {
         tradeDayData = new TradeDayData(dayPerpID)
         tradeDayData.perpetual = perp.id
-        tradeDayData.dayStartUnix = dayStartUnix
+        tradeDayData.timestamp = dayStartUnix
         tradeDayData.open = price
         tradeDayData.low = price
         tradeDayData.high = price
@@ -93,7 +93,7 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     if (tradeSevenDayData === null) {
         tradeSevenDayData = new TradeSevenDayData(dayPerpID)
         tradeSevenDayData.perpetual = perp.id
-        tradeSevenDayData.dayStartUnix = dayStartUnix
+        tradeSevenDayData.timestamp = dayStartUnix
         tradeSevenDayData.open = price
         tradeSevenDayData.low = price
         tradeSevenDayData.high = price

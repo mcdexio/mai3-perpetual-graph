@@ -141,7 +141,7 @@ type ClosedPosition @entity {
 type TradeHourData @entity {
     id: ID!
     perpetual: Perpetual!
-    hourStartUnix: Int!
+    timestamp: Int!
     open: BigDecimal!
     close: BigDecimal!
     low: BigDecimal!
@@ -152,7 +152,7 @@ type TradeHourData @entity {
 type TradeDayData @entity {
     id: ID!
     perpetual: Perpetual!
-    dayStartUnix: Int!
+    timestamp: Int!
     open: BigDecimal!
     close: BigDecimal!
     low: BigDecimal!
@@ -163,7 +163,7 @@ type TradeDayData @entity {
 type TradeSevenDayData @entity {
     id: ID!
     perpetual: Perpetual!
-    dayStartUnix: Int!
+    timestamp: Int!
     open: BigDecimal!
     close: BigDecimal!
     low: BigDecimal!
