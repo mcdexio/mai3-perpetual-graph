@@ -6,17 +6,18 @@ import {
     UpdatePositionAccount as UpdatePositionAccountEvent
 } from '../generated/mai-v3-graph/Perpetual'
 
+import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dayUpdates'
+
 import {
     fetchPerpetual,
     fetchUser,
-    fetchPerpetualHourData,
     ZERO_BD,
     BI_18,
     ADDRESS_ZERO,
     convertToDecimal
 } from './utils'
 
-import { User, Token, Perpetual, DepositCollateral, LiquidityPosition, Trade, Position, ClosedPosition, PerpHourData} from '../generated/schema'
+import { User, Token, Perpetual, DepositCollateral, LiquidityPosition, Trade, Position, ClosedPosition} from '../generated/schema'
 
 export function handleDeposit(event: DepositEvent): void {
     let perp = fetchPerpetual(event.address)
@@ -70,33 +71,10 @@ export function handleTrade(event: TradeEvent): void {
     perp.save()
     trade.save()
 
-    // update perp hour data
-    let timestamp = event.block.timestamp.toI32()
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let hourPerpID = event.address
-        .toHexString()
-        .concat('-')
-        .concat(BigInt.fromI32(hourIndex).toString())
-    let perpHourData = PerpHourData.load(hourPerpID)
-    if (perpHourData === null) {
-        perpHourData = new PerpHourData(hourPerpID)
-        perpHourData.hourStartUnix = hourStartUnix
-        perpHourData.open = trade.price
-        perpHourData.low = trade.price
-        perpHourData.high = trade.price
-        perpHourData.close = trade.price
-        perpHourData.volume = trade.amount.times(trade.price)
-    } else {
-        perpHourData.close = trade.price
-        if (perpHourData.high < trade.price) {
-            perpHourData.high = trade.price
-        } else if(perpHourData.low > trade.price) {
-            perpHourData.low = trade.price
-        }
-        perpHourData.volume = perpHourData.volume.plus(trade.amount.times(trade.price))
-    }
-    perpHourData.save()
+    // update trade data
+    updateTradeHourData(perp, event)
+    updateTradeDayData(perp, event)
+    updateTradeSevenDayData(perp, event)
 }
 
 export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): void {

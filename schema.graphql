@@ -138,8 +138,9 @@ type ClosedPosition @entity {
     logIndex: BigInt!
 }
 
-type PerpHourData @entity {
+type TradeHourData @entity {
     id: ID!
+    perpetual: Perpetual!
     hourStartUnix: Int!
     open: BigDecimal!
     close: BigDecimal!
@@ -148,8 +149,20 @@ type PerpHourData @entity {
     volume: BigDecimal!
 }
 
-type PerpDayData @entity {
+type TradeDayData @entity {
     id: ID!
+    perpetual: Perpetual!
+    dayStartUnix: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    volume: BigDecimal!
+}
+
+type TradeSevenDayData @entity {
+    id: ID!
+    perpetual: Perpetual!
     dayStartUnix: Int!
     open: BigDecimal!
     close: BigDecimal!
