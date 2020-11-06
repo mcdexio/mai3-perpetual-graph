@@ -61,7 +61,9 @@ export function handleTrade(event: TradeEvent): void {
     trade.perpetual = perp.id
     trade.trader = user.id
     trade.amount = convertToDecimal(event.params.amount, BI_18)
-    trade.side = event.params.side
+    if (event.params.side == 1) {
+        trade.amount = -trade.amount
+    }
     trade.price = convertToDecimal(event.params.price, BI_18)
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number

@@ -100,7 +100,8 @@ type Trade @entity {
     trader: User!
     amount: BigDecimal!
     price: BigDecimal!
-    side: Int!
+    isClose: Bool!
+    pnl: BigDecimal
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
