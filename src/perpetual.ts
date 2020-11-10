@@ -65,6 +65,7 @@ export function handleTrade(event: TradeEvent): void {
         trade.amount = -trade.amount
     }
     trade.price = convertToDecimal(event.params.price, BI_18)
+    trade.isClose = false
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
     trade.timestamp = event.block.timestamp
@@ -128,3 +129,7 @@ export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): 
     position.logIndex = event.logIndex
     position.save()
 }
+
+// TODO handleMatch
+// export function handleMatch(event: MatchEvent): void {
+// }

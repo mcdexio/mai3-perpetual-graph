@@ -100,8 +100,23 @@ type Trade @entity {
     trader: User!
     amount: BigDecimal!
     price: BigDecimal!
-    isClose: Bool!
+    isClose: Boolean!
     pnl: BigDecimal
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    logIndex: BigInt!
+}
+
+type MatchOrder @entity {
+    # transaction hash + "-" + index
+    id: ID!
+    perpetual: Perpetual!
+    trader: User!
+    amount: BigDecimal!
+    price: BigDecimal!
+    type: Int!
+    gas: BigInt!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
