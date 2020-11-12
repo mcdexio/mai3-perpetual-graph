@@ -4,12 +4,11 @@ import {
     Withdraw as WithdrawEvent,
     Trade as TradeEvent,
     UpdatePositionAccount as UpdatePositionAccountEvent
-} from '../generated/mai-v3-graph/Perpetual'
+} from '../generated/templates/Perpetual/Perpetual'
 
 import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
 
 import {
-    fetchPerpetual,
     fetchUser,
     ZERO_BD,
     BI_18,
@@ -20,7 +19,7 @@ import {
 import { User, Token, Perpetual, DepositCollateral, LiquidityPosition, Trade, Position, ClosedPosition} from '../generated/schema'
 
 export function handleDeposit(event: DepositEvent): void {
-    let perp = fetchPerpetual(event.address)
+    let perp = Perpetual.load(event.address.toHexString)
     let user = fetchUser(event.params.trader)
     let id = perp.collateral
             .concat("-")
@@ -32,10 +31,11 @@ export function handleDeposit(event: DepositEvent): void {
         depositCollateral.user = user.id
         depositCollateral.collateralTokenbalance = convertToDecimal(event.params.balance, BI_18)
     }
+    depositCollateral.save()
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-    let perp = fetchPerpetual(event.address)
+    let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let id = perp.collateral
             .concat("-")
@@ -50,7 +50,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 }
 
 export function handleTrade(event: TradeEvent): void {
-    let perp = fetchPerpetual(event.address)
+    let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
@@ -81,7 +81,7 @@ export function handleTrade(event: TradeEvent): void {
 }
 
 export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): void {
-    let perp = fetchPerpetual(event.address)
+    let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
     let id = event.address.toHexString()
@@ -131,5 +131,5 @@ export function handleUpdatePositionAccount(event: UpdatePositionAccountEvent): 
 }
 
 // TODO handleMatch
-// export function handleMatch(event: MatchEvent): void {
-// }
+export function handleMatch(event: MatchEvent): void {
+}

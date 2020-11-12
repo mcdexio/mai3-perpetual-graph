@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { Perpetual, User } from '../generated/schema'
+import { ShareToken, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
 import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
 import { AMM as AMMContract } from '../generated/mai-v3-graph/AMM'
@@ -14,6 +14,11 @@ export let ONE_BI = BigInt.fromI32(1)
 export let ZERO_BD = BigDecimal.fromString('0')
 export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
+
+export const FACTORY_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+// oracle address for get price
+export const ETH_ORACLE = '0x0000000000000000000000000000000000000000'
 
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
@@ -31,33 +36,8 @@ export function isUSDCollateral(collateral: string): boolean {
   return false
 }
 
-export function fetchPerpetual(address: Address): Perpetual {
-    let perp = Perpetual.load(address.toHexString())
-    if (perp === null) {
-      perp = new Perpetual(address.toHexString())
-      perp.collateral = ADDRESS_ZERO
-      perp.oracle = "https://eth-usd-aggregator.chain.link/eth-usd"
-      perp.amm = fetchAmmAdress(address)
-      perp.operator = ADDRESS_ZERO
-
-      perp.spread = ZERO_BD
-      perp.feeRate = ZERO_BD
-      perp.maintanceMargin = ZERO_BD
-      perp.initMargin = ZERO_BD
-      perp.minMaintanceMargin = ZERO_BD
-
-      perp.state = 0
-      perp.lastPrice = ZERO_BD
-
-      perp.createdAtTimestamp = ZERO_BI
-      perp.createdAtBlockNumber = ZERO_BI
-
-      // create the tracked contract based on the template
-      shareTokenTemplate.create(address)
-
-      perp.save()
-    }
-    return perp as Perpetual
+export function isETHCollateral(collateral: string): boolean {
+  return collateral==ADDRESS_ZERO
 }
 
 export function fetchUser(address: Address): User {
@@ -67,6 +47,35 @@ export function fetchUser(address: Address): User {
     user.save()
   }
   return user as User
+}
+
+export function fetchMarginAccount(user: string, perpetual: string): MarginAccount {
+  let id = perpetual.concat('-').concat(user)
+  let account = MarginAccount.load(id)
+  if (account === null) {
+    account = new MarginAccount(id)
+    account.user = user
+    account.perpetual = perpetual
+    account.cashBalance = ZERO_BD
+    account.position = ZERO_BD
+    account.entryPrice = ZERO_BD
+    account.entryValue = ZERO_BD
+    account.save()
+  }
+  return account as MarginAccount
+}
+
+export function fetchLiquidityAccount(user: User, share: ShareToken): LiquidityAccount {
+  let id = share.id.concat('-').concat(user.id)
+  let account = LiquidityAccount.load(id)
+  if (account === null) {
+    account = new LiquidityAccount(id)
+    account.user = user.id
+    account.contract = share.id
+    account.shareAmount = ZERO_BD
+    account.save()
+  }
+  return account as LiquidityAccount
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {

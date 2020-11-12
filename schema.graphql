@@ -6,11 +6,14 @@ type Factory @entity {
 
     # total volume
     totalVolumeUSD: BigDecimal!
-    totalVolumeETH: BigDecimal!
+    totalVolume: BigDecimal!
 
     # total liquidity
     totalLiquidityUSD: BigDecimal!
-    totalLiquidityETH: BigDecimal!
+    totalLiquidity: BigDecimal!
+
+    # perpetuals for block handler
+    perpetuals: [Perpetual!] @derivedFrom(field:"factory")
 
     # transactions
     txCount: BigInt!
@@ -20,9 +23,11 @@ type User @entity {
     # user address
     id: ID!
     collaterals: [DepositCollateral!] @derivedFrom(field:"user")
-    positions: [Position!] @derivedFrom(field:"user")
+    marginAccounts: [MarginAccount!] @derivedFrom(field:"user")
     closedPositions: [ClosedPosition!] @derivedFrom(field:"user")
-    liquidityPositions: [LiquidityPosition!] @derivedFrom(field:"user")
+    liquidityShareTokens: [LiquidityShareToken!] @derivedFrom(field:"user")
+    proposals: [Proposal!] @derivedFrom(field:"proposer")
+    votes: [Vote!] @derivedFrom(field:"voter")
 }
 
 type Token @entity {
@@ -37,11 +42,14 @@ type Token @entity {
 type Perpetual @entity {
     # perpetual address
     id: ID!
-    # underlying: Token!
-    collateral: String!
-    oracle: String!
-    amm: String!
-    operator: String!
+    factory: Factory!
+    symbol: String!
+    collateralName: String!
+    collateralAddress: String!
+    oracleAddress: String!
+    voteAddress: String!
+    shareAddress: String!
+    operatorAddress: String!
 
     # set params
     spread: BigDecimal!
@@ -50,47 +58,52 @@ type Perpetual @entity {
     initMargin: BigDecimal!
     minMaintanceMargin: BigDecimal!
 
-
     # volume stats
-    # volumeUSD: BigDecimal!
-    # volumeUnderlying: BigDecimal!
-    # volumeCollateral: BigDecimal!
-    # txCount: BigInt!
+    totalVolumeUSD: BigDecimal!
+    totalVolumeCollateral: BigDecimal!
+    totalFee: BigDecimal!
+    txCount: BigInt!
 
     # liquidity
-    # liquidityTokenBalance: BigDecimal!
-    # liquidityProviderCount: BigInt!
-    # liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "perpetual")
+    liquidityAmount: BigDecimal!
+    liquidityAmountUSD: BigDecimal!
+    liquidityProviderCount: BigInt!
+    shareToken: ShareToken!
+
+    # vote
+    vote: VoteContract!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
 
-    # fee data
-    # totalFee: BigDecimal!
-    # currentFee: BigDecimal!
-
     # perpetual status
     state: Int!
-    lastPrice: BigDecimal!
-    # trade data
-    # price24h: BigDecimal!
-    # fundingRate8h: BigDecimal!
+    settledAtTimestamp: BigInt
+    settledAtBlockNumber: BigInt
 }
 
-type DepositCollateral @entity {
-    # collater address + "-" + user address
+type ShareToken @entity {
+    # share token address
     id: ID!
-    collateral: String!
-    user: User!
-    collateralTokenbalance: BigDecimal!
-}
-
-type LiquidityPosition @entity {
-    # perpetual address + "-" + user address
-    id: ID!
-    user: User!
     perpetual: Perpetual!
-    liquidityTokenBalance: BigDecimal!
+    totalSupply: BigDecimal!
+    liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"contract")
+}
+
+type LiquidityAccount @entity {
+    # share token address + "-" + user address
+    id: ID!
+    contract: ShareToken!
+    user: User!
+    shareAmount: BigDecimal!
+}
+
+type VoteContract @entity {
+    # vote contract address
+    id: ID!
+    perpetual: Perpetual!
+    delegates: [Delegate!]! @derivedFrom(field: "contract")
+    proposals: [Proposal!]! @derivedFrom(field: "contract")
 }
 
 type Trade @entity {
@@ -123,19 +136,15 @@ type MatchOrder @entity {
     logIndex: BigInt!
 }
 
-type Position @entity {
+type MarginAccount @entity {
     # perpetual address + "-" + user address
     id: ID!
     user: User!
     perpetual: Perpetual!
-    amount: BigDecimal!
+    cashBalance: BigDecimal!
+    position: BigDecimal!
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
-    side: Int!
-    transactionHash: String!
-    blockNumber: BigInt!
-    timestamp: BigInt!
-    logIndex: BigInt!
 }
 
 type ClosedPosition @entity {
@@ -155,6 +164,7 @@ type ClosedPosition @entity {
 }
 
 type TradeHourData @entity {
+    # perpetual address + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -166,6 +176,7 @@ type TradeHourData @entity {
 }
 
 type TradeDayData @entity {
+    # perpetual address + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -177,6 +188,7 @@ type TradeDayData @entity {
 }
 
 type TradeSevenDayData @entity {
+    # perpetual address + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -187,8 +199,98 @@ type TradeSevenDayData @entity {
     volume: BigDecimal!
 }
 
-type PerpFundingRateHourData @entity {
+# move to trade?
+type LiquidityHourData @entity {
+    # perpetual address + "-" + timeindex
     id: ID!
-    hourStartUnix: Int!
-    fundingRate8h: BigDecimal!
+    liquidityAmount: BigDecimal!
+    liquidityAmountUSD: BigDecimal!
+    timestamp: Int
+}
+
+type LiquidityDayData @entity {
+    # perpetual address + "-" + timeindex
+    id: ID!
+    liquidityAmount: BigDecimal!
+    liquidityAmountUSD: BigDecimal!
+    timestamp: Int
+}
+
+type PriceHourData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    price: BigDecimal!
+}
+
+type PriceDayData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    price: BigDecimal!
+    timestamp: Int
+}
+
+type PriceBucket @entity {
+    id: ID!
+    ethPrice: BigDecimal
+    timestamp: Int
+}
+
+type McdexLiquidityHourData @entity {
+    # factory address + "-" + timeindex
+    id: ID!
+    liquidityAmount: BigDecimal!
+    liquidityAmountUSD: BigDecimal!
+    totalvolume: BigDecimal!
+    totalvolumeUSD: BigDecimal!
+    timestamp: Int
+}
+
+# ====================== Voting ======================
+type Proposal @entity {
+    # vote contract address + "-" + proposal index
+    id: ID!
+    contract: VoteContract!
+    proposer: String!
+    type: Int!
+    beginBlock: BigInt!
+    endBlock: BigInt!
+    timestamp: BigInt!
+    votes: [Vote!] @derivedFrom(field: "proposal")
+}
+
+type Delegate @entity {
+    # vote contract address + "-" + delegate address
+    id: ID!
+    user: User!
+    contract: VoteContract!
+    principals: [String!]
+}
+
+type Vote @entity {
+    # proposal id + "-" + user address
+    id: ID!
+    voter: String!
+    proposal: Proposal!
+    content: Int!
+    shareAmount: BigDecimal!
+    # for delegated user
+    delegate: String
+    delegateShareAmount: BigDecimal
+}
+
+type ProposalShareTokenSnapshot @entity {
+    # proposal id + "-" + user address
+    id: ID!
+    user: User!
+    proposal: Proposal!
+    totalSupply: BigDecimal!
+    shareAmount: BigDecimal!
+}
+
+type ProposalDelegateSnapshot @entity {
+    # proposal id + "-" + delegate address
+    id: ID!
+    proposal: Proposal!
+    delegate: String!
+    principals: [String!]
 }

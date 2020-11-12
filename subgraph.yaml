@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: mai-v3-graph
+    name: Factory
     network: mainnet
     source:
       address: '0x4ea47ffe24a8e2435e6a72ab451276224ca6cebb'
-      abi: Perpetual
+      abi: Factory
       startBlock: 637595
     mapping:
       kind: ethereum/events
@@ -17,6 +17,31 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Factory
+        - Token
+        - Perpetual
+      abis:
+        - name: Factory
+          file: ./abis/factory.json
+        - name: Oracle
+          file: ./abis/Oracle.json
+      eventHandlers:
+        - event: CreatePerpetual(indexed address,indexed address,address,uint256)
+          handler: handleNewPerpetual
+      blockHandlers:
+        - handler: handleSyncPerpData
+      file: ./src/factory.ts
+
+templates:
+  - kind: ethereum/contract
+    name: Perpetual
+    network: mainnet
+    source:
+      abi: Perpetual
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
         - User
         - Token
         - Transaction
@@ -43,11 +68,11 @@ dataSources:
           handler: handleTrade
         - event: UpdatePositionAccount(indexed address,(uint8,uint256,uint256,int256,int256,int256),uint256,uint256)
           handler: handleUpdatePositionAccount
+        - event: Match(indexed address)
+          handler: handleMatch
       file: ./src/perpetual.ts
-
-templates:
   - kind: ethereum/contract
-    name: shareToken
+    name: ShareToken
     network: mainnet
     source:
       abi: ERC20
@@ -61,10 +86,28 @@ templates:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        - event: Mint(indexed address,uint256)
-          handler: handleMint
-        - event: Burn(indexed address,uint256)
-          handler: handleBurn
-        # - event: Transfer(indexed address,indexed address,uint256)
-        #   handler: handleTransfer
-      file: ./src/token.ts
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/shareToken.ts
+  - kind: ethereum/contract
+    name: Vote
+    network: mainnet
+    source:
+      abi: vote
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityPosition
+      abis:
+        - name: vote
+          file: ./abis/vote.json
+      eventHandlers:
+        - event: Proposal(indexed address,uint256)
+          handler: handleProposal
+        - event: Vote(indexed address,uint256)
+          handler: handleVote
+        - event: SetDelegate(indexed address,address)
+          handler: handleDelegate
+      file: ./src/vote.ts

@@ -3,7 +3,7 @@ import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 import { Perpetual, TradeHourData, TradeDayData, TradeSevenDayData} from '../generated/schema'
 import {
     Trade as TradeEvent,
-} from '../generated/mai-v3-graph/Perpetual'
+} from '../generated/templates/Perpetual/Perpetual'
 
 import {
     BI_18,
