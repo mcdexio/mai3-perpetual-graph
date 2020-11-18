@@ -88,6 +88,7 @@ type ShareToken @entity {
     perpetual: Perpetual!
     totalSupply: BigDecimal!
     liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"contract")
+    delegates: [Delegate!]! @derivedFrom(field: "contract")
 }
 
 type LiquidityAccount @entity {
@@ -95,6 +96,7 @@ type LiquidityAccount @entity {
     id: ID!
     contract: ShareToken!
     user: User!
+    collateralAmount: BigDecimal!
     shareAmount: BigDecimal!
 }
 
@@ -102,7 +104,6 @@ type VoteContract @entity {
     # vote contract address
     id: ID!
     perpetual: Perpetual!
-    delegates: [Delegate!]! @derivedFrom(field: "contract")
     proposals: [Proposal!]! @derivedFrom(field: "contract")
 }
 
@@ -156,7 +157,6 @@ type ClosedPosition @entity {
     entryPrice: BigDecimal!
     exitPrice: BigDecimal!
     pnl: BigDecimal!
-    side: Int!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
@@ -259,10 +259,10 @@ type Proposal @entity {
 }
 
 type Delegate @entity {
-    # vote contract address + "-" + delegate address
+    # share token contract address + "-" + delegate address
     id: ID!
     user: User!
-    contract: VoteContract!
+    contract: ShareToken!
     principals: [String!]
 }
 
@@ -271,11 +271,12 @@ type Vote @entity {
     id: ID!
     voter: String!
     proposal: Proposal!
-    content: Int!
-    shareAmount: BigDecimal!
+    support: Bool!
+    votes: BigDecimal!
+    timestamp: BigInt!
     # for delegated user
     delegate: String
-    delegateShareAmount: BigDecimal
+    delegateVotes: BigDecimal
 }
 
 type ProposalShareTokenSnapshot @entity {

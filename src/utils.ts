@@ -73,6 +73,7 @@ export function fetchLiquidityAccount(user: User, share: ShareToken): LiquidityA
     account.user = user.id
     account.contract = share.id
     account.shareAmount = ZERO_BD
+    account.collateralAmount = ZERO_BD
     account.save()
   }
   return account as LiquidityAccount
