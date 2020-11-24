@@ -89,6 +89,14 @@ templates:
           handler: handleRemoveLiquidatity
         - event: TradePosition(address,int256,int256,uint256)
           handler: handleTradePosition
+        - event: OpenPositionByTrade(address,int256,int256)
+          handler: handleOpenPositionByTrade
+        - event: ClosePositionByTrade(address,int256,int256,int256)
+          handler: handleClosePositionByTrade
+        - event: OpenPositionByLiquidation(address,int256,int256)
+          handler: handleOpenPositionByLiquidation
+        - event: ClosePositionByLiquidation(address,int256,int256,int256)
+          handler: handleClosePositionByLiquidation
       file: ./src/perpetual.ts
   - kind: ethereum/contract
     name: ShareToken

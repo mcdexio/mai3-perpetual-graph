@@ -5,6 +5,10 @@ import {
     AddLiquidatity as AddLiquidatityEvent,
     RemoveLiquidatity as RemoveLiquidatityEvent,
     TradePosition as TradePositionEvent,
+    OpenPositionByTrade as OpenPositionByTradeEvent,
+    ClosePositionByTrade as ClosePositionByTradeEvent,
+    OpenPositionByLiquidation as OpenPositionByLiquidationEvent,
+    ClosePositionByLiquidation as ClosePositionByLiquidationEvent,
 } from '../generated/templates/Perpetual/Perpetual'
 
 import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
@@ -12,6 +16,7 @@ import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from
 import {
     fetchUser,
     fetchLiquidityAccount,
+    fetchMarginAccount,
     ZERO_BD,
     ONE_BD,
     BI_18,
@@ -85,6 +90,37 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
 
 export function handleTradePosition(event: TradePositionEvent): void {
     let perp = Perpetual.load(event.address)
+    // let user = fetchUser(event.params.trader)
+    // let transactionHash = event.transaction.hash.toHexString()
+    // let trade = new Trade(
+    //     transactionHash
+    //     .concat('-')
+    //     .concat(event.logIndex.toString())
+    // )
+    // trade.perpetual = perp.id
+    // trade.trader = user.id
+    // trade.amount = convertToDecimal(event.params.positionAmount, BI_18)
+    // if (event.params.side == 1) {
+    //     trade.amount = -trade.amount
+    // }
+    // trade.price = convertToDecimal(event.params.priceLimit, BI_18)
+    // trade.isClose = false
+    // trade.transactionHash = transactionHash
+    // trade.blockNumber = event.block.number
+    // trade.timestamp = event.block.timestamp
+    // trade.logIndex = event.logIndex
+    // perp.lastPrice = trade.price
+    // perp.save()
+    // trade.save()
+
+    // update trade data
+    updateTradeHourData(perp, event)
+    updateTradeDayData(perp, event)
+    updateTradeSevenDayData(perp, event)
+}
+
+export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void {
+    let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
@@ -92,14 +128,13 @@ export function handleTradePosition(event: TradePositionEvent): void {
         .concat('-')
         .concat(event.logIndex.toString())
     )
+
     trade.perpetual = perp.id
     trade.trader = user.id
-    trade.amount = convertToDecimal(event.params.positionAmount, BI_18)
-    if (event.params.side == 1) {
-        trade.amount = -trade.amount
-    }
-    trade.price = convertToDecimal(event.params.priceLimit, BI_18)
+    trade.amount = convertToDecimal(event.params.amount, BI_18)
+    trade.price = convertToDecimal(event.params.price, BI_18)
     trade.isClose = false
+    trade.type = 0 // position by trade
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
     trade.timestamp = event.block.timestamp
@@ -108,54 +143,110 @@ export function handleTradePosition(event: TradePositionEvent): void {
     perp.save()
     trade.save()
 
-    // user position
-    // let id = event.address.toHexString()
-    //     .concat('-')
-    //     .concat(event.params.trader.toHexString())
-    // let margin = MarginAccount.load(id)
-    // if (margin === null) {
-    //     margin = new MarginAccount(id)
-    //     margin.user = user.id
-    //     margin.perpetual = perp.id
-    // } else {
-    //     let size = convertToDecimal(event.params.positionAmount, BI_18)
-    //     if (margin.position > ZERO_BD && size < ZERO_BD) != event.params.account.side || size < position.amount)  {
-    //         let closedPosition = new ClosedPosition(
-    //             transactionHash
-    //             .concat('-')
-    //             .concat(event.logIndex.toString())
-    //         )
-    //         closedPosition.user = user.id
-    //         closedPosition.perpetual = perp.id
-    //         if (position.side != event.params.account.side) {
-    //             closedPosition.amount = position.amount
-    //         } else {
-    //             closedPosition.amount = position.amount.minus(size)
-    //         }
-    //         closedPosition.entryPrice = position.entryPrice
-    //         closedPosition.exitPrice = convertToDecimal(event.params.price, BI_18)
-    //         closedPosition.pnl = closedPosition.amount.plus(closedPosition.exitPrice.minus(closedPosition.entryPrice))
-    //         closedPosition.side = position.side
-    //         closedPosition.transactionHash = transactionHash
-    //         closedPosition.blockNumber = event.block.number
-    //         closedPosition.timestamp = event.block.timestamp
-    //         closedPosition.logIndex = event.logIndex
-    //         closedPosition.save()
-    //     }
-    // }
+    // user margin account
+    let account = fetchMarginAccount(user, perp)
+    account.position += trade.amount
+    account.entryValue += trade.amount.times(trade.price)
+    account.entryPrice = account.entryValue.div(account.position)
+    account.save()
+}
 
-    // margin.amount = convertToDecimal(event.params.positionAmount, BI_18)
-    // margin.entryPrice = convertToDecimal(event.params.price, BI_18)
-    // margin.entryValue = convertToDecimal(event.params.account.entryValue, BI_18)
-    // margin.side = event.params.account.side
-    // margin.transactionHash = transactionHash
-    // margin.blockNumber = event.block.number
-    // margin.timestamp = event.block.timestamp
-    // margin.logIndex = event.logIndex
-    // margin.save()
+export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): void {
+    let perp = Perpetual.load(event.address)
+    let user = fetchUser(event.params.trader)
+    let account = fetchMarginAccount(user, perp)
+    let transactionHash = event.transaction.hash.toHexString()
+    let trade = new Trade(
+        transactionHash
+        .concat('-')
+        .concat(event.logIndex.toString())
+    )
 
-    // update trade data
-    updateTradeHourData(perp, event)
-    updateTradeDayData(perp, event)
-    updateTradeSevenDayData(perp, event)
+    trade.perpetual = perp.id
+    trade.trader = user.id
+    trade.amount = convertToDecimal(event.params.amount, BI_18)
+    trade.price = convertToDecimal(event.params.price, BI_18)
+    trade.isClose = true
+    trade.type = 0 // position by trade
+    let fundingLoss = convertToDecimal(event.params.fundingLoss, BI_18)
+    trade.pnl = trade.amount.times(trade.price.minus(account.entryPrice)).minus(fundingLoss)
+    trade.transactionHash = transactionHash
+    trade.blockNumber = event.block.number
+    trade.timestamp = event.block.timestamp
+    trade.logIndex = event.logIndex
+    perp.lastPrice = trade.price
+    perp.save()
+    trade.save()
+
+    // user margin account
+    account.position -= trade.amount
+    account.entryValue -= trade.amount.times(trade.price)
+    account.entryPrice = account.entryValue.div(account.position)
+    account.save()
+}
+
+export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidationEvent): void {
+    let perp = Perpetual.load(event.address)
+    let user = fetchUser(event.params.trader)
+    let transactionHash = event.transaction.hash.toHexString()
+    let trade = new Trade(
+        transactionHash
+        .concat('-')
+        .concat(event.logIndex.toString())
+    )
+
+    trade.perpetual = perp.id
+    trade.trader = user.id
+    trade.amount = convertToDecimal(event.params.amount, BI_18)
+    trade.price = convertToDecimal(event.params.price, BI_18)
+    trade.isClose = false
+    trade.type = 1 // position by trade
+    trade.transactionHash = transactionHash
+    trade.blockNumber = event.block.number
+    trade.timestamp = event.block.timestamp
+    trade.logIndex = event.logIndex
+    perp.lastPrice = trade.price
+    perp.save()
+    trade.save()
+
+    // user margin account
+    let account = fetchMarginAccount(user, perp)
+    account.position += trade.amount
+    account.entryValue += trade.amount.times(trade.price)
+    account.entryPrice = account.entryValue.div(account.position)
+    account.save()    
+}
+
+export function handleClosePositionByLiquidation(event: ClosePositionByLiquidationEvent): void {
+    let perp = Perpetual.load(event.address)
+    let user = fetchUser(event.params.trader)
+    let account = fetchMarginAccount(user, perp)
+    let transactionHash = event.transaction.hash.toHexString()
+    let trade = new Trade(
+        transactionHash
+        .concat('-')
+        .concat(event.logIndex.toString())
+    )
+
+    trade.perpetual = perp.id
+    trade.trader = user.id
+    trade.amount = convertToDecimal(event.params.amount, BI_18)
+    trade.price = convertToDecimal(event.params.price, BI_18)
+    trade.isClose = true
+    trade.type = 1 // position by trade
+    let fundingLoss = convertToDecimal(event.params.fundingLoss, BI_18)
+    trade.pnl = trade.amount.times(trade.price.minus(account.entryPrice)).minus(fundingLoss)
+    trade.transactionHash = transactionHash
+    trade.blockNumber = event.block.number
+    trade.timestamp = event.block.timestamp
+    trade.logIndex = event.logIndex
+    perp.lastPrice = trade.price
+    perp.save()
+    trade.save()
+
+    // user margin account
+    account.position -= trade.amount
+    account.entryValue -= trade.amount.times(trade.price)
+    account.entryPrice = account.entryValue.div(account.position)
+    account.save()    
 }

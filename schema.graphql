@@ -116,6 +116,7 @@ type Trade @entity {
     price: BigDecimal!
     isClose: Boolean!
     pnl: BigDecimal
+    type: Int!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
@@ -146,21 +147,6 @@ type MarginAccount @entity {
     position: BigDecimal!
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
-}
-
-type ClosedPosition @entity {
-    # transaction hash + "-" + index
-    id: ID!
-    user: User!
-    perpetual: Perpetual!
-    amount: BigDecimal!
-    entryPrice: BigDecimal!
-    exitPrice: BigDecimal!
-    pnl: BigDecimal!
-    transactionHash: String!
-    blockNumber: BigInt!
-    timestamp: BigInt!
-    logIndex: BigInt!
 }
 
 type TradeHourData @entity {
