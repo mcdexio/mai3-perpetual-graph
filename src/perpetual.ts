@@ -58,8 +58,9 @@ export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
     if (account.collateralAmount != ZERO_BD) {
         perp.liquidityProviderCount += ONE_BD
     }
-    let amount = convertToDecimal(event.params.collateralAmount, BI_18)
+    let amount = convertToDecimal(event.params.amount, BI_18)
     account.collateralAmount += amount
+    account.shareAmount += convertToDecimal(event.params.shareToMint, BI_18)
     perp.liquidityAmount += amount
     account.save()
     perp.save()
@@ -69,12 +70,15 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
     let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, perp)
-    let amount = convertToDecimal(event.params.collateralAmount, BI_18)
-    account.collateralAmount -= amount
+    let shareAmount = convertToDecimal(event.params.amount, BI_18)
+    let oldShareAmount = account.shareAmount
+    let oldCollateral = account.collateralAmount
+    account.shareAmount -= shareAmount
+    account.collateralAmount = account.collateralAmount.times(account.shareAmount.div(oldShareAmount))
     if (account.collateralAmount == ZERO_BD) {
         perp.liquidityProviderCount -= ONE_BD
     }
-    perp.liquidityAmount -= amount
+    perp.liquidityAmount -= (oldCollateral.minus(account.collateralAmount))
     account.save()
     perp.save()
 }

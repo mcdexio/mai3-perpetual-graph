@@ -126,11 +126,11 @@ type MatchOrder @entity {
     # transaction hash + "-" + index
     id: ID!
     perpetual: Perpetual!
+    orderHash: String!
     trader: User!
     amount: BigDecimal!
-    price: BigDecimal!
     type: Int!
-    gas: BigInt!
+    gas: BigDecimal!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!

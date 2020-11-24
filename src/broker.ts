@@ -5,9 +5,7 @@ import {
 import { MatchOrder, Perpetual } from '../generated/schema'
 
 import {
-    ADDRESS_ZERO,
     fetchUser,
-    fetchLiquidityAccount,
     BI_18,
     convertToDecimal,
 } from './utils'
@@ -23,10 +21,10 @@ export function handleTradeSuccess(event: TradeSuccessEvent): void {
     )
     order.perpetual = perp.id
     order.trader = trader.id
+    order.orderHash = event.params.orderHash.toHexString()
     order.amount = event.params.amount
-    order.price = event.params.order.priceLimit
-    order.type = event.params.order.orderType
-    order.gas = event.params.gasReward
+    order.type = event.params.orderType
+    order.gas = convertToDecimal(event.params.gasReward, BI_18)
     order.transactionHash = transactionHash
     order.blockNumber = event.block.number
     order.timestamp = event.block.timestamp

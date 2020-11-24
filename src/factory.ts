@@ -41,14 +41,14 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     factory.save()
 
     let perp = new Perpetual(event.params.perpetual.toHexString())
-    perp.collateralAddress = event.params.collateral.toHexString()
     perp.oracleAddress = event.params.oracle.toHexString()
-    perp.voteAddress = event.params.vote.toHexString()
+    perp.voteAddress = event.params.governor.toHexString()
     perp.shareAddress = event.params.shareToken.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
     perp.factory = factory.id
 
-    //TODO 
+    //TODO
+    // perp.collateralAddress = event.params.collateral.toHexString()
     perp.symbol = ""
     perp.collateralName = ""
     perp.spread = ZERO_BD
