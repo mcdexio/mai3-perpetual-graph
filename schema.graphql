@@ -63,6 +63,7 @@ type Perpetual @entity {
     txCount: BigInt!
 
     # liquidity
+    liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"perpetual")
     liquidityAmount: BigDecimal!
     liquidityAmountUSD: BigDecimal!
     liquidityProviderCount: BigInt!
@@ -87,7 +88,6 @@ type ShareToken @entity {
     id: ID!
     perpetual: Perpetual!
     totalSupply: BigDecimal!
-    liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"contract")
     delegates: [Delegate!]! @derivedFrom(field: "contract")
 }
 
