@@ -83,8 +83,8 @@ templates:
           handler: handleAddLiquidatity
         - event: RemoveLiquidatity(address,int256,int256)
           handler: handleRemoveLiquidatity
-        - event: TradePosition(address,int256,int256,uint256,int256)
-          handler: handleTradePosition
+        - event: Trade(indexed address,int256,int256,int256,uint256)
+          handler: handleTrade
         - event: LiquidateByAMM(indexed address,int256,int256,int256,uint256)
           handler: handleLiquidateByAMM
         - event: LiquidateByTrader(indexed address,indexed address,int256,int256,uint256)

@@ -4,7 +4,7 @@ import {
     Withdraw as WithdrawEvent,
     AddLiquidatity as AddLiquidatityEvent,
     RemoveLiquidatity as RemoveLiquidatityEvent,
-    TradePosition as TradePositionEvent,
+    Trade as TradeEvent,
     LiquidateByAMM as LiquidateByAMMEvent,
     LiquidateByTrader as LiquidateByTraderEvent,
     OpenPositionByTrade as OpenPositionByTradeEvent,
@@ -89,7 +89,7 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
     perp.save()
 }
 
-export function handleTradePosition(event: TradePositionEvent): void {
+export function handleTrade(event: TradeEvent): void {
     let perp = Perpetual.load(event.address)
     //TODO trade fee
 
@@ -105,7 +105,6 @@ export function handleLiquidateByAMM(event: LiquidateByAMMEvent): void {
 }
 
 export function handleLiquidateByTrader(event: LiquidateByTraderEvent): void {
-    //TODO trade fee
 
 }
 
