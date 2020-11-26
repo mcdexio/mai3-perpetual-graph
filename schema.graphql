@@ -13,7 +13,7 @@ type Factory @entity {
     totalLiquidity: BigDecimal!
 
     # perpetuals for block handler
-    perpetuals: [Perpetual!] @derivedFrom(field:"factory")
+    perpetuals: [String!]
 
     # transactions
     txCount: BigInt!
@@ -142,6 +142,7 @@ type MarginAccount @entity {
     id: ID!
     user: User!
     perpetual: Perpetual!
+    collateralAmount: BigDecimal!
     cashBalance: BigDecimal!
     position: BigDecimal!
     entryPrice: BigDecimal!

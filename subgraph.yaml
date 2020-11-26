@@ -65,7 +65,7 @@ templates:
         - Token
         - Transaction
         - Perpetual
-        - DepositCollateral
+        - MarginAccount
         - LiquidityPosition
         - Trade
         - Position

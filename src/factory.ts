@@ -1,4 +1,4 @@
-import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
 import { Factory, Perpetual, PriceBucket, PriceHourData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
@@ -31,6 +31,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
         factory.txCount = ZERO_BI
+        factory.perpetuals = []
 
         // create price bucket for save eth price
         let bucket = new PriceBucket('1')
@@ -38,6 +39,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         bucket.save()
     }
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
+    factory.perpetuals.push(event.params.perpetual.toHexString())
     factory.save()
 
     let perp = new Perpetual(event.params.perpetual.toHexString())
@@ -101,7 +103,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
         return
     } else {
-        price = convertToDecimal(callResult.toMap.get("value0"), BI_18)
+        price = convertToDecimal(callResult.value.value0, BI_18)
     }
     bucket.ethPrice = price
     bucket.timestamp = hourStartUnix
@@ -125,7 +127,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         mcdexLiquidityHourData.save()
     }
 
-    let perpetuals = factory.perpetuals
+    let perpetuals = factory.perpetuals as string[]
     for (let index = 0; index < perpetuals.length; index++) {
         const perpAddress = perpetuals[index]
         let perp = Perpetual.load(perpAddress)
@@ -133,8 +135,12 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             return
         }
         if (isETHCollateral(perp.collateralAddress)) {
-            perp.totalVolumeUSD = perp.totalVolume.times(bucket.ethPrice)
-            perp.liquidityAmountUSD = perp.liquidityAmount.times(bucket.ethPrice)
+            let ethPrice = ZERO_BD
+            if (bucket.ethPrice != null) {
+                ethPrice = bucket.ethPrice as BigDecimal
+            }
+            perp.totalVolumeUSD = perp.totalVolume.times(ethPrice)
+            perp.liquidityAmountUSD = perp.liquidityAmount.times(ethPrice)
         }
         perp.save()
 
@@ -151,7 +157,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             if(callResult.reverted){
                 log.warning("Get try_priceTWAPShort reverted at block: {}", [block.number.toString()])
             } else {
-                price = convertToDecimal(callResult.toMap.get("value0"), BI_18)
+                price = convertToDecimal(callResult.value.value0, BI_18)
             }
             priceHourData.price = price
             priceHourData.timestamp = hourStartUnix

@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { ShareToken, User, MarginAccount, LiquidityAccount } from '../generated/schema'
+import { ShareToken, Perpetual, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
 import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
 import { AMM as AMMContract } from '../generated/mai-v3-graph/AMM'
@@ -46,13 +46,14 @@ export function fetchUser(address: Address): User {
   return user as User
 }
 
-export function fetchMarginAccount(user: string, perpetual: string): MarginAccount {
-  let id = perpetual.concat('-').concat(user)
+export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAccount {
+  let id = perpetual.id.concat('-').concat(user.id)
   let account = MarginAccount.load(id)
   if (account === null) {
     account = new MarginAccount(id)
     account.user = user
     account.perpetual = perpetual
+    account.collateralAmount = ZERO_BD
     account.cashBalance = ZERO_BD
     account.position = ZERO_BD
     account.entryPrice = ZERO_BD

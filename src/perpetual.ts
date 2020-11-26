@@ -25,37 +25,24 @@ import {
     convertToDecimal,
 } from './utils'
 
-import { Perpetual, DepositCollateral, Trade, MarginAccount, ClosedPosition} from '../generated/schema'
+import { Perpetual, Trade, MarginAccount} from '../generated/schema'
 
 export function handleDeposit(event: DepositEvent): void {
-    let perp = Perpetual.load(event.address.toHexString)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let id = perp.collateral
-            .concat("-")
-            .concat(event.params.trader.toHexString())
-    let depositCollateral = DepositCollateral.load(id)
-    if (depositCollateral === null) {
-        depositCollateral = new DepositCollateral(id)
-        depositCollateral.collateral = perp.collateral
-        depositCollateral.user = user.id
-        depositCollateral.collateralTokenbalance = convertToDecimal(event.params.balance, BI_18)
-    }
-    depositCollateral.save()
+    let marginAccount = fetchMarginAccount(user, perp)
+    let amount = convertToDecimal(event.params.balance, BI_18)
+    marginAccount.collateralAmount += amount
+    marginAccount.save()
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
     let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
-    let id = perp.collateral
-            .concat("-")
-            .concat(event.params.trader.toHexString())
-    let depositCollateral = DepositCollateral.load(id)
-    if (depositCollateral === null) {
-        depositCollateral = new DepositCollateral(id)
-        depositCollateral.collateral = perp.collateral
-        depositCollateral.user = user.id
-        depositCollateral.collateralTokenbalance = convertToDecimal(event.params.balance, BI_18)
-    }
+    let marginAccount = fetchMarginAccount(user, perp)
+    let amount = convertToDecimal(event.params.balance, BI_18)
+    marginAccount.collateralAmount -= amount
+    marginAccount.save()
 }
 
 export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
