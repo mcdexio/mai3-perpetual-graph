@@ -5,6 +5,8 @@ import {
     AddLiquidatity as AddLiquidatityEvent,
     RemoveLiquidatity as RemoveLiquidatityEvent,
     TradePosition as TradePositionEvent,
+    Liquidate1 as Liquidate1Event,
+    Liquidate2 as Liquidate2Event,
     OpenPositionByTrade as OpenPositionByTradeEvent,
     ClosePositionByTrade as ClosePositionByTradeEvent,
     OpenPositionByLiquidation as OpenPositionByLiquidationEvent,
@@ -90,33 +92,22 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
 
 export function handleTradePosition(event: TradePositionEvent): void {
     let perp = Perpetual.load(event.address)
-    // let user = fetchUser(event.params.trader)
-    // let transactionHash = event.transaction.hash.toHexString()
-    // let trade = new Trade(
-    //     transactionHash
-    //     .concat('-')
-    //     .concat(event.logIndex.toString())
-    // )
-    // trade.perpetual = perp.id
-    // trade.trader = user.id
-    // trade.amount = convertToDecimal(event.params.positionAmount, BI_18)
-    // if (event.params.side == 1) {
-    //     trade.amount = -trade.amount
-    // }
-    // trade.price = convertToDecimal(event.params.priceLimit, BI_18)
-    // trade.isClose = false
-    // trade.transactionHash = transactionHash
-    // trade.blockNumber = event.block.number
-    // trade.timestamp = event.block.timestamp
-    // trade.logIndex = event.logIndex
-    // perp.lastPrice = trade.price
-    // perp.save()
-    // trade.save()
+    //TODO trade fee
 
     // update trade data
     updateTradeHourData(perp, event)
     updateTradeDayData(perp, event)
     updateTradeSevenDayData(perp, event)
+}
+
+export function handleLiquidate1(event: Liquidate1Event): void {
+    //TODO trade fee
+
+}
+
+export function handleLiquidate2(event: Liquidate2Event): void {
+    //TODO trade fee
+
 }
 
 export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void {

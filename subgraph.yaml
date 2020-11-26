@@ -8,7 +8,7 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0x4ea47ffe24a8e2435e6a72ab451276224ca6cebb'
+      address: '0xe867A876003329e7D168Da245507FfA8EFCc7B55'
       abi: Factory
       startBlock: 637595
     mapping:
@@ -45,7 +45,7 @@ dataSources:
         - MatchOrder
       abis:
         - name: Broker
-          file: ./abis/broker.json
+          file: ./abis/Broker.json
       eventHandlers:
         - event: TradeSuccess((address,address,address,address,int256,int256,uint64,uint32,uint8,bool,uint64,uint256),int256,uint256)
           handler: handleTradeSuccess
@@ -74,10 +74,6 @@ templates:
       abis:
         - name: Perpetual
           file: ./abis/Perpetual.json
-        - name: AMM
-          file: ./abis/AMM.json
-        - name: ERC20
-          file: ./abis/ERC20.json
       eventHandlers:
         - event: Deposit(address,int256)
           handler: handleDeposit
@@ -87,8 +83,12 @@ templates:
           handler: handleAddLiquidatity
         - event: RemoveLiquidatity(address,int256)
           handler: handleRemoveLiquidatity
-        - event: TradePosition(address,int256,int256,uint256)
+        - event: TradePosition(address,int256,int256,uint256,int256)
           handler: handleTradePosition
+        - event: Liquidate1(address,int256,int256,uint256,int256)
+          handler: handleLiquidate1
+        - event: Liquidate2(address,int256,int256,uint256)
+          handler: handleLiquidate2
         - event: OpenPositionByTrade(address,int256,int256)
           handler: handleOpenPositionByTrade
         - event: ClosePositionByTrade(address,int256,int256,int256)
@@ -111,7 +111,7 @@ templates:
         - LiquidityPosition
       abis:
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./abis/ShareToken.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
@@ -131,7 +131,7 @@ templates:
         - LiquidityPosition
       abis:
         - name: vote
-          file: ./abis/vote.json
+          file: ./abis/Governor.json
       eventHandlers:
         - event: ProposalCreated(uint256,address)
           handler: handleProposalCreated

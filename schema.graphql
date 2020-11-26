@@ -22,10 +22,8 @@ type Factory @entity {
 type User @entity {
     # user address
     id: ID!
-    collaterals: [DepositCollateral!] @derivedFrom(field:"user")
     marginAccounts: [MarginAccount!] @derivedFrom(field:"user")
-    closedPositions: [ClosedPosition!] @derivedFrom(field:"user")
-    liquidityShareTokens: [LiquidityShareToken!] @derivedFrom(field:"user")
+    LiquidityAccount: [LiquidityAccount!] @derivedFrom(field:"user")
     proposals: [Proposal!] @derivedFrom(field:"proposer")
     votes: [Vote!] @derivedFrom(field:"voter")
 }
@@ -114,6 +112,7 @@ type Trade @entity {
     trader: User!
     amount: BigDecimal!
     price: BigDecimal!
+    fee: BigDecimal!
     isClose: Boolean!
     pnl: BigDecimal
     type: Int!
