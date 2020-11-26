@@ -235,7 +235,7 @@ type Proposal @entity {
     # vote contract address + "-" + proposal index
     id: ID!
     contract: VoteContract!
-    proposer: String!
+    proposer: User!
     type: Int!
     beginBlock: BigInt!
     endBlock: BigInt!
@@ -254,9 +254,9 @@ type Delegate @entity {
 type Vote @entity {
     # proposal id + "-" + user address
     id: ID!
-    voter: String!
+    voter: User!
     proposal: Proposal!
-    support: Bool!
+    support: Boolean!
     votes: BigDecimal!
     timestamp: BigInt!
     # for delegated user

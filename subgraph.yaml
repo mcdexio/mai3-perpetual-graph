@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0xe867A876003329e7D168Da245507FfA8EFCc7B55'
+      address: '0x50660A46FdEc8D7C316403E21004eAeC7A9e7227'
       abi: Factory
-      startBlock: 637595
+      startBlock: 873491
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -21,11 +21,11 @@ dataSources:
         - Perpetual
       abis:
         - name: Factory
-          file: ./abis/factory.json
+          file: ./abis/Factory.json
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(indexed address,indexed address,address,uint256)
+        - event: CreatePerpetual(address,address,address,address,address,int256[7],int256[5])
           handler: handleNewPerpetual
       blockHandlers:
         - handler: handleSyncPerpData
@@ -34,7 +34,7 @@ dataSources:
     name: Broker
     network: mainnet
     source:
-      address: '0x4ea47ffe24a8e2435e6a72ab451276224ca6cebb' #broker contract address
+      address: '0xE4095a73F05F8E5Eb8fa07a13233C8429C75D4C3' #broker contract address
       abi: Broker
       startBlock: 637595
     mapping:
@@ -47,7 +47,7 @@ dataSources:
         - name: Broker
           file: ./abis/Broker.json
       eventHandlers:
-        - event: TradeSuccess((address,address,address,address,int256,int256,uint64,uint32,uint8,bool,uint64,uint256),int256,uint256)
+        - event: TradeSuccess(bytes32,(address,address,address,address,address,int256,int256,bytes32,uint256),int256,uint256)
           handler: handleTradeSuccess
       file: ./src/broker.ts
 templates:
@@ -79,16 +79,16 @@ templates:
           handler: handleDeposit
         - event: Withdraw(address,int256)
           handler: handleWithdraw
-        - event: AddLiquidatity(address,int256)
+        - event: AddLiquidatity(address,int256,int256)
           handler: handleAddLiquidatity
-        - event: RemoveLiquidatity(address,int256)
+        - event: RemoveLiquidatity(address,int256,int256)
           handler: handleRemoveLiquidatity
         - event: TradePosition(address,int256,int256,uint256,int256)
           handler: handleTradePosition
-        - event: Liquidate1(address,int256,int256,uint256,int256)
-          handler: handleLiquidate1
-        - event: Liquidate2(address,int256,int256,uint256)
-          handler: handleLiquidate2
+        - event: LiquidateByAMM(indexed address,int256,int256,int256,uint256)
+          handler: handleLiquidateByAMM
+        - event: LiquidateByTrader(indexed address,indexed address,int256,int256,uint256)
+          handler: handleLiquidateByTrader
         - event: OpenPositionByTrade(address,int256,int256)
           handler: handleOpenPositionByTrade
         - event: ClosePositionByTrade(address,int256,int256,int256)
@@ -133,10 +133,10 @@ templates:
         - name: vote
           file: ./abis/Governor.json
       eventHandlers:
-        - event: ProposalCreated(uint256,address)
+        - event: ProposalCreated(uint256,address,address,string,bytes[],uint256,uint256,string)
           handler: handleProposalCreated
         - event: ProposalExecuted(uint256)
           handler: handleProposalExecuted
-        - event: VoteCast(indexed address,uint256,bool,uint256)
+        - event: VoteCast(address,uint256,bool,uint256)
           handler: handleVoteCast
       file: ./src/vote.ts

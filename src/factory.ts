@@ -96,11 +96,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let ethContract = OracleContract.bind(ethOracle)
     let price = ZERO_BD
 
-    let callResult = ethContract.try_price()
+    let callResult = ethContract.try_priceTWAPShort()
     if(callResult.reverted){
         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
     } else {
-        price = convertToDecimal(callResult.value, BI_18)
+        price = convertToDecimal(callResult.newPrice, BI_18)
     }
     bucket.ethPrice = price
     bucket.timestamp = hourStartUnix

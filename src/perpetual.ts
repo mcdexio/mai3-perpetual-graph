@@ -5,8 +5,8 @@ import {
     AddLiquidatity as AddLiquidatityEvent,
     RemoveLiquidatity as RemoveLiquidatityEvent,
     TradePosition as TradePositionEvent,
-    Liquidate1 as Liquidate1Event,
-    Liquidate2 as Liquidate2Event,
+    LiquidateByAMM as LiquidateByAMMEvent,
+    LiquidateByTrader as LiquidateByTraderEvent,
     OpenPositionByTrade as OpenPositionByTradeEvent,
     ClosePositionByTrade as ClosePositionByTradeEvent,
     OpenPositionByLiquidation as OpenPositionByLiquidationEvent,
@@ -65,9 +65,9 @@ export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
     if (account.collateralAmount != ZERO_BD) {
         perp.liquidityProviderCount += ONE_BD
     }
-    let amount = convertToDecimal(event.params.amount, BI_18)
+    let amount = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += amount
-    account.shareAmount += convertToDecimal(event.params.shareToMint, BI_18)
+    account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     perp.liquidityAmount += amount
     account.save()
     perp.save()
@@ -77,15 +77,14 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
     let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, perp)
-    let shareAmount = convertToDecimal(event.params.amount, BI_18)
-    let oldShareAmount = account.shareAmount
-    let oldCollateral = account.collateralAmount
+    let shareAmount = convertToDecimal(event.params.burnedShare, BI_18)
+    let cash = convertToDecimal(event.params.returnedCash, BI_18)
     account.shareAmount -= shareAmount
-    account.collateralAmount = account.collateralAmount.times(account.shareAmount.div(oldShareAmount))
-    if (account.collateralAmount == ZERO_BD) {
+    account.collateralAmount -= cash
+    if (account.shareAmount == ZERO_BD) {
         perp.liquidityProviderCount -= ONE_BD
     }
-    perp.liquidityAmount -= (oldCollateral.minus(account.collateralAmount))
+    perp.liquidityAmount -= (cash)
     account.save()
     perp.save()
 }
@@ -100,12 +99,12 @@ export function handleTradePosition(event: TradePositionEvent): void {
     updateTradeSevenDayData(perp, event)
 }
 
-export function handleLiquidate1(event: Liquidate1Event): void {
+export function handleLiquidateByAMM(event: LiquidateByAMMEvent): void {
     //TODO trade fee
 
 }
 
-export function handleLiquidate2(event: Liquidate2Event): void {
+export function handleLiquidateByTrader(event: LiquidateByTraderEvent): void {
     //TODO trade fee
 
 }

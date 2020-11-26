@@ -18,7 +18,7 @@ export let BI_18 = BigInt.fromI32(18)
 export const FACTORY_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 // oracle address for get price
-export const ETH_ORACLE = '0x0000000000000000000000000000000000000000'
+export const ETH_ORACLE = '0xE2e3EF79dC428D2B5FDaf6483Df44c5fFc77ABF9'
 
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
