@@ -92,9 +92,9 @@ type ShareToken @entity {
 }
 
 type LiquidityAccount @entity {
-    # share token address + "-" + user address
+    # perpetual address + "-" + user address
     id: ID!
-    contract: ShareToken!
+    perpetual: Perpetual!
     user: User!
     collateralAmount: BigDecimal!
     shareAmount: BigDecimal!

@@ -38,7 +38,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)

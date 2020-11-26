@@ -63,13 +63,13 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
   return account as MarginAccount
 }
 
-export function fetchLiquidityAccount(user: User, share: ShareToken): LiquidityAccount {
-  let id = share.id.concat('-').concat(user.id)
+export function fetchLiquidityAccount(user: User, perp: Perpetual): LiquidityAccount {
+  let id = perp.id.concat('-').concat(user.id)
   let account = LiquidityAccount.load(id)
   if (account === null) {
     account = new LiquidityAccount(id)
     account.user = user.id
-    account.contract = share.id
+    account.perpetual = perp.id
     account.shareAmount = ZERO_BD
     account.collateralAmount = ZERO_BD
     account.save()
