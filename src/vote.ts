@@ -24,19 +24,21 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     let user = fetchUser(event.params.proposer)
     proposal.contract = voteContract.id
     proposal.proposer = user.id
+    proposal.targets = event.params.targets.toHexString()
+    proposal.signature = event.params.signature
+    proposal.calldatas = event.params.calldatas
     proposal.timestamp = event.block.timestamp
-    proposal.type = event.params.type
-    proposal.beginBlock = event.params.beginBlock
+    proposal.description = event.params.description
+    proposal.startBlock = event.params.startBlock
     proposal.endBlock = event.params.endBlock
     proposal.save()
 
     // create share token snapshot and delegate snapshot for vote
     let perpetual = Perpetual.load(voteContract.perpetual)
     let share = ShareToken.load(perpetual.shareToken)
-    let liquidityAccounts = share.liquidityAccounts
+    let liquidityAccounts = perpetual.liquidityAccounts as LiquidityAccount[]
     for (let index = 0; index < liquidityAccounts.length; index++) {
-        const id = liquidityAccounts[index]
-        let liquidityAccount = LiquidityAccount.load(id)
+        let liquidityAccount = liquidityAccounts[index]
         let snapshotId = proposalId.concat('-').concat(liquidityAccount.user)
         let shareSnapshot = new ProposalShareTokenSnapshot(snapshotId)
         shareSnapshot.user = liquidityAccount.user
@@ -46,10 +48,9 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
         shareSnapshot.save()
     }
     
-    let delegates = share.delegates
+    let delegates = share.delegates as Delegate[]
     for (let index = 0; index < delegates.length; index++) {
-        const id = delegates[index]
-        let delegate = Delegate.load(id)
+        let delegate = delegates[index]
         let snapshotId = proposalId.concat('-').concat(delegate.user)
         let snapshot = new ProposalDelegateSnapshot(snapshotId)
         snapshot.proposal = proposal.id
@@ -73,10 +74,10 @@ export function handleVote(event: VoteCastEvent): void {
     // delegate
     let snapshotId = vote.proposal.concat('-').concat(user.id)
     let delegateSnapshot = ProposalDelegateSnapshot.load(snapshotId)
-    let principals = delegateSnapshot.principals
+    let principals = delegateSnapshot.principals as string[]
 
     for (let index = 0; index < principals.length; index++) {
-        const principal = principals[index];
+        let principal = principals[index];
         let id = vote.proposal.concat('-').concat(principal)
         let shareTokenSnapshot = ProposalShareTokenSnapshot.load(id)
         if (shareTokenSnapshot != null) {
@@ -84,7 +85,6 @@ export function handleVote(event: VoteCastEvent): void {
             principalVote.timestamp = vote.timestamp
             principalVote.voter = principal
             principalVote.proposal = proposalId
-            principalVote.content = vote.content
             principalVote.votes = vote.votes
             principalVote.delegate = vote.voter
             principalVote.delegateVotes = shareTokenSnapshot.shareAmount

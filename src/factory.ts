@@ -29,6 +29,8 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         factory = new Factory(event.address.toHexString())
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
+        factory.totalVolume = ZERO_BD
+        factory.totalLiquidity =ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
         factory.txCount = ZERO_BI
         factory.perpetuals = []
@@ -36,6 +38,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         // create price bucket for save eth price
         let bucket = new PriceBucket('1')
         bucket.ethPrice = ZERO_BD
+        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.save()
     }
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
@@ -50,7 +53,18 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     perp.factory = factory.id
 
     //TODO
-    // perp.collateralAddress = event.params.collateral.toHexString()
+    perp.collateralAddress = event.params.shareToken.toHexString()
+
+    perp.totalVolumeUSD = ZERO_BD
+    perp.totalVolume = ZERO_BD
+    perp.totalFee = ZERO_BD
+    perp.txCount = ZERO_BI
+
+    perp.liquidityAmount = ZERO_BD
+    perp.liquidityAmountUSD = ZERO_BD
+    perp.liquidityProviderCount = ZERO_BI
+
+
     perp.symbol = ""
     perp.collateralName = ""
     perp.spread = ZERO_BD

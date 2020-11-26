@@ -240,8 +240,11 @@ type Proposal @entity {
     id: ID!
     contract: VoteContract!
     proposer: User!
-    type: Int!
-    beginBlock: BigInt!
+    targets: String!
+    signature: String!
+    description: String!
+    calldatas: [Bytes!]
+    startBlock: BigInt!
     endBlock: BigInt!
     timestamp: BigInt!
     votes: [Vote!] @derivedFrom(field: "proposal")
