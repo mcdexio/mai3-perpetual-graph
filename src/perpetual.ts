@@ -49,7 +49,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let account = fetchLiquidityAccount(user, perp)
+    let account = fetchLiquidityAccount(user, perp as Perpetual)
     if (account.collateralAmount != ZERO_BD) {
         perp.liquidityProviderCount += ONE_BI
     }
@@ -64,7 +64,7 @@ export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
 export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let account = fetchLiquidityAccount(user, perp)
+    let account = fetchLiquidityAccount(user, perp as Perpetual)
     let shareAmount = convertToDecimal(event.params.burnedShare, BI_18)
     let cash = convertToDecimal(event.params.returnedCash, BI_18)
     account.shareAmount -= shareAmount
