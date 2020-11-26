@@ -1,6 +1,6 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, Perpetual, PriceBucket, PriceHourData, ShareToken, PerpetualVote, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, Perpetual, PriceBucket, PriceHourData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreatePerpetual } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -8,7 +8,7 @@ import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
 import { 
     Perpetual as PerpetualTemplate,
-    ShareToken as shareTokenTemplate,
+    ShareToken as ShareTokenTemplate,
     Vote as VoteTemplate
 } from '../generated/templates'
 
@@ -68,7 +68,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     perp.shareToken = shareToken.id
 
     // create share token
-    let perpetualVote = new PerpetualVote(event.params.shareToken.toHexString())
+    let perpetualVote = new VoteContract(event.params.governor.toHexString())
     perpetualVote.perpetual = perp.id
     perp.perpetualVote = perpetualVote.id 
 
@@ -78,8 +78,8 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
 
     // create the tracked contract based on the template
     PerpetualTemplate.create(event.params.perpetual)
-    shareTokenTemplate.create(event.params.shareToken)
-    VoteTemplate.create(event.params.vote)
+    ShareTokenTemplate.create(event.params.shareToken)
+    VoteTemplate.create(event.params.governor)
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
@@ -100,7 +100,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     if(callResult.reverted){
         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
     } else {
-        price = convertToDecimal(callResult.newPrice, BI_18)
+        price = convertToDecimal(callResult.value0, BI_18)
     }
     bucket.ethPrice = price
     bucket.timestamp = hourStartUnix
@@ -133,7 +133,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
         if (isETHCollateral(perp.collateralAddress)) {
             perp.totalVolumeUSD = perp.totalVolume.times(bucket.ethPrice)
-            perp.totalLiquidityUSD = perp.totalLiquidity.times(bucket.ethPrice)
+            perp.liquidityAmountUSD = perp.liquidityAmount.times(bucket.ethPrice)
         }
         perp.save()
 
@@ -146,11 +146,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             priceHourData = new PriceHourData(hourPerpID)
             let oracleContract = OracleContract.bind(perp.oracleAddress)
             let price = ZERO_BD
-            let callResult = oracleContract.try_price()
+            let callResult = oracleContract.try_priceTWAPShort()
             if(callResult.reverted){
-                log.warning("Get try_price reverted at block: {}", [block.number.toString()])
+                log.warning("Get try_priceTWAPShort reverted at block: {}", [block.number.toString()])
             } else {
-                price = convertToDecimal(callResult.value, BI_18)
+                price = convertToDecimal(callResult.value0, BI_18)
             }
             priceHourData.price = price
             priceHourData.timestamp = hourStartUnix
@@ -161,8 +161,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityHourData = LiquidityHourData.load(hourPerpID)
         if (liquidityHourData === null) {
             liquidityHourData = new LiquidityHourData(hourPerpID)
-            liquidityHourData.liquidityAmount = perp.totalLiquidity
-            liquidityHourData.liquidityAmountUSD = perp.totalLiquidityUSD
+            liquidityHourData.liquidityAmount = perp.liquidityAmount
+            liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
             liquidityHourData.timestamp = hourStartUnix
             liquidityHourData.save()
         }

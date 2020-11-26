@@ -58,7 +58,7 @@ type Perpetual @entity {
 
     # volume stats
     totalVolumeUSD: BigDecimal!
-    totalVolumeCollateral: BigDecimal!
+    totalVolume: BigDecimal!
     totalFee: BigDecimal!
     txCount: BigInt!
 
@@ -205,6 +205,7 @@ type PriceHourData @entity {
     # oracle address + "-" + timeindex
     id: ID!
     price: BigDecimal!
+    timestamp: Int
 }
 
 type PriceDayData @entity {
@@ -225,8 +226,8 @@ type McdexLiquidityHourData @entity {
     id: ID!
     liquidityAmount: BigDecimal!
     liquidityAmountUSD: BigDecimal!
-    totalvolume: BigDecimal!
-    totalvolumeUSD: BigDecimal!
+    totalVolume: BigDecimal!
+    totalVolumeUSD: BigDecimal!
     timestamp: Int
 }
 
