@@ -3,7 +3,7 @@ import {
     DelegateChanged as DelegateChangedEvent,
 } from '../generated/templates/ShareToken/ERC20'
 
-import { ShareToken, Delegate } from '../generated/schema'
+import { ShareToken, Delegate, Perpetual } from '../generated/schema'
 
 import {
     ADDRESS_ZERO,
@@ -15,10 +15,11 @@ import {
 
 export function handleTransfer(event: TransferEvent): void {
     let contract = ShareToken.load(event.address.toHexString())
+    let perp = Perpetual.load(contract.perpetual)
     let from = fetchUser(event.params.from)
     let to = fetchUser(event.params.to)
 
-    let value = convertToDecimal(event.params.value, BI_18)
+    let value = convertToDecimal(event.params.amount, BI_18)
     if (from.id == ADDRESS_ZERO) {
         contract.totalSupply += value
     }
@@ -28,13 +29,13 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     if (from.id != ADDRESS_ZERO) {
-        let fromAccount = fetchLiquidityAccount(from, contract)
+        let fromAccount = fetchLiquidityAccount(from, perp as Perpetual)
         fromAccount.shareAmount -= value
         fromAccount.save()
     }
 
     if (to.id != ADDRESS_ZERO) {
-        let toAccount = fetchLiquidityAccount(to, contract)
+        let toAccount = fetchLiquidityAccount(to, perp as Perpetual)
         toAccount.shareAmount += value
         toAccount.save()
     }
@@ -45,7 +46,7 @@ export function handleTransfer(event: TransferEvent): void {
 export function handleDelegate(event: DelegateChangedEvent): void {
     let contract = ShareToken.load(event.address.toHexString())
     // new delegate
-    let newDelegate = fetchUser(event.params.toDelegate.toHexString())
+    let newDelegate = fetchUser(event.params.toDelegate)
     let id = event.address.toHexString().
         concat('-').
         concat(newDelegate.id)
@@ -63,21 +64,22 @@ export function handleDelegate(event: DelegateChangedEvent): void {
     delegate.save()
 
     // old
-    let oldDelegate = fetchUser(event.params.fromDelegate.toHexString())
+    let oldDelegate = fetchUser(event.params.fromDelegate)
     id = event.address.toHexString().
         concat('-').
         concat(oldDelegate.id)
     
     delegate = Delegate.load(id)
     if (delegate != null) {
-        principals = []
-        for (let index = 0; index < delegate.principals.length; index++) {
-            const principal = delegate.principals[index]
+        let oldprincipals = delegate.principals as string[]
+        let newPrincipals: string[] = []
+        for (let index = 0; index < oldprincipals.length; index++) {
+            let principal = oldprincipals[index]
             if (event.params.delegator.toHexString() != principal) {
-                principals.push(principal)
+                newPrincipals.push(principal)
             }
         }
-        delegate.principals = principals
+        delegate.principals = newPrincipals
         delegate.save()
     }
     return
