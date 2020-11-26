@@ -21,6 +21,7 @@ import {
     fetchMarginAccount,
     ZERO_BD,
     ONE_BD,
+    ONE_BI,
     BI_18,
     convertToDecimal,
 } from './utils'
@@ -30,8 +31,8 @@ import { Perpetual, Trade, MarginAccount} from '../generated/schema'
 export function handleDeposit(event: DepositEvent): void {
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let marginAccount = fetchMarginAccount(user, perp)
-    let amount = convertToDecimal(event.params.balance, BI_18)
+    let marginAccount = fetchMarginAccount(user, perp as Perpetual)
+    let amount = convertToDecimal(event.params.amount, BI_18)
     marginAccount.collateralAmount += amount
     marginAccount.save()
 }
@@ -39,18 +40,18 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
     let perp = Perpetual.load(event.address)
     let user = fetchUser(event.params.trader)
-    let marginAccount = fetchMarginAccount(user, perp)
-    let amount = convertToDecimal(event.params.balance, BI_18)
+    let marginAccount = fetchMarginAccount(user, perp as Perpetual)
+    let amount = convertToDecimal(event.params.amount, BI_18)
     marginAccount.collateralAmount -= amount
     marginAccount.save()
 }
 
 export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, perp)
     if (account.collateralAmount != ZERO_BD) {
-        perp.liquidityProviderCount += ONE_BD
+        perp.liquidityProviderCount += ONE_BI
     }
     let amount = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += amount
@@ -61,7 +62,7 @@ export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
 }
 
 export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, perp)
     let shareAmount = convertToDecimal(event.params.burnedShare, BI_18)
@@ -69,7 +70,7 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
     account.shareAmount -= shareAmount
     account.collateralAmount -= cash
     if (account.shareAmount == ZERO_BD) {
-        perp.liquidityProviderCount -= ONE_BD
+        perp.liquidityProviderCount -= ONE_BI
     }
     perp.liquidityAmount -= (cash)
     account.save()
@@ -77,13 +78,13 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
 }
 
 export function handleTrade(event: TradeEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     //TODO trade fee
 
     // update trade data
-    updateTradeHourData(perp, event)
-    updateTradeDayData(perp, event)
-    updateTradeSevenDayData(perp, event)
+    updateTradeHourData(perp as Perpetual, event)
+    updateTradeDayData(perp as Perpetual, event)
+    updateTradeSevenDayData(perp as Perpetual, event)
 }
 
 export function handleLiquidateByAMM(event: LiquidateByAMMEvent): void {
@@ -96,7 +97,7 @@ export function handleLiquidateByTrader(event: LiquidateByTraderEvent): void {
 }
 
 export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
@@ -120,7 +121,7 @@ export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void
     trade.save()
 
     // user margin account
-    let account = fetchMarginAccount(user, perp)
+    let account = fetchMarginAccount(user, perp as Perpetual)
     account.position += trade.amount
     account.entryValue += trade.amount.times(trade.price)
     account.entryPrice = account.entryValue.div(account.position)
@@ -128,9 +129,9 @@ export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void
 }
 
 export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let account = fetchMarginAccount(user, perp)
+    let account = fetchMarginAccount(user, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
         transactionHash
@@ -162,7 +163,7 @@ export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): vo
 }
 
 export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidationEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
@@ -186,7 +187,7 @@ export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidation
     trade.save()
 
     // user margin account
-    let account = fetchMarginAccount(user, perp)
+    let account = fetchMarginAccount(user, perp as Perpetual)
     account.position += trade.amount
     account.entryValue += trade.amount.times(trade.price)
     account.entryPrice = account.entryValue.div(account.position)
@@ -194,9 +195,9 @@ export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidation
 }
 
 export function handleClosePositionByLiquidation(event: ClosePositionByLiquidationEvent): void {
-    let perp = Perpetual.load(event.address)
+    let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
-    let account = fetchMarginAccount(user, perp)
+    let account = fetchMarginAccount(user, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
     let trade = new Trade(
         transactionHash

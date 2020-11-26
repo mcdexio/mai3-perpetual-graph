@@ -129,7 +129,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
     let perpetuals = factory.perpetuals as string[]
     for (let index = 0; index < perpetuals.length; index++) {
-        const perpAddress = perpetuals[index]
+        let perpAddress = perpetuals[index]
         let perp = Perpetual.load(perpAddress)
         if (perp.state != 0) {
             return

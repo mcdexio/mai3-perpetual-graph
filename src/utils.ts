@@ -51,8 +51,8 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
   let account = MarginAccount.load(id)
   if (account === null) {
     account = new MarginAccount(id)
-    account.user = user
-    account.perpetual = perpetual
+    account.user = user.id
+    account.perpetual = perpetual.id
     account.collateralAmount = ZERO_BD
     account.cashBalance = ZERO_BD
     account.position = ZERO_BD
