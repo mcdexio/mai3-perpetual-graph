@@ -70,7 +70,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     // create share token
     let perpetualVote = new VoteContract(event.params.governor.toHexString())
     perpetualVote.perpetual = perp.id
-    perp.perpetualVote = perpetualVote.id 
+    perp.vote = perpetualVote.id 
 
     shareToken.save()
     perpetualVote.save()
@@ -99,8 +99,9 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let callResult = ethContract.try_priceTWAPShort()
     if(callResult.reverted){
         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
+        return
     } else {
-        price = convertToDecimal(callResult.value0, BI_18)
+        price = convertToDecimal(callResult.toMap.get("value0"), BI_18)
     }
     bucket.ethPrice = price
     bucket.timestamp = hourStartUnix
@@ -144,13 +145,13 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let priceHourData = PriceHourData.load(hourPerpID)
         if (priceHourData === null) {
             priceHourData = new PriceHourData(hourPerpID)
-            let oracleContract = OracleContract.bind(perp.oracleAddress)
+            let oracleContract = OracleContract.bind(Address.fromString(perp.oracleAddress))
             let price = ZERO_BD
             let callResult = oracleContract.try_priceTWAPShort()
             if(callResult.reverted){
                 log.warning("Get try_priceTWAPShort reverted at block: {}", [block.number.toString()])
             } else {
-                price = convertToDecimal(callResult.value0, BI_18)
+                price = convertToDecimal(callResult.toMap.get("value0"), BI_18)
             }
             priceHourData.price = price
             priceHourData.timestamp = hourStartUnix

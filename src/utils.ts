@@ -5,9 +5,6 @@ import { ShareToken, User, MarginAccount, LiquidityAccount } from '../generated/
 import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
 import { AMM as AMMContract } from '../generated/mai-v3-graph/AMM'
 
-import { shareToken as shareTokenTemplate } from '../generated/templates'
-
-
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
