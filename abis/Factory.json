@@ -15,6 +15,16 @@
         "internalType": "address",
         "name": "perpetual",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "vault_",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "vaultFeeRate_",
+        "type": "int256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -58,6 +68,12 @@
         "indexed": false,
         "internalType": "address",
         "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "collateral",
         "type": "address"
       },
       {
@@ -222,6 +238,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vaultFeeRate",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
       }
     ],
     "stateMutability": "view",

@@ -29,8 +29,6 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         factory = new Factory(event.address.toHexString())
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
-        factory.totalVolume = ZERO_BD
-        factory.totalLiquidity =ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
         factory.txCount = ZERO_BI
         factory.perpetuals = []
@@ -42,7 +40,9 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         bucket.save()
     }
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    factory.perpetuals.push(event.params.perpetual.toHexString())
+    let perpetuals = factory.perpetuals
+    perpetuals.push(event.params.perpetual.toHexString())
+    factory.perpetuals = perpetuals
     factory.save()
 
     let perp = new Perpetual(event.params.perpetual.toHexString())
@@ -51,9 +51,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     perp.shareAddress = event.params.shareToken.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
     perp.factory = factory.id
-
-    //TODO
-    perp.collateralAddress = event.params.shareToken.toHexString()
+    perp.collateralAddress = event.params.collateral.toHexString()
 
     perp.totalVolumeUSD = ZERO_BD
     perp.totalVolume = ZERO_BD
@@ -133,9 +131,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
     if (mcdexLiquidityHourData === null) {
         mcdexLiquidityHourData = new McdexLiquidityHourData(id)
-        mcdexLiquidityHourData.liquidityAmount = factory.totalLiquidity
         mcdexLiquidityHourData.liquidityAmountUSD = factory.totalLiquidityUSD
-        mcdexLiquidityHourData.totalVolume = factory.totalVolume
         mcdexLiquidityHourData.totalVolumeUSD = factory.totalVolumeUSD
         mcdexLiquidityHourData.timestamp = hourStartUnix
         mcdexLiquidityHourData.save()

@@ -6,11 +6,9 @@ type Factory @entity {
 
     # total volume
     totalVolumeUSD: BigDecimal!
-    totalVolume: BigDecimal!
 
     # total liquidity
     totalLiquidityUSD: BigDecimal!
-    totalLiquidity: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
@@ -227,9 +225,7 @@ type PriceBucket @entity {
 type McdexLiquidityHourData @entity {
     # factory address + "-" + timeindex
     id: ID!
-    liquidityAmount: BigDecimal!
     liquidityAmountUSD: BigDecimal!
-    totalVolume: BigDecimal!
     totalVolumeUSD: BigDecimal!
     timestamp: Int
 }

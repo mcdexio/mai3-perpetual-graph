@@ -25,7 +25,7 @@ dataSources:
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(address,address,address,address,address,int256[7],int256[5])
+        - event: CreatePerpetual(address,address,address,address,address,address,int256[7],int256[5])
           handler: handleNewPerpetual
       blockHandlers:
         - handler: handleSyncPerpData
@@ -36,7 +36,7 @@ dataSources:
     source:
       address: '0xE4095a73F05F8E5Eb8fa07a13233C8429C75D4C3' #broker contract address
       abi: Broker
-      startBlock: 873501
+      startBlock: 873491
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

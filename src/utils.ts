@@ -12,11 +12,13 @@ export let ZERO_BD = BigDecimal.fromString('0')
 export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
-export const FACTORY_ADDRESS = '0x0000000000000000000000000000000000000000'
+// Notice lower case
+export const FACTORY_ADDRESS = '0x50660a46fdec8d7c316403e21004eaec7a9e7227'
 
 // oracle address for get price
 export const ETH_ORACLE = '0xE2e3EF79dC428D2B5FDaf6483Df44c5fFc77ABF9'
 
+// Notice lower case
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
   "0xdac17f958d2ee523a2206206994597c13d831ec7",
