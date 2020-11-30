@@ -155,7 +155,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         perp.save()
 
         // perp price
-        let hourPerpID = perpAddress
+        let hourPerpID = perp.oracleAddress
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
         let priceHourData = PriceHourData.load(hourPerpID)
@@ -169,6 +169,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             } else {
                 price = convertToDecimal(callResult.value.value0, BI_18)
             }
+            priceHourData.oracle = perp.oracleAddress
             priceHourData.price = price
             priceHourData.timestamp = hourStartUnix
             priceHourData.save()
