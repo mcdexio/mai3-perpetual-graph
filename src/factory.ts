@@ -1,4 +1,4 @@
-import { I32, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
 import { Factory, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
@@ -172,7 +172,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     }
 }
 
-function updatePriceData(oracle: String, timestamp: I32): void {
+function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
 
     // minute
@@ -220,7 +220,7 @@ function updatePriceData(oracle: String, timestamp: I32): void {
     .concat(BigInt.fromI32(dayIndex).toString())
     let priceDayData = PriceDayData.load(dayPriceID)
     if (priceDayData === null) {
-        priceDayData = new PriceDayData(minutePriceID)
+        priceDayData = new PriceDayData(dayPriceID)
         priceDayData.oracle = oracle
         priceDayData.price = price
         priceDayData.timestamp = dayStartUnix
@@ -235,7 +235,7 @@ function updatePriceData(oracle: String, timestamp: I32): void {
     .concat(BigInt.fromI32(sevenDayIndex).toString())
     let priceSevenDayData = PriceSevenDayData.load(sevenDayPriceID)
     if (priceSevenDayData === null) {
-        priceSevenDayData = new PriceSevenDayData(minutePriceID)
+        priceSevenDayData = new PriceSevenDayData(sevenDayPriceID)
         priceSevenDayData.oracle = oracle
         priceSevenDayData.price = price
         priceSevenDayData.timestamp = sevenDayStartUnix
