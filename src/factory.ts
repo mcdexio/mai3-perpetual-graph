@@ -72,8 +72,8 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     perp.minMaintanceMargin = ZERO_BD
 
     perp.state = 0
-    perp.createdAtTimestamp = ZERO_BI
-    perp.createdAtBlockNumber = ZERO_BI
+    perp.createdAtTimestamp = event.block.timestamp
+    perp.createdAtBlockNumber = event.block.number
 
     // create share token
     let shareToken = new ShareToken(event.params.shareToken.toHexString())

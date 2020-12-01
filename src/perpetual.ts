@@ -147,7 +147,11 @@ export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): vo
     trade.isClose = true
     trade.type = 0 // position by trade
     let fundingLoss = convertToDecimal(event.params.fundingLoss, BI_18)
-    trade.pnl = trade.amount.abs().times(trade.price.minus(account.entryPrice)).minus(fundingLoss)
+    let amount = trade.amount
+    if (trade.amount < ZERO_BD) {
+        amount = -amount
+    }
+    trade.pnl = amount.times(trade.price.minus(account.entryPrice)).minus(fundingLoss)
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
     trade.timestamp = event.block.timestamp
