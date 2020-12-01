@@ -149,6 +149,18 @@ type MarginAccount @entity {
     entryValue: BigDecimal!
 }
 
+type TradeMinuteData @entity {
+    # perpetual address + "-" + timeindex
+    id: ID!
+    perpetual: Perpetual!
+    timestamp: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    volume: BigDecimal!
+}
+
 type TradeHourData @entity {
     # perpetual address + "-" + timeindex
     id: ID!
@@ -202,8 +214,32 @@ type LiquidityDayData @entity {
     timestamp: Int
 }
 
+type PriceMinuteData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    oracle: String!
+    price: BigDecimal!
+    timestamp: Int
+}
+
 type PriceHourData @entity {
-    # perpetual address + "-" + timeindex
+    # oracle address + "-" + timeindex
+    id: ID!
+    oracle: String!
+    price: BigDecimal!
+    timestamp: Int
+}
+
+type PriceDayData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    oracle: String!
+    price: BigDecimal!
+    timestamp: Int
+}
+
+type PriceSevenDayData @entity {
+    # oracle address + "-" + timeindex
     id: ID!
     oracle: String!
     price: BigDecimal!

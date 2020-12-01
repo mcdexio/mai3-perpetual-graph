@@ -13,7 +13,7 @@ import {
     ClosePositionByLiquidation as ClosePositionByLiquidationEvent,
 } from '../generated/templates/Perpetual/Perpetual'
 
-import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
+import { updateTradeMinuteData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
 
 import {
     fetchUser,
@@ -82,6 +82,7 @@ export function handleTrade(event: TradeEvent): void {
     //TODO trade fee
 
     // update trade data
+    updateTradeMinuteData(perp as Perpetual, event)
     updateTradeHourData(perp as Perpetual, event)
     updateTradeDayData(perp as Perpetual, event)
     updateTradeSevenDayData(perp as Perpetual, event)

@@ -1,6 +1,6 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Perpetual, TradeHourData, TradeDayData, TradeSevenDayData} from '../generated/schema'
+import { Perpetual, TradeMinuteData, TradeHourData, TradeDayData, TradeSevenDayData} from '../generated/schema'
 import {
     Trade as TradeEvent,
 } from '../generated/templates/Perpetual/Perpetual'
@@ -9,6 +9,40 @@ import {
     BI_18,
     convertToDecimal
 } from './utils'
+
+export function updateTradeMinuteData(perp: Perpetual, event: TradeEvent): TradeMinuteData {
+    let timestamp = event.block.timestamp.toI32()
+    let minuteIndex = timestamp / 60
+    let minuteStartUnix = minuteIndex * 60
+    let minutePerpID = event.address
+        .toHexString()
+        .concat('-')
+        .concat(BigInt.fromI32(minuteIndex).toString())
+    let tradeMinuteData = TradeMinuteData.load(minutePerpID)
+    let price = convertToDecimal(event.params.priceLimit, BI_18)
+    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+
+    if (tradeMinuteData === null) {
+        tradeMinuteData = new TradeMinuteData(minutePerpID)
+        tradeMinuteData.perpetual = perp.id
+        tradeMinuteData.timestamp = minuteStartUnix
+        tradeMinuteData.open = price
+        tradeMinuteData.low = price
+        tradeMinuteData.high = price
+        tradeMinuteData.close = price
+        tradeMinuteData.volume = amount.times(price)
+    } else {
+        tradeMinuteData.close = price
+        if (tradeMinuteData.high < price) {
+            tradeMinuteData.high = price
+        } else if(tradeMinuteData.low > price) {
+            tradeMinuteData.low = price
+        }
+        tradeMinuteData.volume = tradeMinuteData.volume.plus(amount.times(price))
+    }
+    tradeMinuteData.save()
+    return tradeMinuteData as TradeMinuteData
+}
 
 export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHourData {
     let timestamp = event.block.timestamp.toI32()
