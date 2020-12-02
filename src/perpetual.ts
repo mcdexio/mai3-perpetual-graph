@@ -78,6 +78,10 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
 }
 
 export function handleTrade(event: TradeEvent): void {
+    // AMM 
+    if (event.address.toHexString() == event.params.trader.toHexString()) {
+        return
+    }
     let perp = Perpetual.load(event.address.toHexString())
     //TODO trade fee
 
@@ -98,6 +102,10 @@ export function handleLiquidateByTrader(event: LiquidateByTraderEvent): void {
 }
 
 export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void {
+    // AMM 
+    if (event.address.toHexString() == event.params.trader.toHexString()) {
+        return
+    }
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
@@ -112,6 +120,7 @@ export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void
     trade.amount = convertToDecimal(event.params.amount, BI_18)
     trade.price = convertToDecimal(event.params.price, BI_18)
     trade.isClose = false
+    trade.fee = ZERO_BD
     trade.type = 0 // position by trade
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
@@ -130,6 +139,10 @@ export function handleOpenPositionByTrade(event: OpenPositionByTradeEvent): void
 }
 
 export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): void {
+    // AMM 
+    if (event.address.toHexString() == event.params.trader.toHexString()) {
+        return
+    }
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchMarginAccount(user, perp as Perpetual)
@@ -145,6 +158,7 @@ export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): vo
     trade.amount = convertToDecimal(event.params.amount, BI_18)
     trade.price = convertToDecimal(event.params.price, BI_18)
     trade.isClose = true
+    trade.fee = ZERO_BD
     trade.type = 0 // position by trade
     let fundingLoss = convertToDecimal(event.params.fundingLoss, BI_18)
     let amount = trade.amount
@@ -168,6 +182,10 @@ export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): vo
 }
 
 export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidationEvent): void {
+    // AMM 
+    if (event.address.toHexString() == event.params.trader.toHexString()) {
+        return
+    }
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let transactionHash = event.transaction.hash.toHexString()
@@ -182,6 +200,7 @@ export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidation
     trade.amount = convertToDecimal(event.params.amount, BI_18)
     trade.price = convertToDecimal(event.params.price, BI_18)
     trade.isClose = false
+    trade.fee = ZERO_BD
     trade.type = 1 // position by trade
     trade.transactionHash = transactionHash
     trade.blockNumber = event.block.number
@@ -200,6 +219,10 @@ export function handleOpenPositionByLiquidation(event: OpenPositionByLiquidation
 }
 
 export function handleClosePositionByLiquidation(event: ClosePositionByLiquidationEvent): void {
+    // AMM 
+    if (event.address.toHexString() == event.params.trader.toHexString()) {
+        return
+    }
     let perp = Perpetual.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchMarginAccount(user, perp as Perpetual)
@@ -215,6 +238,7 @@ export function handleClosePositionByLiquidation(event: ClosePositionByLiquidati
     trade.amount = convertToDecimal(event.params.amount, BI_18)
     trade.price = convertToDecimal(event.params.price, BI_18)
     trade.isClose = true
+    trade.fee = ZERO_BD
     trade.type = 1 // position by trade
     let fundingLoss = convertToDecimal(event.params.fundingLoss, BI_18)
     trade.pnl = trade.amount.times(trade.price.minus(account.entryPrice)).minus(fundingLoss)
