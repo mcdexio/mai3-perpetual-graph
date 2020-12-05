@@ -6,6 +6,7 @@ import {
 } from '../generated/templates/Perpetual/Perpetual'
 
 import {
+    ZERO_BD,
     BI_18,
     convertToDecimal
 } from './utils'
@@ -21,7 +22,9 @@ export function updateTradeMinuteData(perp: Perpetual, event: TradeEvent): Trade
     let tradeMinuteData = TradeMinuteData.load(minutePerpID)
     let price = convertToDecimal(event.params.priceLimit, BI_18)
     let amount = convertToDecimal(event.params.positionAmount, BI_18)
-
+    if (amount < ZERO_BD) {
+        amount = -amount
+    } 
     if (tradeMinuteData === null) {
         tradeMinuteData = new TradeMinuteData(minutePerpID)
         tradeMinuteData.perpetual = perp.id
@@ -55,7 +58,9 @@ export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHo
     let tradeHourData = TradeHourData.load(hourPerpID)
     let price = convertToDecimal(event.params.priceLimit, BI_18)
     let amount = convertToDecimal(event.params.positionAmount, BI_18)
-
+    if (amount < ZERO_BD) {
+        amount = -amount
+    }
     if (tradeHourData === null) {
         tradeHourData = new TradeHourData(hourPerpID)
         tradeHourData.perpetual = perp.id
@@ -89,7 +94,9 @@ export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDay
     let tradeDayData = TradeDayData.load(dayPerpID)
     let price = convertToDecimal(event.params.priceLimit, BI_18)
     let amount = convertToDecimal(event.params.positionAmount, BI_18)
-
+    if (amount < ZERO_BD) {
+        amount = -amount
+    }
     if (tradeDayData === null) {
         tradeDayData = new TradeDayData(dayPerpID)
         tradeDayData.perpetual = perp.id
@@ -123,7 +130,9 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     let tradeSevenDayData = TradeSevenDayData.load(dayPerpID)
     let price = convertToDecimal(event.params.priceLimit, BI_18)
     let amount = convertToDecimal(event.params.positionAmount, BI_18)
-
+    if (amount < ZERO_BD) {
+        amount = -amount
+    }
     if (tradeSevenDayData === null) {
         tradeSevenDayData = new TradeSevenDayData(dayPerpID)
         tradeSevenDayData.perpetual = perp.id

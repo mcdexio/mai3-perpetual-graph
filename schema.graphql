@@ -260,6 +260,14 @@ type McdexLiquidityHourData @entity {
     timestamp: Int
 }
 
+type AccHourData @entity {
+    # factory address + "-" + timeindex
+    id: ID!
+    perpetual: String!
+    acc: BigDecimal!
+    timestamp: Int
+}
+
 # ====================== Voting ======================
 type Proposal @entity {
     # vote contract address + "-" + proposal index

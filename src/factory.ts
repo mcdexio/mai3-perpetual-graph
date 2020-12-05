@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreatePerpetual } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -168,6 +168,26 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
             liquidityHourData.timestamp = hourStartUnix
             liquidityHourData.save()
+        }
+
+        // acc data
+        let accHourData = AccHourData.load(hourPerpID)
+        if (accHourData === null) {
+            accHourData = new AccHourData(hourPerpID)
+            let acc = ZERO_BD
+
+            let perpContract = PerpetualTemplate.bind(perpAddress)
+            let callResult = perpContract.try_fundingState()
+            if(callResult.reverted){
+                log.warning("Get try_price reverted at block: {}", [block.number.toString()])
+                return
+            } else {
+                acc = convertToDecimal(callResult.value.value0, BI_18)
+            }
+            accHourData.perpetual = perpAddress
+            accHourData.acc = acc
+            accHourData.timestamp = hourStartUnix
+            accHourData.save()
         }
     }
 }
