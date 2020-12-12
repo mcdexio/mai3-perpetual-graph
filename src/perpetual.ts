@@ -175,8 +175,8 @@ export function handleClosePositionByTrade(event: ClosePositionByTradeEvent): vo
     trade.save()
 
     // user margin account
-    account.position -= trade.amount
-    account.entryValue -= trade.amount.times(trade.price)
+    account.position += trade.amount
+    account.entryValue += trade.amount.times(trade.price)
     account.entryPrice = account.entryValue.div(account.position)
     account.save()
 }
@@ -251,8 +251,8 @@ export function handleClosePositionByLiquidation(event: ClosePositionByLiquidati
     trade.save()
 
     // user margin account
-    account.position -= trade.amount
-    account.entryValue -= trade.amount.times(trade.price)
+    account.position += trade.amount
+    account.entryValue += trade.amount.times(trade.price)
     account.entryPrice = account.entryValue.div(account.position)
     account.save()    
 }

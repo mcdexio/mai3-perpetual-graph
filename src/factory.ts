@@ -70,6 +70,7 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
     perp.maintanceMargin = ZERO_BD
     perp.initMargin = ZERO_BD
     perp.minMaintanceMargin = ZERO_BD
+    perp.lastPrice = ZERO_BD
 
     perp.state = 0
     perp.createdAtTimestamp = event.block.timestamp

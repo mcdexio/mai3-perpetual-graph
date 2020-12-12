@@ -78,7 +78,7 @@ type Perpetual @entity {
     settledAtTimestamp: BigInt
     settledAtBlockNumber: BigInt
 
-    lastPrice: BigDecimal
+    lastPrice: BigDecimal!
 }
 
 type ShareToken @entity {
