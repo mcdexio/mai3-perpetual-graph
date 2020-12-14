@@ -1,13 +1,13 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
-import { CreatePerpetual } from '../generated/Factory/Factory'
+import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
 
 import { 
-    Perpetual as PerpetualTemplate,
+    LiqidityPool as LiqidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
     Vote as VoteTemplate
 } from '../generated/templates'
@@ -20,10 +20,11 @@ import {
     FACTORY_ADDRESS,
     isETHCollateral,
     convertToDecimal,
+    fetchCollateralSymbol,
     ZERO_BI
 } from './utils'
 
-export function handleNewPerpetual(event: CreatePerpetual): void {
+export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let factory = Factory.load(event.address.toHexString())
     if (factory === null) {
         factory = new Factory(event.address.toHexString())
@@ -39,10 +40,68 @@ export function handleNewPerpetual(event: CreatePerpetual): void {
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.save()
     }
-    factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    let perpetuals = factory.perpetuals
-    perpetuals.push(event.params.perpetual.toHexString())
-    factory.perpetuals = perpetuals
+    factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
+    let liquidityPools = factory.liquidityPools
+    liquidityPools.push(event.params.liquidityPool.toHexString())
+    factory.liquidityPools = liquidityPools
+    factory.save()
+
+    let liqidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
+    liqidityPool.voteAddress = event.params.governor.toHexString()
+    liqidityPool.shareAddress = event.params.shareToken.toHexString()
+    liqidityPool.operatorAddress = event.params.operator.toHexString()
+    liqidityPool.factory = factory.id
+    liqidityPool.collateralAddress = event.params.collateral.toHexString()
+    liqidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
+    liqidityPool.liquidityAmount = ZERO_BD
+    liqidityPool.liquidityAmountUSD = ZERO_BD
+    liqidityPool.liquidityProviderCount = ZERO_BI
+    liqidityPool.createdAtTimestamp = event.block.timestamp
+    liqidityPool.createdAtBlockNumber = event.block.number
+
+    // create share token
+    let shareToken = new ShareToken(event.params.shareToken.toHexString())
+    shareToken.liqidityPool = liqidityPool.id
+    shareToken.totalSupply = ZERO_BD
+    liqidityPool.shareToken = shareToken.id
+
+    // create share token
+    let perpetualVote = new VoteContract(event.params.governor.toHexString())
+    perpetualVote.liqidityPool = liqidityPool.id
+    liqidityPool.vote = perpetualVote.id 
+
+    shareToken.save()
+    perpetualVote.save()
+    liqidityPool.save()
+
+    // create the tracked contract based on the template
+    LiqidityPoolTemplate.create(event.params.liquidityPool)
+    ShareTokenTemplate.create(event.params.shareToken)
+    VoteTemplate.create(event.params.governor)
+}
+
+export function handleNewPerpetual(event: CreatePerpetual): void {
+    let factory = Factory.load(event.address.toHexString())
+    if (factory === null) {
+        factory = new Factory(event.address.toHexString())
+        factory.perpetualCount = ZERO_BI
+        factory.liquidityPoolCount = ZERO_BI
+        factory.totalVolumeUSD = ZERO_BD
+        factory.totalLiquidityUSD = ZERO_BD
+        factory.txCount = ZERO_BI
+        factory.perpetuals = []
+        factory.liquidityPools = []
+
+        // create price bucket for save eth price
+        let bucket = new PriceBucket('1')
+        bucket.ethPrice = ZERO_BD
+        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
+        bucket.save()
+    }
+    factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
+    let liquidityPools = factory.liquidityPools
+    liquidityPools.push(event.params.liquidityPool.toHexString())
+    factory.liquidityPools = liquidityPools
     factory.save()
 
     let perp = new Perpetual(event.params.perpetual.toHexString())

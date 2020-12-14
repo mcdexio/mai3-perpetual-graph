@@ -18,15 +18,15 @@ dataSources:
       entities:
         - Factory
         - Token
-        - Perpetual
+        - LiquidityPool
       abis:
         - name: Factory
           file: ./abis/Factory.json
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(address,address,address,address,address,address,int256[7],int256[5])
-          handler: handleNewPerpetual
+        - event: CreateLiquidityPool(address,address,address,address,address)
+          handler: handleCreateLiquidityPool
       blockHandlers:
         - handler: handleSyncPerpData
       file: ./src/factory.ts
@@ -52,10 +52,10 @@ dataSources:
       file: ./src/broker.ts
 templates:
   - kind: ethereum/contract
-    name: Perpetual
+    name: LiquidityPool
     network: mainnet
     source:
-      abi: Perpetual
+      abi: LiquidityPool
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -72,9 +72,11 @@ templates:
         - ClosedPosition
         - PerpHourData
       abis:
-        - name: Perpetual
-          file: ./abis/Perpetual.json
+        - name: LiquidityPool
+          file: ./abis/LiquidityPool.json
       eventHandlers:
+        - event: CreateMarket(uint256,address,address,address,address,address,int256[8],int256[5])
+          event: handleCreateMarket
         - event: Deposit(address,int256)
           handler: handleDeposit
         - event: Withdraw(address,int256)
@@ -89,15 +91,7 @@ templates:
           handler: handleLiquidateByAMM
         - event: LiquidateByTrader(indexed address,indexed address,int256,int256,uint256)
           handler: handleLiquidateByTrader
-        - event: OpenPositionByTrade(address,int256,int256)
-          handler: handleOpenPositionByTrade
-        - event: ClosePositionByTrade(address,int256,int256,int256)
-          handler: handleClosePositionByTrade
-        - event: OpenPositionByLiquidation(address,int256,int256)
-          handler: handleOpenPositionByLiquidation
-        - event: ClosePositionByLiquidation(address,int256,int256,int256)
-          handler: handleClosePositionByLiquidation
-      file: ./src/perpetual.ts
+      file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken
     network: mainnet
