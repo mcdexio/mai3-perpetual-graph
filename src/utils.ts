@@ -1,9 +1,9 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { ShareToken, Perpetual, User, MarginAccount, LiquidityAccount } from '../generated/schema'
+import { ShareToken, Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
 import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
-import { AMM as AMMContract } from '../generated/mai-v3-graph/AMM'
+import { ERC20 as ERC20Contract } from '../generated/mai-v3-graph/ERC20'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -65,13 +65,13 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
   return account as MarginAccount
 }
 
-export function fetchLiquidityAccount(user: User, perp: Perpetual): LiquidityAccount {
-  let id = perp.id.concat('-').concat(user.id)
+export function fetchLiquidityAccount(user: User, liquidityPool: LiquidityPool): LiquidityAccount {
+  let id = liquidityPool.id.concat('-').concat(user.id)
   let account = LiquidityAccount.load(id)
   if (account === null) {
     account = new LiquidityAccount(id)
     account.user = user.id
-    account.perpetual = perp.id
+    account.liquidityPool = liquidityPool.id
     account.shareAmount = ZERO_BD
     account.collateralAmount = ZERO_BD
     account.save()
@@ -94,32 +94,20 @@ export function convertToDecimal(amount: BigInt, decimals: BigInt): BigDecimal {
   return amount.toBigDecimal().div(exponentToBigDecimal(decimals))
 }
 
-export function fetchAmmAdress(address: Address): string {
-  let contract = PerpetualContract.bind(address)
-  let ammAddress = ADDRESS_ZERO
-  let ammResult = contract.try_amm()
-  if (!ammResult.reverted) {
-    ammAddress = ammResult.value.toHexString()
-  }
-
-  return ammAddress
-}
-
-export function fetchTokenAddress(address: Address): string {
-  let contract = AMMContract.bind(address)
-  let tokenAddress = ADDRESS_ZERO
-  let tokenResult = contract.try_shareTokenAddress()
-  if (!tokenResult.reverted) {
-    tokenAddress = tokenResult.value
-  }
-
-  return tokenAddress
-}
-
 export function fetchCollateral(address: Address): string {
   let contract = PerpetualContract.bind(address)
   let collateral = ''
   let result = contract.try_collateral()
+  if (!result.reverted) {
+    collateral = result.value.toHexString()
+  }
+  return collateral
+}
+
+export function fetchCollateralSymbol(address: Address): string {
+  let contract = ERC20Contract.bind(address)
+  let collateral = ''
+  let result = contract.try_symbol()
   if (!result.reverted) {
     collateral = result.value.toHexString()
   }

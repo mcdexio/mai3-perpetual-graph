@@ -3,6 +3,7 @@ type Factory @entity {
     id: ID!
 
     perpetualCount: BigInt!
+    liquidityPoolCount: BigInt!
 
     # total volume
     totalVolumeUSD: BigDecimal!
@@ -12,6 +13,7 @@ type Factory @entity {
 
     # perpetuals for block handler
     perpetuals: [String!]
+    liquidityPools: [String!]
 
     # transactions
     txCount: BigInt!
@@ -35,40 +37,45 @@ type Token @entity {
     totalSupply: BigDecimal!
 }
 
-type Perpetual @entity {
-    # perpetual address
+type LiquidityPool @entity {
+    # liquidityPool address
     id: ID!
     factory: Factory!
-    symbol: String!
     collateralName: String!
     collateralAddress: String!
-    oracleAddress: String!
     voteAddress: String!
     shareAddress: String!
     operatorAddress: String!
+    perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
 
-    # set params
-    spread: BigDecimal!
-    feeRate: BigDecimal!
-    maintanceMargin: BigDecimal!
-    initMargin: BigDecimal!
-    minMaintanceMargin: BigDecimal!
+    # vote
+    vote: VoteContract!
+
+    # liquidity
+    liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"liquidityPool")
+    liquidityAmount: BigDecimal!
+    liquidityAmountUSD: BigDecimal!
+    liquidityProviderCount: BigInt!
+    shareToken: ShareToken!
+
+    createdAtTimestamp: BigInt!
+    createdAtBlockNumber: BigInt!
+}
+
+type Perpetual @entity {
+    # perpetual marketIndex
+    id: ID!
+    factory: Factory!
+    symbol: String!
+    oracleAddress: String!
+    operatorAddress: String!
+    liquidityPool: LiquidityPool!
 
     # volume stats
     totalVolumeUSD: BigDecimal!
     totalVolume: BigDecimal!
     totalFee: BigDecimal!
     txCount: BigInt!
-
-    # liquidity
-    liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"perpetual")
-    liquidityAmount: BigDecimal!
-    liquidityAmountUSD: BigDecimal!
-    liquidityProviderCount: BigInt!
-    shareToken: ShareToken!
-
-    # vote
-    vote: VoteContract!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
@@ -84,7 +91,7 @@ type Perpetual @entity {
 type ShareToken @entity {
     # share token address
     id: ID!
-    perpetual: Perpetual!
+    liquidityPool: LiquidityPool!
     totalSupply: BigDecimal!
     delegates: [Delegate!]! @derivedFrom(field: "contract")
 }
@@ -92,7 +99,7 @@ type ShareToken @entity {
 type LiquidityAccount @entity {
     # perpetual address + "-" + user address
     id: ID!
-    perpetual: Perpetual!
+    liquidityPool: LiquidityPool!
     user: User!
     collateralAmount: BigDecimal!
     shareAmount: BigDecimal!
@@ -101,7 +108,7 @@ type LiquidityAccount @entity {
 type VoteContract @entity {
     # vote contract address
     id: ID!
-    perpetual: Perpetual!
+    liquidityPool: LiquidityPool!
     proposals: [Proposal!]! @derivedFrom(field: "contract")
 }
 

@@ -3,27 +3,27 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "governor",
+        "name": "governorTemplate",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "shareToken",
+        "name": "shareTokenTemplate",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "perpetual",
+        "name": "wethToken",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "vault_",
+        "name": "globalVault",
         "type": "address"
       },
       {
         "internalType": "int256",
-        "name": "vaultFeeRate_",
+        "name": "globalVaultFeeRate",
         "type": "int256"
       }
     ],
@@ -49,7 +49,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "perpetual",
+        "name": "liquidityPool",
         "type": "address"
       },
       {
@@ -75,41 +75,42 @@
         "internalType": "address",
         "name": "collateral",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oracle",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[7]",
-        "name": "coreParams",
-        "type": "int256[7]"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[5]",
-        "name": "riskParams",
-        "type": "int256[5]"
       }
     ],
-    "name": "CreatePerpetual",
+    "name": "CreateLiquidityPool",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "implementation",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "name": "RevokeVersion",
+    "name": "OwnershipTransferred",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "accessController",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -117,9 +118,14 @@
         "internalType": "address",
         "name": "trader",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marketIndex",
+        "type": "uint256"
       }
     ],
-    "name": "activeProxy",
+    "name": "activateLiquidityPoolFor",
     "outputs": [
       {
         "internalType": "bool",
@@ -134,28 +140,50 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "oracle",
+        "name": "trader",
+        "type": "address"
+      }
+    ],
+    "name": "activeLiquidityPoolCountOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
         "type": "address"
       },
       {
-        "internalType": "int256[7]",
-        "name": "coreParams",
-        "type": "int256[7]"
+        "internalType": "uint256",
+        "name": "compatibility",
+        "type": "uint256"
       },
       {
-        "internalType": "int256[5]",
-        "name": "riskParams",
-        "type": "int256[5]"
-      },
+        "internalType": "string",
+        "name": "note",
+        "type": "string"
+      }
+    ],
+    "name": "addVersion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "int256[5]",
-        "name": "minRiskParamValues",
-        "type": "int256[5]"
-      },
-      {
-        "internalType": "int256[5]",
-        "name": "maxRiskParamValues",
-        "type": "int256[5]"
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
       },
       {
         "internalType": "uint256",
@@ -163,7 +191,36 @@
         "type": "uint256"
       }
     ],
-    "name": "createPerpetual",
+    "name": "createLiquidityPool",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "name": "createLiquidityPoolWith",
     "outputs": [
       {
         "internalType": "address",
@@ -180,9 +237,14 @@
         "internalType": "address",
         "name": "trader",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marketIndex",
+        "type": "uint256"
       }
     ],
-    "name": "deactiveProxy",
+    "name": "dectivateLiquidityPoolFor",
     "outputs": [
       {
         "internalType": "bool",
@@ -191,6 +253,217 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "describe",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "creationTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "compatibility",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "note",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "guid",
+        "type": "uint256"
+      }
+    ],
+    "name": "findLiquidityPoolByIndex",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marketIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "isActiveLiquidityPoolOf",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "liquidityPool",
+        "type": "address"
+      }
+    ],
+    "name": "isLiquidityPool",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "base",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "isVersionCompatibleWith",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "isVersionValid",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "latestVersion",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "liquidityPoolCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "listActiveLiquidityPoolsOf",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "liquidityPool",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "marketIndex",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Tracer.MUID[]",
+        "name": "result",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -206,11 +479,11 @@
         "type": "uint256"
       }
     ],
-    "name": "listPerpetuals",
+    "name": "listLiquidityPools",
     "outputs": [
       {
         "internalType": "address[]",
-        "name": "",
+        "name": "result",
         "type": "address[]"
       }
     ],
@@ -219,15 +492,35 @@
   },
   {
     "inputs": [],
-    "name": "totalPerpetualCount",
+    "name": "owner",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -251,6 +544,19 @@
         "internalType": "int256",
         "name": "",
         "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "weth",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
