@@ -3,7 +3,7 @@ import {
     DelegateChanged as DelegateChangedEvent,
 } from '../generated/templates/ShareToken/ShareToken'
 
-import { ShareToken, Delegate, Perpetual } from '../generated/schema'
+import { ShareToken, Delegate, LiquidityPool } from '../generated/schema'
 
 import {
     ADDRESS_ZERO,
@@ -15,7 +15,7 @@ import {
 
 export function handleTransfer(event: TransferEvent): void {
     let contract = ShareToken.load(event.address.toHexString())
-    let perp = Perpetual.load(contract.perpetual)
+    let liquidityPool = LiquidityPool.load(contract.liquidityPool)
     let from = fetchUser(event.params.from)
     let to = fetchUser(event.params.to)
 
@@ -29,13 +29,13 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     if (from.id != ADDRESS_ZERO) {
-        let fromAccount = fetchLiquidityAccount(from, perp as Perpetual)
+        let fromAccount = fetchLiquidityAccount(from, liquidityPool as LiquidityPool)
         fromAccount.shareAmount -= value
         fromAccount.save()
     }
 
     if (to.id != ADDRESS_ZERO) {
-        let toAccount = fetchLiquidityAccount(to, perp as Perpetual)
+        let toAccount = fetchLiquidityAccount(to, liquidityPool as LiquidityPool)
         toAccount.shareAmount += value
         toAccount.save()
     }

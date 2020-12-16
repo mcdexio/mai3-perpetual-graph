@@ -1,6 +1,6 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Perpetual, ShareToken, VoteContract, LiquidityAccount,
+import { LiquidityPool, ShareToken, VoteContract, LiquidityAccount,
      Proposal, Vote, ProposalShareTokenSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
 
 import { 
@@ -34,9 +34,9 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.save()
 
     // create share token snapshot and delegate snapshot for vote
-    let perpetual = Perpetual.load(voteContract.perpetual)
-    let share = ShareToken.load(perpetual.shareToken)
-    let liquidityAccounts = perpetual.liquidityAccounts as LiquidityAccount[]
+    let liquidityPool = LiquidityPool.load(voteContract.liquidityPool)
+    let share = ShareToken.load(liquidityPool.shareToken)
+    let liquidityAccounts = liquidityPool.liquidityAccounts as LiquidityAccount[]
     for (let index = 0; index < liquidityAccounts.length; index++) {
         let liquidityAccount = liquidityAccounts[index]
         let snapshotId = proposalId.concat('-').concat(liquidityAccount.user)
