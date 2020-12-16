@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0x9DEAc2Cd86FFa4C0D59B62071e54844A632091B5'
+      address: '0xc705852E311E3b607dDA9cBb2A14adfBFcE21cd2'
       abi: Factory
-      startBlock: 877314
+      startBlock: 886295
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -36,7 +36,7 @@ dataSources:
     source:
       address: '0x2d172d0DeDa85d6B1A0C6cfEF081fB4Fb509cb7a' #broker contract address
       abi: Broker
-      startBlock: 877314
+      startBlock: 886295
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -77,20 +77,18 @@ templates:
       eventHandlers:
         - event: CreateMarket(uint256,address,address,address,address,address,int256[8],int256[5])
           event: handleCreateMarket
-        - event: Deposit(address,int256)
+        - event: Deposit(uint256,address,int256)
           handler: handleDeposit
-        - event: Withdraw(address,int256)
+        - event: Withdraw(uint256,address,int256)
           handler: handleWithdraw
-        - event: AddLiquidatity(address,int256,int256)
-          handler: handleAddLiquidatity
-        - event: RemoveLiquidatity(address,int256,int256)
-          handler: handleRemoveLiquidatity
-        - event: Trade(indexed address,int256,int256,int256,uint256)
+        - event: AddLiquidity(address,int256,int256)
+          handler: handleAddLiquidity
+        - event: RemoveLiquidity(address,int256,int256)
+          handler: handleRemoveLiquidity
+        - event: Trade(uint256,indexed address,int256,int256,int256)
           handler: handleTrade
-        - event: LiquidateByAMM(indexed address,int256,int256,int256,uint256)
-          handler: handleLiquidateByAMM
-        - event: LiquidateByTrader(indexed address,indexed address,int256,int256,uint256)
-          handler: handleLiquidateByTrader
+        - event: Liquidate(uint256,indexed address,indexed address,int256,int256)
+          handler: handleLiquidate
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken

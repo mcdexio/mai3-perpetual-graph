@@ -1,16 +1,15 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, Trade} from '../generated/schema'
 
 import { 
     CreateMarket as CreateMarketEvent,
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
-    AddLiquidatity as AddLiquidatityEvent,
-    RemoveLiquidatity as RemoveLiquidatityEvent,
+    AddLiquidity as AddLiquidityEvent,
+    RemoveLiquidity as RemoveLiquidityEvent,
     Trade as TradeEvent,
-    LiquidateByAMM as LiquidateByAMMEvent,
-    LiquidateByTrader as LiquidateByTraderEvent,
+    Liquidate as LiquidateEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
@@ -24,6 +23,8 @@ import {
     fetchMarginAccount,
     fetchLiquidityAccount,
     convertToDecimal,
+    convertToBigInt,
+    splitAmount,
 } from './utils'
 
 export function handleCreateMarket(event: CreateMarketEvent): void {
@@ -53,8 +54,7 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
 }
 
 export function handleDeposit(event: DepositEvent): void {
-    //todo marketIndex
-    let perp = Perpetual.load(event.address.toHexString())
+    let perp = Perpetual.load(event.marketIndex.toString())
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
@@ -63,8 +63,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-    //todo marketIndex
-    let perp = Perpetual.load(event.address.toHexString())
+    let perp = Perpetual.load(event.marketIndex.toString())
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
@@ -72,7 +71,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     marginAccount.save()
 }
 
-export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
+export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
@@ -87,7 +86,7 @@ export function handleAddLiquidatity(event: AddLiquidatityEvent): void {
     liquidityPool.save()
 }
 
-export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
+export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
@@ -104,14 +103,94 @@ export function handleRemoveLiquidatity(event: RemoveLiquidatityEvent): void {
 } 
 
 export function handleTrade(event: TradeEvent): void {
-    // TODO marketIndex 
-    if (event.address.toHexString() == event.params.trader.toHexString()) {
-        return
+    let perp = Perpetual.load(event.marketIndex.toString())
+    let trader = fetchUser(event.params.trader)
+    let position = convertToBigInt(trader.position, BI_18)
+    let splitResult = splitAmount(position, event.params.positionAmount)
+    let transactionHash = event.transaction.hash.toHexString()
+
+    // save close trade
+    if (splitResult.close > ZERO_BI) {
+        let percent = splitResult.close.abs() / event.params.positionAmount
+        let trade = new Trade(
+            transactionHash
+            .concat('-')
+            .concat(event.logIndex.toString())
+            .concat('-')
+            .concat('0')
+        )
+        trade.perpetual = perp.id
+        trade.trader = trader.id
+        trade.amount = convertToDecimal(splitResult.close, BI_18)
+        trade.price = convertToDecimal(event.params.price, BI_18)
+        trade.isClose = true
+        trade.fee = convertToDecimal(event.params.fee*percent, BI_18)
+        trade.type = 0 // position by trade
+        trade.transactionHash = transactionHash
+        trade.blockNumber = event.block.number
+        trade.timestamp = event.block.timestamp
+        trade.logIndex = event.logIndex
+        perp.lastPrice = trade.price
+        perp.save()
+        trade.save()
+
+        // user margin account
+        let account = fetchMarginAccount(trader, perp as Perpetual)
+        account.position += trade.amount
+        account.entryValue += trade.amount.times(trade.price)
+        if (account.position == ZERO_BD) {
+            account.entryPrice = ZERO_BD
+        } else {
+            account.entryPrice = account.entryValue.div(account.position)
+        }
+        account.save()
     }
-    let perp = Perpetual.load(event.address.toHexString())
+
+    if (splitResult.open > ZERO_BI) {
+        let percent = splitResult.open.abs() / event.params.positionAmount
+        let trade = new Trade(
+            transactionHash
+            .concat('-')
+            .concat(event.logIndex.toString())
+            .concat('-')
+            .concat('1')
+        )
+        trade.perpetual = perp.id
+        trade.trader = trader.id
+        trade.amount = convertToDecimal(splitResult.open, BI_18)
+        trade.price = convertToDecimal(event.params.price, BI_18)
+        trade.isClose = false
+        trade.fee = convertToDecimal(event.params.fee*percent, BI_18)
+        trade.type = 0 // position by trade
+        trade.transactionHash = transactionHash
+        trade.blockNumber = event.block.number
+        trade.timestamp = event.block.timestamp
+        trade.logIndex = event.logIndex
+        perp.lastPrice = trade.price
+        perp.save()
+        trade.save()
+
+        // user margin account
+        let account = fetchMarginAccount(trader, perp as Perpetual)
+        account.position += trade.amount
+        account.entryValue += trade.amount.times(trade.price)
+        if (account.position == ZERO_BD) {
+            account.entryPrice = ZERO_BD
+        } else {
+            account.entryPrice = account.entryValue.div(account.position)
+        }
+        account.save()
+    }
 
     // update trade data
     updateTradeHourData(perp as Perpetual, event)
     updateTradeDayData(perp as Perpetual, event)
     updateTradeSevenDayData(perp as Perpetual, event)
 }
+
+
+export function handleLiquidate(event: LiquidateEvent): void {
+    //TODO trade fee
+
+}
+
