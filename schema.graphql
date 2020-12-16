@@ -63,7 +63,7 @@ type LiquidityPool @entity {
 }
 
 type Perpetual @entity {
-    # perpetual marketIndex
+    # perpetual index
     id: ID!
     factory: Factory!
     symbol: String!
@@ -97,7 +97,7 @@ type ShareToken @entity {
 }
 
 type LiquidityAccount @entity {
-    # perpetual address + "-" + user address
+    # perpetual index + "-" + user address
     id: ID!
     liquidityPool: LiquidityPool!
     user: User!
@@ -113,7 +113,7 @@ type VoteContract @entity {
 }
 
 type Trade @entity {
-    # trasaction hash + "-" + index
+    # trasaction hash + "-" + index + "-" + close/open
     id: ID!
     perpetual: Perpetual!
     trader: User!
@@ -145,31 +145,19 @@ type MatchOrder @entity {
 }
 
 type MarginAccount @entity {
-    # perpetual address + "-" + user address
+    # perpetual index + "-" + user address
     id: ID!
     user: User!
     perpetual: Perpetual!
     collateralAmount: BigDecimal!
     cashBalance: BigDecimal!
-    position: BigDecimal!
+    position: BigInt!
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
 }
 
-type TradeMinuteData @entity {
-    # perpetual address + "-" + timeindex
-    id: ID!
-    perpetual: Perpetual!
-    timestamp: Int!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    volume: BigDecimal!
-}
-
 type TradeHourData @entity {
-    # perpetual address + "-" + timeindex
+    # perpetual index + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -181,7 +169,7 @@ type TradeHourData @entity {
 }
 
 type TradeDayData @entity {
-    # perpetual address + "-" + timeindex
+    # perpetual index + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -193,7 +181,7 @@ type TradeDayData @entity {
 }
 
 type TradeSevenDayData @entity {
-    # perpetual address + "-" + timeindex
+    # perpetual index + "-" + timeindex
     id: ID!
     perpetual: Perpetual!
     timestamp: Int!
@@ -206,7 +194,7 @@ type TradeSevenDayData @entity {
 
 # move to trade?
 type LiquidityHourData @entity {
-    # perpetual address + "-" + timeindex
+    # perpetual index + "-" + timeindex
     id: ID!
     liquidityAmount: BigDecimal!
     liquidityAmountUSD: BigDecimal!
@@ -214,18 +202,10 @@ type LiquidityHourData @entity {
 }
 
 type LiquidityDayData @entity {
-    # perpetual address + "-" + timeindex
+    # perpetual index + "-" + timeindex
     id: ID!
     liquidityAmount: BigDecimal!
     liquidityAmountUSD: BigDecimal!
-    timestamp: Int
-}
-
-type PriceMinuteData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    price: BigDecimal!
     timestamp: Int
 }
 

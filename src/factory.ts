@@ -65,93 +65,17 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     shareToken.totalSupply = ZERO_BD
     liqidityPool.shareToken = shareToken.id
 
-    // create share token
-    let perpetualVote = new VoteContract(event.params.governor.toHexString())
-    perpetualVote.liqidityPool = liqidityPool.id
-    liqidityPool.vote = perpetualVote.id 
+    // create vote
+    let vote = new VoteContract(event.params.governor.toHexString())
+    vote.liqidityPool = liqidityPool.id
+    liqidityPool.vote = vote.id 
 
     shareToken.save()
-    perpetualVote.save()
+    vote.save()
     liqidityPool.save()
 
     // create the tracked contract based on the template
     LiqidityPoolTemplate.create(event.params.liquidityPool)
-    ShareTokenTemplate.create(event.params.shareToken)
-    VoteTemplate.create(event.params.governor)
-}
-
-export function handleNewPerpetual(event: CreatePerpetual): void {
-    let factory = Factory.load(event.address.toHexString())
-    if (factory === null) {
-        factory = new Factory(event.address.toHexString())
-        factory.perpetualCount = ZERO_BI
-        factory.liquidityPoolCount = ZERO_BI
-        factory.totalVolumeUSD = ZERO_BD
-        factory.totalLiquidityUSD = ZERO_BD
-        factory.txCount = ZERO_BI
-        factory.perpetuals = []
-        factory.liquidityPools = []
-
-        // create price bucket for save eth price
-        let bucket = new PriceBucket('1')
-        bucket.ethPrice = ZERO_BD
-        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
-        bucket.save()
-    }
-    factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
-    let liquidityPools = factory.liquidityPools
-    liquidityPools.push(event.params.liquidityPool.toHexString())
-    factory.liquidityPools = liquidityPools
-    factory.save()
-
-    let perp = new Perpetual(event.params.perpetual.toHexString())
-    perp.oracleAddress = event.params.oracle.toHexString()
-    perp.voteAddress = event.params.governor.toHexString()
-    perp.shareAddress = event.params.shareToken.toHexString()
-    perp.operatorAddress = event.params.operator.toHexString()
-    perp.factory = factory.id
-    perp.collateralAddress = event.params.collateral.toHexString()
-
-    perp.totalVolumeUSD = ZERO_BD
-    perp.totalVolume = ZERO_BD
-    perp.totalFee = ZERO_BD
-    perp.txCount = ZERO_BI
-
-    perp.liquidityAmount = ZERO_BD
-    perp.liquidityAmountUSD = ZERO_BD
-    perp.liquidityProviderCount = ZERO_BI
-
-
-    perp.symbol = ""
-    perp.collateralName = ""
-    perp.spread = ZERO_BD
-    perp.feeRate = ZERO_BD
-    perp.maintanceMargin = ZERO_BD
-    perp.initMargin = ZERO_BD
-    perp.minMaintanceMargin = ZERO_BD
-    perp.lastPrice = ZERO_BD
-
-    perp.state = 0
-    perp.createdAtTimestamp = event.block.timestamp
-    perp.createdAtBlockNumber = event.block.number
-
-    // create share token
-    let shareToken = new ShareToken(event.params.shareToken.toHexString())
-    shareToken.perpetual = perp.id
-    shareToken.totalSupply = ZERO_BD
-    perp.shareToken = shareToken.id
-
-    // create share token
-    let perpetualVote = new VoteContract(event.params.governor.toHexString())
-    perpetualVote.perpetual = perp.id
-    perp.vote = perpetualVote.id 
-
-    shareToken.save()
-    perpetualVote.save()
-    perp.save()
-
-    // create the tracked contract based on the template
-    PerpetualTemplate.create(event.params.perpetual)
     ShareTokenTemplate.create(event.params.shareToken)
     VoteTemplate.create(event.params.governor)
 }
@@ -199,8 +123,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
     let perpetuals = factory.perpetuals as string[]
     for (let index = 0; index < perpetuals.length; index++) {
-        let perpAddress = perpetuals[index]
-        let perp = Perpetual.load(perpAddress)
+        let perpIndex = perpetuals[index]
+        let perp = Perpetual.load(perpIndex)
         if (perp.state != 0) {
             return
         }
@@ -218,7 +142,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         updatePriceData(perp.oracleAddress, timestamp)
 
         // liquidity data
-        let hourPerpID = perpAddress
+        let hourPerpID = perpIndex
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
         let liquidityHourData = LiquidityHourData.load(hourPerpID)
@@ -231,24 +155,24 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
 
         // acc data
-        let accHourData = AccHourData.load(hourPerpID)
-        if (accHourData === null) {
-            accHourData = new AccHourData(hourPerpID)
-            let acc = ZERO_BD
+        // let accHourData = AccHourData.load(hourPerpID)
+        // if (accHourData === null) {
+        //     accHourData = new AccHourData(hourPerpID)
+        //     let acc = ZERO_BD
 
-            let perpContract = PerpetualTemplate.bind(perpAddress)
-            let callResult = perpContract.try_fundingState()
-            if(callResult.reverted){
-                log.warning("Get try_price reverted at block: {}", [block.number.toString()])
-                return
-            } else {
-                acc = convertToDecimal(callResult.value.value0, BI_18)
-            }
-            accHourData.perpetual = perpAddress
-            accHourData.acc = acc
-            accHourData.timestamp = hourStartUnix
-            accHourData.save()
-        }
+        //     let perpContract = PerpetualTemplate.bind(perpAddress)
+        //     let callResult = perpContract.try_fundingState()
+        //     if(callResult.reverted){
+        //         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
+        //         return
+        //     } else {
+        //         acc = convertToDecimal(callResult.value.value0, BI_18)
+        //     }
+        //     accHourData.perpetual = perpAddress
+        //     accHourData.acc = acc
+        //     accHourData.timestamp = hourStartUnix
+        //     accHourData.save()
+        // }
     }
 }
 

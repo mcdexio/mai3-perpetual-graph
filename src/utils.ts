@@ -1,8 +1,7 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { ShareToken, Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
+import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
-import { Perpetual as PerpetualContract } from '../generated/mai-v3-graph/Perpetual'
 import { ERC20 as ERC20Contract } from '../generated/mai-v3-graph/ERC20'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -13,10 +12,10 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0x9deac2cd86ffa4c0d59b62071e54844a632091b5'
+export const FACTORY_ADDRESS = '0xc705852e311e3b607dda9cbb2a14adfbfce21cd2'
 
 // oracle address for get price
-export const ETH_ORACLE = '0xb91Dfd6677E53AdE131352b825bF408385531e1d'
+export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
 
 // Notice lower case
 // added ["USDT", "USDC", "DAI"]
@@ -94,14 +93,33 @@ export function convertToDecimal(amount: BigInt, decimals: BigInt): BigDecimal {
   return amount.toBigDecimal().div(exponentToBigDecimal(decimals))
 }
 
-export function fetchCollateral(address: Address): string {
-  let contract = PerpetualContract.bind(address)
-  let collateral = ''
-  let result = contract.try_collateral()
-  if (!result.reverted) {
-    collateral = result.value.toHexString()
+export function convertToBigInt(amount: BigDecimal, decimals: BigInt): BigInt {
+  if (decimals == ZERO_BI) {
+    return amount.toBigInt()
   }
-  return collateral
+  return amount.times(exponentToBigDecimal(decimals)).toBigInt()
+}
+
+export interface SplitResult {
+  close: BigInt
+  open: BigInt
+}
+
+export function hasSameSign(x: BigInt, y: BigInt): boolean {
+  if (x==ZERO_BI || y==ZERO_BI) {
+    return true
+  }
+  return (x ^ y) >> 255 == 0
+}
+
+export function splitAmount(amount: BigInt, delta: BigInt): SplitResult {
+  if (hasSameSign(amount, delta)) {
+    return { close:ZERO_BI, open:delta }
+  } else if (amount.abs() >= delta.abs()) {
+    return { close:delta, open:ZERO_BI}
+  } else {
+    return { close:-amount, open:amount+delta}
+  }
 }
 
 export function fetchCollateralSymbol(address: Address): string {
