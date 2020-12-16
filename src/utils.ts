@@ -104,7 +104,13 @@ export function hasSameSign(x: BigInt, y: BigInt): boolean {
   if (x==ZERO_BI || y==ZERO_BI) {
     return true
   }
-  return (x ^ y) >> 255 == 0
+  if (x > ZERO_BI && y > ZERO_BI) {
+    return true
+  }
+  if (x < ZERO_BI && y < ZERO_BI) {
+    return true
+  }
+  return false
 }
 
 export function splitCloseAmount(amount: BigInt, delta: BigInt): BigInt {
