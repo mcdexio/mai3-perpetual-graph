@@ -76,7 +76,7 @@ templates:
           file: ./abis/LiquidityPool.json
       eventHandlers:
         - event: CreateMarket(uint256,address,address,address,address,address,int256[8],int256[5])
-          event: handleCreateMarket
+          handler: handleCreateMarket
         - event: Deposit(uint256,address,int256)
           handler: handleDeposit
         - event: Withdraw(uint256,address,int256)
