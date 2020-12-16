@@ -63,7 +63,7 @@ type LiquidityPool @entity {
 }
 
 type Perpetual @entity {
-    # perpetual index
+    # liquidity pool address + '-' +perpetual index
     id: ID!
     factory: Factory!
     symbol: String!

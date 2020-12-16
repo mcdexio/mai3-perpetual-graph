@@ -28,6 +28,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let factory = Factory.load(event.address.toHexString())
     if (factory === null) {
         factory = new Factory(event.address.toHexString())
+        factory.liquidityPoolCount = ZERO_BI
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
