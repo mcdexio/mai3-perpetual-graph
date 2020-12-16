@@ -24,6 +24,8 @@ dataSources:
           file: ./abis/Factory.json
         - name: Oracle
           file: ./abis/Oracle.json
+        - name: ERC20
+          file: ./abi/ERC20.json
       eventHandlers:
         - event: CreateLiquidityPool(address,address,address,address,address)
           handler: handleCreateLiquidityPool

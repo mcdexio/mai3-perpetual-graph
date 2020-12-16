@@ -1,7 +1,7 @@
 import {
     Transfer as TransferEvent,
     DelegateChanged as DelegateChangedEvent,
-} from '../generated/templates/ShareToken/ERC20'
+} from '../generated/templates/ShareToken/ShareToken'
 
 import { ShareToken, Delegate, Perpetual } from '../generated/schema'
 
