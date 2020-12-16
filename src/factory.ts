@@ -1,13 +1,13 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinuteData, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
 
 import { 
-    LiqidityPool as LiqidityPoolTemplate,
+    LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
     Vote as VoteTemplate
 } from '../generated/templates'
@@ -46,36 +46,36 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     factory.liquidityPools = liquidityPools
     factory.save()
 
-    let liqidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
-    liqidityPool.voteAddress = event.params.governor.toHexString()
-    liqidityPool.shareAddress = event.params.shareToken.toHexString()
-    liqidityPool.operatorAddress = event.params.operator.toHexString()
-    liqidityPool.factory = factory.id
-    liqidityPool.collateralAddress = event.params.collateral.toHexString()
-    liqidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
-    liqidityPool.liquidityAmount = ZERO_BD
-    liqidityPool.liquidityAmountUSD = ZERO_BD
-    liqidityPool.liquidityProviderCount = ZERO_BI
-    liqidityPool.createdAtTimestamp = event.block.timestamp
-    liqidityPool.createdAtBlockNumber = event.block.number
+    let liquidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
+    liquidityPool.voteAddress = event.params.governor.toHexString()
+    liquidityPool.shareAddress = event.params.shareToken.toHexString()
+    liquidityPool.operatorAddress = event.params.operator.toHexString()
+    liquidityPool.factory = factory.id
+    liquidityPool.collateralAddress = event.params.collateral.toHexString()
+    liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
+    liquidityPool.liquidityAmount = ZERO_BD
+    liquidityPool.liquidityAmountUSD = ZERO_BD
+    liquidityPool.liquidityProviderCount = ZERO_BI
+    liquidityPool.createdAtTimestamp = event.block.timestamp
+    liquidityPool.createdAtBlockNumber = event.block.number
 
     // create share token
     let shareToken = new ShareToken(event.params.shareToken.toHexString())
-    shareToken.liqidityPool = liqidityPool.id
+    shareToken.liquidityPool = liquidityPool.id
     shareToken.totalSupply = ZERO_BD
-    liqidityPool.shareToken = shareToken.id
+    liquidityPool.shareToken = shareToken.id
 
     // create vote
     let vote = new VoteContract(event.params.governor.toHexString())
-    vote.liqidityPool = liqidityPool.id
-    liqidityPool.vote = vote.id 
+    vote.liquidityPool = liquidityPool.id
+    liquidityPool.vote = vote.id 
 
     shareToken.save()
     vote.save()
-    liqidityPool.save()
+    liquidityPool.save()
 
     // create the tracked contract based on the template
-    LiqidityPoolTemplate.create(event.params.liquidityPool)
+    LiquidityPoolTemplate.create(event.params.liquidityPool)
     ShareTokenTemplate.create(event.params.shareToken)
     VoteTemplate.create(event.params.governor)
 }
@@ -134,7 +134,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
                 ethPrice = bucket.ethPrice as BigDecimal
             }
             perp.totalVolumeUSD = perp.totalVolume.times(ethPrice)
-            perp.liquidityAmountUSD = perp.liquidityAmount.times(ethPrice)
         }
         perp.save()
 
@@ -142,17 +141,17 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         updatePriceData(perp.oracleAddress, timestamp)
 
         // liquidity data
-        let hourPerpID = perpIndex
-        .concat('-')
-        .concat(BigInt.fromI32(hourIndex).toString())
-        let liquidityHourData = LiquidityHourData.load(hourPerpID)
-        if (liquidityHourData === null) {
-            liquidityHourData = new LiquidityHourData(hourPerpID)
-            liquidityHourData.liquidityAmount = perp.liquidityAmount
-            liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
-            liquidityHourData.timestamp = hourStartUnix
-            liquidityHourData.save()
-        }
+        // let hourPerpID = perpIndex
+        // .concat('-')
+        // .concat(BigInt.fromI32(hourIndex).toString())
+        // let liquidityHourData = LiquidityHourData.load(hourPerpID)
+        // if (liquidityHourData === null) {
+        //     liquidityHourData = new LiquidityHourData(hourPerpID)
+        //     liquidityHourData.liquidityAmount = perp.liquidityAmount
+        //     liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
+        //     liquidityHourData.timestamp = hourStartUnix
+        //     liquidityHourData.save()
+        // }
 
         // acc data
         // let accHourData = AccHourData.load(hourPerpID)
@@ -178,28 +177,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
 function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
-
-    // minute
-    let minuteIndex = timestamp / 60
-    let minuteStartUnix = minuteIndex * 60
-    let minutePriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(minuteIndex).toString())
-    let priceMinuteData = PriceMinuteData.load(minutePriceID)
-    if (priceMinuteData === null) {
-        priceMinuteData = new PriceMinuteData(minutePriceID)
-        let oracleContract = OracleContract.bind(Address.fromString(oracle))
-        let callResult = oracleContract.try_priceTWAPShort()
-        if(callResult.reverted){
-            log.warning("Get try_priceTWAPShort reverted at blocktime: {}", [timestamp.toString()])
-        } else {
-            price = convertToDecimal(callResult.value.value0, BI_18)
-        }
-        priceMinuteData.oracle = oracle
-        priceMinuteData.price = price
-        priceMinuteData.timestamp = minuteStartUnix
-        priceMinuteData.save()
-    }
 
     // hour
     let hourIndex = timestamp / 3600
