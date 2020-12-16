@@ -25,6 +25,7 @@ import {
     convertToDecimal,
     convertToBigInt,
     splitAmount,
+    SplitResult,
 } from './utils'
 
 export function handleCreateMarket(event: CreateMarketEvent): void {
@@ -32,11 +33,11 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
     let factory = Factory.load(liquidityPool.factory)
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
     let perpetuals = factory.perpetuals
-    perpetuals.push(event.params.marketIndex.toHexString())
+    perpetuals.push(event.params.marketIndex.toString())
     factory.perpetuals = perpetuals
     factory.save()
 
-    let perp = new Perpetual(event.params.marketIndex.toHexString())
+    let perp = new Perpetual(event.params.marketIndex.toString())
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.collateralName = liquidityPool.collateralName
     perp.collateralAddress = liquidityPool.collateralAddress
@@ -56,7 +57,7 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
 }
 
 export function handleDeposit(event: DepositEvent): void {
-    let perp = Perpetual.load(event.marketIndex.toString())
+    let perp = Perpetual.load(event.params.marketIndex.toString())
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
@@ -65,7 +66,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-    let perp = Perpetual.load(event.marketIndex.toString())
+    let perp = Perpetual.load(event.params.marketIndex.toString())
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
@@ -105,10 +106,10 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
 } 
 
 export function handleTrade(event: TradeEvent): void {
-    let perp = Perpetual.load(event.marketIndex.toString())
+    let perp = Perpetual.load(event.params.marketIndex.toString())
     let trader = fetchUser(event.params.trader)
     let position = convertToBigInt(trader.position, BI_18)
-    let splitResult = splitAmount(position, event.params.positionAmount)
+    let splitResult = splitAmount(position, event.params.positionAmount) as SplitResult
     let transactionHash = event.transaction.hash.toHexString()
 
     // save close trade
