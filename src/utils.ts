@@ -2,7 +2,7 @@ import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
 import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
-import { ERC20 as ERC20Contract } from '../generated/mai-v3-graph/ERC20'
+import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
