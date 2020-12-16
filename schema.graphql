@@ -69,6 +69,8 @@ type Perpetual @entity {
     symbol: String!
     oracleAddress: String!
     operatorAddress: String!
+    collateralName: String!
+    collateralAddress: String!
     liquidityPool: LiquidityPool!
 
     # volume stats

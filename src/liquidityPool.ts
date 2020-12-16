@@ -38,6 +38,8 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
 
     let perp = new Perpetual(event.params.marketIndex.toHexString())
     perp.oracleAddress = event.params.oracle.toHexString()
+    perp.collateralName = liquidityPool.collateralName
+    perp.collateralAddress = liquidityPool.collateralAddress
     perp.factory = factory.id
     perp.liquidityPool = liquidityPool.id
 

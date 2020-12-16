@@ -127,7 +127,7 @@ export function fetchCollateralSymbol(address: Address): string {
   let collateral = ''
   let result = contract.try_symbol()
   if (!result.reverted) {
-    collateral = result.value.toHexString()
+    collateral = result.value
   }
   return collateral
 }
