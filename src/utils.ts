@@ -95,14 +95,9 @@ export function convertToDecimal(amount: BigInt, decimals: BigInt): BigDecimal {
 
 export function convertToBigInt(amount: BigDecimal, decimals: BigInt): BigInt {
   if (decimals == ZERO_BI) {
-    return amount.toBigInt()
+    return amount.toString() as BigInt
   }
-  return amount.times(exponentToBigDecimal(decimals)).toBigInt()
-}
-
-export interface SplitResult {
-  close: BigInt
-  open: BigInt
+  return amount.times(exponentToBigDecimal(decimals)).toString() as BigInt
 }
 
 export function hasSameSign(x: BigInt, y: BigInt): boolean {
@@ -112,13 +107,22 @@ export function hasSameSign(x: BigInt, y: BigInt): boolean {
   return (x ^ y) >> 255 == 0
 }
 
-export function splitAmount(amount: BigInt, delta: BigInt): SplitResult {
+export function splitCloseAmount(amount: BigInt, delta: BigInt): BigInt {
   if (hasSameSign(amount, delta)) {
-    return { close:ZERO_BI, open:delta }
+    return ZERO_BI
   } else if (amount.abs() >= delta.abs()) {
-    return { close:delta, open:ZERO_BI}
+    return delta
   } else {
-    return { close:-amount, open:amount+delta}
+    return -amount
+  }
+}
+export function splitOpenAmount(amount: BigInt, delta: BigInt): BigInt {
+  if (hasSameSign(amount, delta)) {
+    return delta
+  } else if (amount.abs() >= delta.abs()) {
+    return ZERO_BI
+  } else {
+    return amount+delta
   }
 }
 
