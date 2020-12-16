@@ -3,7 +3,7 @@ import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 import { Perpetual, TradeHourData, TradeDayData, TradeSevenDayData} from '../generated/schema'
 import {
     Trade as TradeEvent,
-} from '../generated/templates/Perpetual/Perpetual'
+} from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import {
     ZERO_BD,
