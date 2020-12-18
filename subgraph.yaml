@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0xc705852E311E3b607dDA9cBb2A14adfBFcE21cd2'
+      address: '0x2A7c79891FBB2c95f02E2d10aDA5FEf23Db99752'
       abi: Factory
-      startBlock: 886295
+      startBlock: 888759
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -38,7 +38,7 @@ dataSources:
     source:
       address: '0x2d172d0DeDa85d6B1A0C6cfEF081fB4Fb509cb7a' #broker contract address
       abi: Broker
-      startBlock: 886295
+      startBlock: 888759
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -77,8 +77,8 @@ templates:
         - name: LiquidityPool
           file: ./abis/LiquidityPool.json
       eventHandlers:
-        - event: CreateMarket(uint256,address,address,address,address,address,int256[8],int256[5])
-          handler: handleCreateMarket
+        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[8],int256[5])
+          handler: handleCreatePerpetual
         - event: Deposit(uint256,address,int256)
           handler: handleDeposit
         - event: Withdraw(uint256,address,int256)

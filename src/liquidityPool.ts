@@ -3,7 +3,7 @@ import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph
 import { Factory, LiquidityPool, Perpetual, Trade} from '../generated/schema'
 
 import { 
-    CreateMarket as CreateMarketEvent,
+    CreatePerpetual as CreatePerpetualEvent,
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
     AddLiquidity as AddLiquidityEvent,
@@ -28,13 +28,14 @@ import {
     splitOpenAmount,
 } from './utils'
 
-export function handleCreateMarket(event: CreateMarketEvent): void {
+export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
     let id = event.address.toHexString()
         .concat('-')
-        .concat(event.params.marketIndex.toString())
+        .concat(event.params.perpetualIndex.toString())
     let perp = new Perpetual(id)
+    perp.index = event.params.perpetualIndex
     perp.symbol = ""
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.collateralName = liquidityPool.collateralName
@@ -64,7 +65,7 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
 export function handleDeposit(event: DepositEvent): void {
     let id = event.address.toHexString()
         .concat('-')
-        .concat(event.params.marketIndex.toString())
+        .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
@@ -76,7 +77,7 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
     let id = event.address.toHexString()
         .concat('-')
-        .concat(event.params.marketIndex.toString())
+        .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
@@ -119,7 +120,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
 export function handleTrade(event: TradeEvent): void {
     let id = event.address.toHexString()
         .concat('-')
-        .concat(event.params.marketIndex.toString())
+        .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
