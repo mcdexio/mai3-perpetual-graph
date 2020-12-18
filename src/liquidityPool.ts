@@ -129,7 +129,7 @@ export function handleTrade(event: TradeEvent): void {
     let price = convertToDecimal(event.params.price, BI_18)
 
     // save close trade
-    if (close > ZERO_BI) {
+    if (close != ZERO_BI) {
         let percent = close.abs() / event.params.positionAmount.abs()
         let trade = new Trade(
             transactionHash
@@ -154,7 +154,7 @@ export function handleTrade(event: TradeEvent): void {
         trade.save()
     }
 
-    if (open > ZERO_BI) {
+    if (open != ZERO_BI) {
         let percent = open.abs() / event.params.positionAmount.abs()
         let trade = new Trade(
             transactionHash
