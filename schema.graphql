@@ -154,7 +154,7 @@ type MarginAccount @entity {
     perpetual: Perpetual!
     collateralAmount: BigDecimal!
     cashBalance: BigDecimal!
-    position: BigDecimal!
+    position: BigInt!
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
 }

@@ -12,7 +12,7 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0xc705852e311e3b607dda9cbb2a14adfbfce21cd2'
+export const FACTORY_ADDRESS = '0x2a7c79891fbb2c95f02e2d10ada5fef23db99752'
 
 // oracle address for get price
 export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
@@ -56,7 +56,7 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
     account.perpetual = perpetual.id
     account.collateralAmount = ZERO_BD
     account.cashBalance = ZERO_BD
-    account.position = ZERO_BD
+    account.position = ZERO_BI
     account.entryPrice = ZERO_BD
     account.entryValue = ZERO_BD
     account.save()
