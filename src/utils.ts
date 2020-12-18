@@ -3,6 +3,8 @@ import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
+import { Oracle as OracleContract } from '../generated/Factory/Oracle'
+
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -133,4 +135,14 @@ export function fetchCollateralSymbol(address: Address): string {
     collateral = result.value
   }
   return collateral
+}
+
+export function fetchOracleUnderlying(address: Address): string {
+  let contract = OracleContract.bind(address)
+  let underlying = ''
+  let result = contract.try_underlyingAsset()
+  if (!result.reverted) {
+    underlying = result.value
+  }
+  return underlying
 }
