@@ -25,6 +25,7 @@ import {
     convertToDecimal,
     splitCloseAmount,
     splitOpenAmount,
+    fetchOracleUnderlying,
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
@@ -35,13 +36,15 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
         .concat(event.params.perpetualIndex.toString())
     let perp = new Perpetual(id)
     perp.index = event.params.perpetualIndex
-    perp.symbol = ""
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.collateralName = liquidityPool.collateralName
     perp.collateralAddress = liquidityPool.collateralAddress
     perp.operatorAddress = event.params.operator.toHexString()
     perp.factory = factory.id
     perp.liquidityPool = liquidityPool.id
+    perp.underlying = fetchOracleUnderlying(event.params.oracle)
+    perp.symbol = perp.underlying.concat('-').concat(perp.collateralName)
+
 
     perp.totalVolumeUSD = ZERO_BD
     perp.totalVolume = ZERO_BD

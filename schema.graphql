@@ -68,6 +68,7 @@ type Perpetual @entity {
     index: BigInt!
     factory: Factory!
     symbol: String!
+    underlying: String!
     oracleAddress: String!
     operatorAddress: String!
     collateralName: String!
