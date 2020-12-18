@@ -93,13 +93,6 @@ export function convertToDecimal(amount: BigInt, decimals: BigInt): BigDecimal {
   return amount.toBigDecimal().div(exponentToBigDecimal(decimals))
 }
 
-export function convertToBigInt(amount: BigDecimal, decimals: BigInt): BigInt {
-  if (decimals == ZERO_BI) {
-    return amount.toString() as BigInt
-  }
-  return amount.times(exponentToBigDecimal(decimals)).toString() as BigInt
-}
-
 export function hasSameSign(x: BigInt, y: BigInt): boolean {
   if (x==ZERO_BI || y==ZERO_BI) {
     return true
