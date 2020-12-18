@@ -65,6 +65,7 @@ type LiquidityPool @entity {
 type Perpetual @entity {
     # liquidity pool address + '-' +perpetual index
     id: ID!
+    index: BigInt!
     factory: Factory!
     symbol: String!
     oracleAddress: String!
