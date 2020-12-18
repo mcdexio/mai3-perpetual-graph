@@ -124,10 +124,10 @@ export function handleTrade(event: TradeEvent): void {
     let perp = Perpetual.load(id)
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
-    let position = convertToBigInt(account.position, BI_18)
-    let close = splitCloseAmount(position, event.params.positionAmount)
-    let open = splitOpenAmount(position, event.params.positionAmount)
+    let close = splitCloseAmount(account.position, event.params.positionAmount)
+    let open = splitOpenAmount(account.position, event.params.positionAmount)
     let transactionHash = event.transaction.hash.toHexString()
+    let price = convertToDecimal(event.params.price, BI_18)
 
     // save close trade
     if (close > ZERO_BI) {
@@ -142,7 +142,7 @@ export function handleTrade(event: TradeEvent): void {
         trade.perpetual = perp.id
         trade.trader = trader.id
         trade.amount = convertToDecimal(close, BI_18)
-        trade.price = convertToDecimal(event.params.price, BI_18)
+        trade.price = price
         trade.isClose = true
         trade.fee = convertToDecimal(event.params.fee*percent, BI_18)
         trade.type = 0 // position by trade
@@ -153,16 +153,6 @@ export function handleTrade(event: TradeEvent): void {
         perp.lastPrice = trade.price
         perp.save()
         trade.save()
-
-        // user margin account
-        account.position += trade.amount
-        account.entryValue += trade.amount.times(trade.price)
-        if (account.position == ZERO_BD) {
-            account.entryPrice = ZERO_BD
-        } else {
-            account.entryPrice = account.entryValue.div(account.position)
-        }
-        account.save()
     }
 
     if (open > ZERO_BI) {
@@ -177,7 +167,7 @@ export function handleTrade(event: TradeEvent): void {
         trade.perpetual = perp.id
         trade.trader = trader.id
         trade.amount = convertToDecimal(open, BI_18)
-        trade.price = convertToDecimal(event.params.price, BI_18)
+        trade.price = price
         trade.isClose = false
         trade.fee = convertToDecimal(event.params.fee*percent, BI_18)
         trade.type = 0 // position by trade
@@ -188,17 +178,18 @@ export function handleTrade(event: TradeEvent): void {
         perp.lastPrice = trade.price
         perp.save()
         trade.save()
-
-        // user margin account
-        account.position += trade.amount
-        account.entryValue += trade.amount.times(trade.price)
-        if (account.position == ZERO_BD) {
-            account.entryPrice = ZERO_BD
-        } else {
-            account.entryPrice = account.entryValue.div(account.position)
-        }
-        account.save()
     }
+
+    // user margin account
+    account.position += event.params.positionAmount
+    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+    account.entryValue += amount.times(price)
+    if (account.position == ZERO_BI) {
+        account.entryPrice = ZERO_BD
+    } else {
+        account.entryPrice = account.entryValue.div(convertToDecimal(account.position, BI_18))
+    }
+    account.save()
 
     // update trade data
     updateTradeHourData(perp as Perpetual, event)
