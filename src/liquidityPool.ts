@@ -23,7 +23,6 @@ import {
     fetchMarginAccount,
     fetchLiquidityAccount,
     convertToDecimal,
-    convertToBigInt,
     splitCloseAmount,
     splitOpenAmount,
 } from './utils'
