@@ -179,6 +179,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
 
+    let contract = OracleContract.bind(Address.fromString(oracle))
+    let callResult = contract.try_priceTWAPShort()
+    if (!callResult.reverted) {
+        price = convertToDecimal(callResult.value.value0, BI_18)
+    }
     // hour
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
