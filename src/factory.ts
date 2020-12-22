@@ -125,7 +125,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             if (bucket.ethPrice != null) {
                 ethPrice = bucket.ethPrice as BigDecimal
             }
-            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmoun.times(ethPrice)
+            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmount.times(ethPrice)
         }
         liquidityPool.save()
     }

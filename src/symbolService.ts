@@ -11,7 +11,7 @@ import {
 
 export function handleAssignSymbol(event: AssignSymbolEvent): void {
     let liquidityPool = LiquidityPool.load(event.params.liquidityPool.toHexString())
-    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     if (perp.symbol == "") {
         perp.symbol = event.params.symbol.toString()
     } else {

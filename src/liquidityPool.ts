@@ -32,7 +32,7 @@ import {
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
-    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
     perp.underlying = fetchOracleUnderlying(event.params.oracle)

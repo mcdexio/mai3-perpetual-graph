@@ -57,7 +57,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.collateralName = liquidityPool.collateralName
     perp.collateralAddress = liquidityPool.collateralAddress
     perp.operatorAddress = ''
-    perp.factory = liquidityPool.factory.id
+    perp.factory = liquidityPool.factory
     perp.liquidityPool = liquidityPool.id
     perp.underlying = ''
     perp.symbol = ''
