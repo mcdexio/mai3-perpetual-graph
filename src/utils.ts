@@ -14,7 +14,7 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0x2a7c79891fbb2c95f02e2d10ada5fef23db99752'
+export const FACTORY_ADDRESS = '0x07166f0ce97fd2c779aae4d99b68a810e4e14042'
 
 // oracle address for get price
 export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
@@ -22,9 +22,7 @@ export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
 // Notice lower case
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
-  "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-  "0x6b175474e89094c44da98b954eedeac495271d0f"
+  "0x12fafc91a5c3b30aabf16814a64ba25aea38f4e6",
 ]
 
 export function isUSDCollateral(collateral: string): boolean {
@@ -47,6 +45,35 @@ export function fetchUser(address: Address): User {
     user.save()
   }
   return user as User
+}
+
+export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: BigInt): Perpetual {
+  let id = liquidityPool.id.concat('-').concat(perpetualIndex.toString())
+  let perp = Perpetual.load(id)
+  if (perp === null) {
+    perp = new Perpetual(id)
+    perp.index = perpetualIndex
+    perp.oracleAddress = ''
+    perp.collateralName = liquidityPool.collateralName
+    perp.collateralAddress = liquidityPool.collateralAddress
+    perp.operatorAddress = ''
+    perp.factory = liquidityPool.factory.id
+    perp.liquidityPool = liquidityPool.id
+    perp.underlying = ''
+    perp.symbol = ''
+
+    perp.totalVolumeUSD = ZERO_BD
+    perp.totalVolume = ZERO_BD
+    perp.totalFee = ZERO_BD
+    perp.txCount = ZERO_BI
+    perp.lastPrice = ZERO_BD
+
+    perp.state = 0
+    perp.createdAtTimestamp = ZERO_BI
+    perp.createdAtBlockNumber = ZERO_BI
+    perp.save()
+  }
+  return perp as Perpetual
 }
 
 export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAccount {

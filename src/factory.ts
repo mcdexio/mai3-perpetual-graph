@@ -21,7 +21,8 @@ import {
     isETHCollateral,
     convertToDecimal,
     fetchCollateralSymbol,
-    ZERO_BI
+    ZERO_BI,
+    isUSDCollateral
 } from './utils'
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
@@ -91,6 +92,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         return
     }
 
+    // update eth price
     let ethOracle = Address.fromString(ETH_ORACLE)
     let ethContract = OracleContract.bind(ethOracle)
     let price = ZERO_BD
@@ -106,22 +108,29 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     bucket.timestamp = hourStartUnix
     bucket.save()
 
-
     let factory = Factory.load(FACTORY_ADDRESS)
     if (factory === null) {
         return
     }
 
-    let id = FACTORY_ADDRESS.concat('-').concat(BigInt.fromI32(hourIndex).toString())
-    let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
-    if (mcdexLiquidityHourData === null) {
-        mcdexLiquidityHourData = new McdexLiquidityHourData(id)
-        mcdexLiquidityHourData.liquidityAmountUSD = factory.totalLiquidityUSD
-        mcdexLiquidityHourData.totalVolumeUSD = factory.totalVolumeUSD
-        mcdexLiquidityHourData.timestamp = hourStartUnix
-        mcdexLiquidityHourData.save()
+    // update liquity pool's liquidity amount in USD
+    let liquidityPools = factory.liquidityPools as string[]
+    for (let index = 0; index < liquidityPools.length; index++) {
+        let poolIndex = liquidityPools[index]
+        let liquidityPool = LiquidityPool.load(poolIndex)
+        if (isUSDCollateral(liquidityPool.collateralAddress)) {
+            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmount
+        } else if (isETHCollateral(liquidityPool.collateralAddress)) {
+            let ethPrice = ZERO_BD
+            if (bucket.ethPrice != null) {
+                ethPrice = bucket.ethPrice as BigDecimal
+            }
+            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmoun.times(ethPrice)
+        }
+        liquidityPool.save()
     }
 
+    // update perpetual's trade volume amount in USD and oracle price data
     let perpetuals = factory.perpetuals as string[]
     for (let index = 0; index < perpetuals.length; index++) {
         let perpIndex = perpetuals[index]
@@ -129,7 +138,9 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (perp.state != 0) {
             return
         }
-        if (isETHCollateral(perp.collateralAddress)) {
+        if (isUSDCollateral(perp.collateralAddress)) {
+            perp.totalVolumeUSD = perp.totalVolume
+        } else if (isETHCollateral(perp.collateralAddress)) {
             let ethPrice = ZERO_BD
             if (bucket.ethPrice != null) {
                 ethPrice = bucket.ethPrice as BigDecimal
@@ -173,6 +184,16 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         //     accHourData.timestamp = hourStartUnix
         //     accHourData.save()
         // }
+    }
+
+    let id = FACTORY_ADDRESS.concat('-').concat(BigInt.fromI32(hourIndex).toString())
+    let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
+    if (mcdexLiquidityHourData === null) {
+        mcdexLiquidityHourData = new McdexLiquidityHourData(id)
+        mcdexLiquidityHourData.liquidityAmountUSD = factory.totalLiquidityUSD
+        mcdexLiquidityHourData.totalVolumeUSD = factory.totalVolumeUSD
+        mcdexLiquidityHourData.timestamp = hourStartUnix
+        mcdexLiquidityHourData.save()
     }
 }
 
