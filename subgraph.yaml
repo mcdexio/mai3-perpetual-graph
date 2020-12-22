@@ -32,6 +32,27 @@ dataSources:
       blockHandlers:
         - handler: handleSyncPerpData
       file: ./src/factory.ts
+
+  - kind: ethereum/contract
+    name: SymbolService
+    network: mainnet
+    source:
+      address: '0x74442EaE34A619D45fD7a608513D2C8d38bc55BB'
+      abi: SymbolService
+      startBlock: 901987
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Perpetual
+      abis:
+        - name: SymbolService
+          file: ./abis/SymbolService.json
+      eventHandlers:
+        - event: AssignSymbol(address,uint256,uint256)
+          handler: handleAssignSymbol
+      file: ./src/symbolService.ts
   - kind: ethereum/contract
     name: Broker
     network: mainnet

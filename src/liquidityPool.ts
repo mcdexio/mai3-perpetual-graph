@@ -25,41 +25,22 @@ import {
     convertToDecimal,
     splitCloseAmount,
     splitOpenAmount,
+    fetchPerpetual,
     fetchOracleUnderlying,
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
-    let id = event.address.toHexString()
-        .concat('-')
-        .concat(event.params.perpetualIndex.toString())
-    let perp = new Perpetual(id)
-    perp.index = event.params.perpetualIndex
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.oracle.toHexString()
-    perp.collateralName = liquidityPool.collateralName
-    perp.collateralAddress = liquidityPool.collateralAddress
     perp.operatorAddress = event.params.operator.toHexString()
-    perp.factory = factory.id
-    perp.liquidityPool = liquidityPool.id
     perp.underlying = fetchOracleUnderlying(event.params.oracle)
-    perp.symbol = perp.underlying.concat('-').concat(perp.collateralName)
-
-
-    perp.totalVolumeUSD = ZERO_BD
-    perp.totalVolume = ZERO_BD
-    perp.totalFee = ZERO_BD
-    perp.txCount = ZERO_BI
-    perp.lastPrice = ZERO_BD
-
-    perp.state = 0
-    perp.createdAtTimestamp = event.block.timestamp
-    perp.createdAtBlockNumber = event.block.number
     perp.save()
 
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
     let perpetuals = factory.perpetuals
-    perpetuals.push(id)
+    perpetuals.push(perp.id)
     factory.perpetuals = perpetuals
     factory.save()
 }
