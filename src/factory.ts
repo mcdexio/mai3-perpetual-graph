@@ -142,12 +142,12 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         updatePriceData(perp.oracleAddress, timestamp)
 
         // liquidity data
-        // let hourPerpID = perpIndex
+        // let hourPoolID = perp.liquidityPool.id
         // .concat('-')
         // .concat(BigInt.fromI32(hourIndex).toString())
-        // let liquidityHourData = LiquidityHourData.load(hourPerpID)
+        // let liquidityHourData = LiquidityHourData.load(hourPoolID)
         // if (liquidityHourData === null) {
-        //     liquidityHourData = new LiquidityHourData(hourPerpID)
+        //     liquidityHourData = new LiquidityHourData(hourPoolID)
         //     liquidityHourData.liquidityAmount = perp.liquidityAmount
         //     liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
         //     liquidityHourData.timestamp = hourStartUnix
@@ -179,11 +179,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
 
-    let contract = OracleContract.bind(Address.fromString(oracle))
-    let callResult = contract.try_priceTWAPShort()
-    if (!callResult.reverted) {
-        price = convertToDecimal(callResult.value.value0, BI_18)
-    }
     // hour
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
@@ -192,6 +187,11 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     .concat(BigInt.fromI32(hourIndex).toString())
     let priceHourData = PriceHourData.load(hourPriceID)
     if (priceHourData === null) {
+        let contract = OracleContract.bind(Address.fromString(oracle))
+        let callResult = contract.try_priceTWAPShort()
+        if (!callResult.reverted) {
+            price = convertToDecimal(callResult.value.value0, BI_18)
+        }
         priceHourData = new PriceHourData(hourPriceID)
         priceHourData.oracle = oracle
         priceHourData.price = price
