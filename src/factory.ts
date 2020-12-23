@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, LiquidityHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, PoolHourData, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -34,6 +34,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
         factory.txCount = ZERO_BI
+        factory.liquidityPools = []
         factory.perpetuals = []
 
         // create price bucket for save eth price
@@ -55,8 +56,8 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = event.params.collateral.toHexString()
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
-    liquidityPool.liquidityAmount = ZERO_BD
-    liquidityPool.liquidityAmountUSD = ZERO_BD
+    liquidityPool.poolMargin = ZERO_BD
+    liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.liquidityProviderCount = ZERO_BI
     liquidityPool.createdAtTimestamp = event.block.timestamp
     liquidityPool.createdAtBlockNumber = event.block.number
@@ -119,13 +120,13 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
         if (isUSDCollateral(liquidityPool.collateralAddress)) {
-            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmount
+            liquidityPool.poolMarginUSD = liquidityPool.poolMarginAmount
         } else if (isETHCollateral(liquidityPool.collateralAddress)) {
             let ethPrice = ZERO_BD
             if (bucket.ethPrice != null) {
                 ethPrice = bucket.ethPrice as BigDecimal
             }
-            liquidityPool.liquidityAmountUSD = liquidityPool.liquidityAmount.times(ethPrice)
+            liquidityPool.poolMarginUSD = liquidityPool.poolMargin.times(ethPrice)
         }
         liquidityPool.save()
     }
@@ -159,8 +160,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         // let liquidityHourData = LiquidityHourData.load(hourPoolID)
         // if (liquidityHourData === null) {
         //     liquidityHourData = new LiquidityHourData(hourPoolID)
-        //     liquidityHourData.liquidityAmount = perp.liquidityAmount
-        //     liquidityHourData.liquidityAmountUSD = perp.liquidityAmountUSD
+        //     liquidityHourData.poolMargin = perp.poolMargin
+        //     liquidityHourData.poolMarginUSD = perp.poolMarginUSD
         //     liquidityHourData.timestamp = hourStartUnix
         //     liquidityHourData.save()
         // }
@@ -190,7 +191,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
     if (mcdexLiquidityHourData === null) {
         mcdexLiquidityHourData = new McdexLiquidityHourData(id)
-        mcdexLiquidityHourData.liquidityAmountUSD = factory.totalLiquidityUSD
+        mcdexLiquidityHourData.poolMarginUSD = factory.totalLiquidityUSD
         mcdexLiquidityHourData.totalVolumeUSD = factory.totalVolumeUSD
         mcdexLiquidityHourData.timestamp = hourStartUnix
         mcdexLiquidityHourData.save()

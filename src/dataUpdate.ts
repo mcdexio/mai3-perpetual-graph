@@ -1,6 +1,6 @@
-import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Perpetual, TradeHourData, TradeDayData, TradeSevenDayData} from '../generated/schema'
+import { Perpetual, LiquidityPool, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData} from '../generated/schema'
 import {
     Trade as TradeEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
@@ -117,4 +117,48 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     }
     tradeSevenDayData.save()
     return tradeSevenDayData as TradeSevenDayData
+}
+
+export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, amount: BigDecimal): PoolHourData {
+    let hourIndex = timestamp.toI32() / 3600
+    let hourStartUnix = hourIndex * 3600
+    let hourPoolID = pool.id
+        .toHexString()
+        .concat('-')
+        .concat(BigInt.fromI32(hourIndex).toString())
+    let poolHourData = PoolHourData.load(hourPoolID)
+    if (poolHourData === null) {
+        poolHourData = new PoolHourData(hourPoolID)
+        poolHourData.liquidityPool = pool.id
+        poolHourData.deltaMargin = amount
+        poolHourData.poolMargin = ZERO_BD
+        poolHourData.poolMarginUSD = ZERO_BD
+        poolHourData.timestamp = hourStartUnix
+    } else {
+        poolHourData.deltaMargin += amount
+    }
+    poolHourData.save()
+    return poolHourData as PoolHourData
+}
+
+export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, amount: BigDecimal): PoolDayData {
+    let dayIndex = timestamp.toI32() / (3600*24)
+    let dayStartUnix = dayIndex * (3600*24)
+    let dayPoolID = pool.id
+        .toHexString()
+        .concat('-')
+        .concat(BigInt.fromI32(dayIndex).toString())
+    let poolDayData = PoolDayData.load(dayPoolID)
+    if (poolDayData === null) {
+        poolDayData = new PoolDayData(dayPoolID)
+        poolDayData.liquidityPool = pool.id
+        poolDayData.deltaMargin = amount
+        poolDayData.poolMargin = ZERO_BD
+        poolDayData.poolMarginUSD = ZERO_BD
+        poolDayData.timestamp = dayStartUnix
+    } else {
+        poolDayData.deltaMargin += amount
+    }
+    poolDayData.save()
+    return poolDayData as PoolDayData
 }

@@ -53,8 +53,8 @@ type LiquidityPool @entity {
 
     # liquidity
     liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"liquidityPool")
-    liquidityAmount: BigDecimal!
-    liquidityAmountUSD: BigDecimal!
+    poolMargin: BigDecimal!
+    poolMarginUSD: BigDecimal!
     liquidityProviderCount: BigInt!
     shareToken: ShareToken!
 
@@ -196,20 +196,23 @@ type TradeSevenDayData @entity {
     volume: BigDecimal!
 }
 
-# move to trade?
-type LiquidityHourData @entity {
-    # perpetual index + "-" + timeindex
+type PoolHourData @entity {
+    # pool address + "-" + timeindex
     id: ID!
-    liquidityAmount: BigDecimal!
-    liquidityAmountUSD: BigDecimal!
+    liquidityPool: String!
+    deltaMargin: BigDecimal!
+    poolMargin: BigDecimal!
+    poolMarginUSD: BigDecimal!
     timestamp: Int
 }
 
-type LiquidityDayData @entity {
-    # perpetual index + "-" + timeindex
+type PoolDayData @entity {
+    # pool address + "-" + timeindex
     id: ID!
-    liquidityAmount: BigDecimal!
-    liquidityAmountUSD: BigDecimal!
+    liquidityPool: String!
+    deltaMargin: BigDecimal!
+    poolMargin: BigDecimal!
+    poolMarginUSD: BigDecimal!
     timestamp: Int
 }
 
@@ -246,7 +249,7 @@ type PriceBucket @entity {
 type McdexLiquidityHourData @entity {
     # factory address + "-" + timeindex
     id: ID!
-    liquidityAmountUSD: BigDecimal!
+    poolMarginUSD: BigDecimal!
     totalVolumeUSD: BigDecimal!
     timestamp: Int
 }
