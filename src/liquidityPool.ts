@@ -83,8 +83,8 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     account.save()
     liquidityPool.save()
 
-    updatePoolHourData(liquidityPool, event.block.timestamp, amount)
-    updatePoolDayData(liquidityPool, event.block.timestamp, amount)
+    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, amount)
+    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, amount)
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
@@ -102,8 +102,8 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     account.save()
     liquidityPool.save()
 
-    updatePoolHourData(liquidityPool, event.block.timestamp, cash)
-    updatePoolDayData(liquidityPool, event.block.timestamp, cash)
+    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
+    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
 } 
 
 export function handleTrade(event: TradeEvent): void {

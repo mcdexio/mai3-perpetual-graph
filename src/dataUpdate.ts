@@ -123,7 +123,6 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, amoun
     let hourIndex = timestamp.toI32() / 3600
     let hourStartUnix = hourIndex * 3600
     let hourPoolID = pool.id
-        .toHexString()
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
     let poolHourData = PoolHourData.load(hourPoolID)
@@ -145,7 +144,6 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, amount
     let dayIndex = timestamp.toI32() / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
     let dayPoolID = pool.id
-        .toHexString()
         .concat('-')
         .concat(BigInt.fromI32(dayIndex).toString())
     let poolDayData = PoolDayData.load(dayPoolID)

@@ -120,7 +120,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
         if (isUSDCollateral(liquidityPool.collateralAddress)) {
-            liquidityPool.poolMarginUSD = liquidityPool.poolMarginAmount
+            liquidityPool.poolMarginUSD = liquidityPool.poolMargin
         } else if (isETHCollateral(liquidityPool.collateralAddress)) {
             let ethPrice = ZERO_BD
             if (bucket.ethPrice != null) {
