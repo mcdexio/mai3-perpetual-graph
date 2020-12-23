@@ -12,7 +12,7 @@ import {
     Liquidate as LiquidateEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
-import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData } from './dataUpdate'
+import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
 import {
     ZERO_BD,
@@ -79,9 +79,12 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let amount = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += amount
     account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
-    liquidityPool.liquidityAmount += amount
+    liquidityPool.poolMargin += amount
     account.save()
     liquidityPool.save()
+
+    updatePoolHourData(liquidityPool, event.block.timestamp, amount)
+    updatePoolDayData(liquidityPool, event.block.timestamp, amount)
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
@@ -89,15 +92,18 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
     let shareAmount = convertToDecimal(event.params.burnedShare, BI_18)
-    let cash = convertToDecimal(event.params.returnedCash, BI_18)
+    let cash = convertToDecimal(-event.params.returnedCash, BI_18)
     account.shareAmount -= shareAmount
-    account.collateralAmount -= cash
+    account.collateralAmount += cash
     if (account.shareAmount == ZERO_BD) {
         liquidityPool.liquidityProviderCount -= ONE_BI
     }
-    liquidityPool.liquidityAmount -= (cash)
+    liquidityPool.poolMargin -= (cash)
     account.save()
     liquidityPool.save()
+
+    updatePoolHourData(liquidityPool, event.block.timestamp, cash)
+    updatePoolDayData(liquidityPool, event.block.timestamp, cash)
 } 
 
 export function handleTrade(event: TradeEvent): void {
