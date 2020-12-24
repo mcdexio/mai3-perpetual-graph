@@ -25,6 +25,10 @@ export let USDTokens:string[] = [
   "0x12fafc91a5c3b30aabf16814a64ba25aea38f4e6",
 ]
 
+export enum PerpetualState {
+  INVALID, INITIALIZING, NORMAL, EMERGENCY, CLEARED
+}
+
 export function isUSDCollateral(collateral: string): boolean {
   for (let i = 0; i < USDTokens.length; i++) {
     if (collateral == USDTokens[i]) {
@@ -68,7 +72,11 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.txCount = ZERO_BI
     perp.lastPrice = ZERO_BD
 
-    perp.state = 0
+    if (liquidityPool.isFinalized) {
+      perp.state = PerpetualState.NORMAL
+    } else {
+      perp.state = PerpetualState.INITIALIZING
+    }
     perp.createdAtTimestamp = ZERO_BI
     perp.createdAtBlockNumber = ZERO_BI
     perp.save()

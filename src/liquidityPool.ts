@@ -4,6 +4,10 @@ import { Factory, LiquidityPool, Perpetual, Trade} from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
+    Finalize as FinalizeEvent,
+    EnterNormalState as EnterNormalStateEvent,
+    EnterEmergencyState as EnterEmergencyStateEvent,
+    EnterClearedState as EnterClearedStateEvent,
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
     AddLiquidity as AddLiquidityEvent,
@@ -19,6 +23,7 @@ import {
     ONE_BI,
     ZERO_BI,
     BI_18,
+    PerpetualState,
     fetchUser,
     fetchMarginAccount,
     fetchLiquidityAccount,
@@ -43,6 +48,35 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     perpetuals.push(perp.id)
     factory.perpetuals = perpetuals
     factory.save()
+}
+
+export function handleFinalize(event: FinalizeEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    liquidityPool.isFinalized = true
+    liquidityPool.save()
+}
+
+export function handleEnterNormalState(event: EnterNormalStateEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    perp.state = PerpetualState.NORMAL
+    perp.save()
+}
+
+export function handleEnterEmergencyState(event: EnterEmergencyStateEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    perp.state = PerpetualState.EMERGENCY
+    perp.settledAtTimestamp = event.block.timestamp
+    perp.settledAtBlockNumber = event.block.number
+    perp.save()
+}
+
+export function handleEnterClearedState(event: EnterClearedStateEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    perp.state = PerpetualState.CLEARED
+    perp.save()
 }
 
 export function handleDeposit(event: DepositEvent): void {
