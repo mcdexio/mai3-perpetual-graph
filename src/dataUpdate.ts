@@ -21,7 +21,7 @@ export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHo
         .concat(BigInt.fromI32(hourIndex).toString())
     let tradeHourData = TradeHourData.load(hourPerpID)
     let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+    let amount = convertToDecimal(event.params.position, BI_18)
     if (amount < ZERO_BD) {
         amount = -amount
     }
@@ -57,7 +57,7 @@ export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDay
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeDayData = TradeDayData.load(dayPerpID)
     let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+    let amount = convertToDecimal(event.params.position, BI_18)
     if (amount < ZERO_BD) {
         amount = -amount
     }
@@ -93,7 +93,7 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeSevenDayData = TradeSevenDayData.load(dayPerpID)
     let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+    let amount = convertToDecimal(event.params.position, BI_18)
     if (amount < ZERO_BD) {
         amount = -amount
     }
