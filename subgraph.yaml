@@ -102,6 +102,14 @@ templates:
       eventHandlers:
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[8],int256[5])
           handler: handleCreatePerpetual
+        - event: Finalize()
+          handler: handleFinalize
+        - event: EnterNormalState(uint256)
+          handler: handleEnterNormalState
+        - event: EnterEmergencyState(uint256,int256,uint256)
+          handler: handleEnterEmergencyState
+        - event: EnterClearedState(uint256)
+          handler: handleEnterClearedState
         - event: Deposit(uint256,address,int256)
           handler: handleDeposit
         - event: Withdraw(uint256,address,int256)
