@@ -147,14 +147,14 @@ export function handleTrade(event: TradeEvent): void {
     let perp = Perpetual.load(id)
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
-    let close = splitCloseAmount(account.position, event.params.positionAmount)
-    let open = splitOpenAmount(account.position, event.params.positionAmount)
+    let close = splitCloseAmount(account.position, event.params.position)
+    let open = splitOpenAmount(account.position, event.params.position)
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
 
     // save close trade
     if (close != ZERO_BI) {
-        let percent = close.abs() / event.params.positionAmount.abs()
+        let percent = close.abs() / event.params.position.abs()
         let trade = new Trade(
             transactionHash
             .concat('-')
@@ -179,7 +179,7 @@ export function handleTrade(event: TradeEvent): void {
     }
 
     if (open != ZERO_BI) {
-        let percent = open.abs() / event.params.positionAmount.abs()
+        let percent = open.abs() / event.params.position.abs()
         let trade = new Trade(
             transactionHash
             .concat('-')
@@ -204,8 +204,8 @@ export function handleTrade(event: TradeEvent): void {
     }
 
     // user margin account
-    account.position += event.params.positionAmount
-    let amount = convertToDecimal(event.params.positionAmount, BI_18)
+    account.position += event.params.position
+    let amount = convertToDecimal(event.params.position, BI_18)
     account.entryValue += amount.times(price)
     if (account.position == ZERO_BI) {
         account.entryPrice = ZERO_BD
