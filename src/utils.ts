@@ -14,7 +14,7 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0x2a1a5d765ec33f35659764708e3c18d9546f5540'
+export const FACTORY_ADDRESS = '0xddcb02044bf4eb0e312a2278cca744304005ea6f'
 
 // oracle address for get price
 export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
@@ -22,7 +22,7 @@ export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
 // Notice lower case
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
-  "0x0b7cef584c7976e88685ad77fb44baed912e0eab",
+  "0x8b2c4fa78fba24e4cbb4b0ca7b06a29130317093",
 ]
 
 export enum PerpetualState {
@@ -72,7 +72,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.txCount = ZERO_BI
     perp.lastPrice = ZERO_BD
 
-    if (liquidityPool.isFinalized) {
+    if (liquidityPool.isRun) {
       perp.state = PerpetualState.NORMAL
     } else {
       perp.state = PerpetualState.INITIALIZING
