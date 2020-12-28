@@ -60,7 +60,7 @@ type LiquidityPool @entity {
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
-    isFinalized: Boolean!
+    isRun: Boolean!
 }
 
 type Perpetual @entity {

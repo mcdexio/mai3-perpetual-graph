@@ -8,7 +8,7 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0x2A1a5D765Ec33F35659764708e3C18D9546F5540'
+      address: '0xddcB02044Bf4Eb0E312A2278Cca744304005eA6F'
       abi: Factory
       startBlock: 921539
     mapping:
@@ -37,7 +37,7 @@ dataSources:
     name: SymbolService
     network: mainnet
     source:
-      address: '0x74442EaE34A619D45fD7a608513D2C8d38bc55BB'
+      address: '0x7d008132969E0396bC6e84D4106d8bc0fC17FdF0'
       abi: SymbolService
       startBlock: 921539
     mapping:
@@ -70,7 +70,7 @@ dataSources:
         - name: Broker
           file: ./abis/Broker.json
       eventHandlers:
-        - event: TradeSuccess(bytes32,(address,address,address,address,address,int256,int256,bytes32,uint256),int256,uint256)
+        - event: TradeSuccess(bytes32,(address,address,address,address,address,int256,int256,int256,int256,uint256,uint64,uint32,uint32,uint32,uint32),int256,uint256)
           handler: handleTradeSuccess
       file: ./src/broker.ts
 templates:
@@ -100,16 +100,16 @@ templates:
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[8],int256[5])
+        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[5])
           handler: handleCreatePerpetual
-        - event: Finalize()
-          handler: handleFinalize
-        - event: EnterNormalState(uint256)
-          handler: handleEnterNormalState
-        - event: EnterEmergencyState(uint256,int256,uint256)
-          handler: handleEnterEmergencyState
-        - event: EnterClearedState(uint256)
-          handler: handleEnterClearedState
+        - event: RunLiquidityPool()
+          handler: handleRunLiquidityPool
+        - event: SetNormalState(uint256)
+          handler: handleSetNormalState
+        - event: SetEmergencyState(uint256,int256,uint256)
+          handler: handleSetEmergencyState
+        - event: SetClearedState(uint256)
+          handler: handleSetClearedState
         - event: Deposit(uint256,address,int256)
           handler: handleDeposit
         - event: Withdraw(uint256,address,int256)

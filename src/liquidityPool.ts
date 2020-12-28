@@ -4,10 +4,10 @@ import { Factory, LiquidityPool, Perpetual, Trade} from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
-    Finalize as FinalizeEvent,
-    EnterNormalState as EnterNormalStateEvent,
-    EnterEmergencyState as EnterEmergencyStateEvent,
-    EnterClearedState as EnterClearedStateEvent,
+    RunLiquidityPool as RunLiquidityPoolEvent,
+    SetNormalState as SetNormalStateEvent,
+    SetEmergencyState as SetEmergencyStateEvent,
+    SetClearedState as SetClearedStateEvent,
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
     AddLiquidity as AddLiquidityEvent,
@@ -50,20 +50,20 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     factory.save()
 }
 
-export function handleFinalize(event: FinalizeEvent): void {
+export function handleRunLiquidityPool(event: RunLiquidityPoolEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    liquidityPool.isFinalized = true
+    liquidityPool.isRun = true
     liquidityPool.save()
 }
 
-export function handleEnterNormalState(event: EnterNormalStateEvent): void {
+export function handleSetNormalState(event: SetNormalStateEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.NORMAL
     perp.save()
 }
 
-export function handleEnterEmergencyState(event: EnterEmergencyStateEvent): void {
+export function handleSetEmergencyState(event: SetEmergencyStateEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.EMERGENCY
@@ -72,7 +72,7 @@ export function handleEnterEmergencyState(event: EnterEmergencyStateEvent): void
     perp.save()
 }
 
-export function handleEnterClearedState(event: EnterClearedStateEvent): void {
+export function handleSetClearedState(event: SetClearedStateEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.CLEARED
