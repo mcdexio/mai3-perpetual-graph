@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, Trade, PriceBucket } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, ShareToken, Trade, PriceBucket } from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
@@ -232,8 +232,9 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
 export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let shareToken = ShareToken.load(liquidityPool.shareToken)
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
-    let nav = poolMargin.div(liquidityPool.shareToken.totalSupply.toBigDecimal())
+    let nav = poolMargin.div(shareToken.totalSupply.toBigDecimal())
     liquidityPool.poolMargin = poolMargin
     if (isUSDCollateral(liquidityPool.collateralAddress)) {
         liquidityPool.poolMarginUSD = liquidityPool.poolMargin
