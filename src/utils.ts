@@ -14,7 +14,7 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0x07166f0ce97fd2c779aae4d99b68a810e4e14042'
+export const FACTORY_ADDRESS = '0x2a1a5d765ec33f35659764708e3c18d9546f5540'
 
 // oracle address for get price
 export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
@@ -22,7 +22,7 @@ export const ETH_ORACLE = '0x2dccA2b995651158Fe129Ddd23D658410CEa8254'
 // Notice lower case
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
-  "0x12fafc91a5c3b30aabf16814a64ba25aea38f4e6",
+  "0x0b7cef584c7976e88685ad77fb44baed912e0eab",
 ]
 
 export enum PerpetualState {

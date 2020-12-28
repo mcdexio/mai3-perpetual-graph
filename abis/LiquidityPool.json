@@ -59,6 +59,25 @@
         "type": "address"
       }
     ],
+    "name": "Clear",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      }
+    ],
     "name": "ClearAccount",
     "type": "event"
   },
@@ -103,9 +122,9 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[8]",
+        "internalType": "int256[9]",
         "name": "coreParams",
-        "type": "int256[8]"
+        "type": "int256[9]"
       },
       {
         "indexed": false,
@@ -147,9 +166,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "trader",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -166,56 +185,18 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "EnterClearedState",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "settlementPrice",
+        "name": "amount",
         "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "settlementTime",
-        "type": "uint256"
       }
     ],
-    "name": "EnterEmergencyState",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "EnterNormalState",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [],
-    "name": "Finalize",
+    "name": "IncreaseFee",
     "type": "event"
   },
   {
@@ -282,6 +263,50 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "RunLiquidityPool",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetClearedState",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "settlementPrice",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "settlementTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetEmergencyState",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -297,6 +322,19 @@
       }
     ],
     "name": "SetLiquidityPoolParameter",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetNormalState",
     "type": "event"
   },
   {
@@ -359,6 +397,31 @@
       }
     ],
     "name": "SetPerpetualRiskParameter",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
+      }
+    ],
+    "name": "Settle",
     "type": "event"
   },
   {
@@ -446,6 +509,38 @@
       }
     ],
     "name": "UpdatePerpetualRiskParameter",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "poolMargin",
+        "type": "int256"
+      }
+    ],
+    "name": "UpdatePoolMargin",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "unitAccumulativeFunding",
+        "type": "int256"
+      }
+    ],
+    "name": "UpdateUnitAccumulativeFunding",
     "type": "event"
   },
   {
@@ -610,6 +705,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "claimOperatingship",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -630,9 +732,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256[8]",
+        "internalType": "int256[9]",
         "name": "coreParams",
-        "type": "int256[8]"
+        "type": "int256[9]"
       },
       {
         "internalType": "int256[5]",
@@ -681,6 +783,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
         "internalType": "int256",
         "name": "amount",
         "type": "int256"
@@ -688,12 +795,18 @@
     ],
     "name": "donateInsuranceFund",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "finalize",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "forceToEnterEmergencyState",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -751,9 +864,9 @@
         "type": "address[6]"
       },
       {
-        "internalType": "int256[5]",
+        "internalType": "int256[2]",
         "name": "nums",
-        "type": "int256[5]"
+        "type": "int256[2]"
       },
       {
         "internalType": "uint256",
@@ -819,9 +932,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256[17]",
+        "internalType": "int256[20]",
         "name": "nums",
-        "type": "int256[17]"
+        "type": "int256[20]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -844,11 +957,11 @@
     "outputs": [
       {
         "internalType": "int256",
-        "name": "margin",
+        "name": "settleableMargin",
         "type": "int256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -874,9 +987,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256",
-        "name": "insuranceFundCap",
-        "type": "int256"
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
       }
     ],
     "name": "initialize",
@@ -954,6 +1067,33 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "revokeOperatingship",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "runLiquidityPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "setEmergencyState",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -989,7 +1129,7 @@
         "type": "int256"
       }
     ],
-    "name": "setPerpetualParameter",
+    "name": "setPerpetualBaseParameter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1084,6 +1224,24 @@
       }
     ],
     "name": "trade",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOperator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiration",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferOperatingship",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

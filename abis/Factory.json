@@ -83,9 +83,9 @@
       },
       {
         "indexed": false,
-        "internalType": "int256",
-        "name": "insuranceFundCap",
-        "type": "int256"
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
       }
     ],
     "name": "CreateLiquidityPool",
@@ -228,9 +228,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256",
-        "name": "insuranceFundCap",
-        "type": "int256"
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
       },
       {
         "internalType": "int256",
@@ -262,9 +262,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256",
-        "name": "insuranceFundCap",
-        "type": "int256"
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
       },
       {
         "internalType": "int256",
