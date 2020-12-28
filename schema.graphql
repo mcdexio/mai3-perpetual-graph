@@ -204,6 +204,7 @@ type PoolHourData @entity {
     deltaMargin: BigDecimal!
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
+    netAssetValue: BigDecimal!
     timestamp: Int
 }
 
@@ -214,6 +215,7 @@ type PoolDayData @entity {
     deltaMargin: BigDecimal!
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
+    netAssetValue: BigDecimal!
     timestamp: Int
 }
 

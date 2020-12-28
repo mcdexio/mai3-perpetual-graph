@@ -122,6 +122,8 @@ templates:
           handler: handleTrade
         - event: Liquidate(uint256,indexed address,indexed address,int256,int256)
           handler: handleLiquidate
+        - event: UpdatePoolMargin(int256)
+          handler: handleUpdatePoolMargin
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken

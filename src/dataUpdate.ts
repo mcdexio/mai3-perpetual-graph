@@ -132,6 +132,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, amoun
         poolHourData.deltaMargin = amount
         poolHourData.poolMargin = ZERO_BD
         poolHourData.poolMarginUSD = ZERO_BD
+        poolHourData.netAssetValue = ZERO_BD
         poolHourData.timestamp = hourStartUnix
     } else {
         poolHourData.deltaMargin += amount
@@ -153,6 +154,7 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, amount
         poolDayData.deltaMargin = amount
         poolDayData.poolMargin = ZERO_BD
         poolDayData.poolMarginUSD = ZERO_BD
+        poolDayData.netAssetValue = ZERO_BD
         poolDayData.timestamp = dayStartUnix
     } else {
         poolDayData.deltaMargin += amount

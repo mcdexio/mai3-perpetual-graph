@@ -17,6 +17,7 @@ import {
     ONE_BI,
     ETH_ORACLE,
     BI_18,
+    PerpetualState,
     FACTORY_ADDRESS,
     isETHCollateral,
     convertToDecimal,
@@ -137,7 +138,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     for (let index = 0; index < perpetuals.length; index++) {
         let perpIndex = perpetuals[index]
         let perp = Perpetual.load(perpIndex)
-        if (perp.state != 0) {
+        if (perp.state != PerpetualState.NORMAL) {
             return
         }
         if (isUSDCollateral(perp.collateralAddress)) {
