@@ -2,14 +2,14 @@
 import { LiquidityPool } from '../generated/schema'
 
 import { 
-    AssignSymbol as AssignSymbolEvent,
+    AllocateSymbol as AllocateSymbolEvent,
 } from '../generated/SymbolService/SymbolService'
 
 import {
     fetchPerpetual,
 } from './utils'
 
-export function handleAssignSymbol(event: AssignSymbolEvent): void {
+export function handleAllocateSymbol(event: AllocateSymbolEvent): void {
     let liquidityPool = LiquidityPool.load(event.params.liquidityPool.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     if (perp.symbol == "") {
