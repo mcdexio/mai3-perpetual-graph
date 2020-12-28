@@ -234,7 +234,7 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let shareToken = ShareToken.load(liquidityPool.shareToken)
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
-    let nav = poolMargin.div(shareToken.totalSupply.toBigDecimal())
+    let nav = poolMargin.div(shareToken.totalSupply)
     liquidityPool.poolMargin = poolMargin
     if (isUSDCollateral(liquidityPool.collateralAddress)) {
         liquidityPool.poolMarginUSD = liquidityPool.poolMargin
@@ -250,10 +250,12 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     // update poolMargin
     let hourData = updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, ZERO_BD)
     hourData.poolMargin = poolMargin
+    hourData.poolMarginUSD = liquidityPool.poolMarginUSD
     hourData.netAssetValue = nav
     hourData.save()
     let dayData = updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, ZERO_BD)
     dayData.poolMargin = poolMargin
+    dayData.poolMarginUSD = liquidityPool.poolMarginUSD
     dayData.netAssetValue = nav
     dayData.save()
 }

@@ -17,7 +17,7 @@ export let BI_18 = BigInt.fromI32(18)
 export const FACTORY_ADDRESS = '0xddcb02044bf4eb0e312a2278cca744304005ea6f'
 
 // oracle address for get price
-export const ETH_ORACLE = '0xf34ba0c3c81c88867195143b4368f1ca36ad2571'
+export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
 
 export const ETH_ADDRESS = '0xfa53fd78b5176b4d772194511cc16c02c7f183f9'
 

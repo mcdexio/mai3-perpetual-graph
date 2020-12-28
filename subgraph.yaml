@@ -59,7 +59,7 @@ dataSources:
     source:
       address: '0x2d172d0DeDa85d6B1A0C6cfEF081fB4Fb509cb7a' #broker contract address
       abi: Broker
-      startBlock: 901987
+      startBlock: 921539
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
