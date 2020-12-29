@@ -91,6 +91,7 @@ type Perpetual @entity {
     settledAtBlockNumber: BigInt
 
     lastPrice: BigDecimal!
+    unitAccumulativeFunding: BigDecimal!
 }
 
 type ShareToken @entity {
@@ -154,11 +155,11 @@ type MarginAccount @entity {
     id: ID!
     user: User!
     perpetual: Perpetual!
-    collateralAmount: BigDecimal!
     cashBalance: BigDecimal!
     position: BigInt!
     entryPrice: BigDecimal!
     entryValue: BigDecimal!
+    entryFunding: BigDecimal!
 }
 
 type TradeHourData @entity {
