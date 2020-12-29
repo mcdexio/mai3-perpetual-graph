@@ -278,7 +278,7 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
 
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.unitAccumulativeFunding = convertToDecimal(event.params.unitAccumulativeFunding, BI_18)
     perp.save()
 }
