@@ -182,11 +182,14 @@ export function handleTrade(event: TradeEvent): void {
         perp.save()
         trade.save()
         // entry price and entry funding
+        let closeBD = convertToDecimal(close, BI_18)
         let position = account.position.plus(close)
-        account.cashBalance -= price.times(close)
-        account.cashBalance += Perpetual.unitAccumulativeFunding.times(close)
-        account.entryFunding = account.entryFunding.times(position).div(account.position)
-        account.entryValue = account.entryValue.times(position).div(account.position)
+        let positionBD = convertToDecimal(position, BI_18)
+        let oldPositionBD = convertToDecimal(account.position, BI_18)
+        account.cashBalance -= price.times(closeBD)
+        account.cashBalance += perp.unitAccumulativeFunding.times(positionBD)
+        account.entryFunding = account.entryFunding.times(positionBD).div(oldPositionBD)
+        account.entryValue = account.entryValue.times(positionBD).div(oldPositionBD)
         account.position = position
     }
 
@@ -215,15 +218,17 @@ export function handleTrade(event: TradeEvent): void {
         trade.save()
 
         // entry price and entry funding
-        let position = account.position.plus(open)
-        account.cashBalance -= price.times(open)
-        account.cashBalance += perp.unitAccumulativeFunding.times(open)
-        account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(open))
-        account.entryValue = account.entryValue.plus(price.times(open))
+        let openBD = convertToDecimal(open, BI_18)
+        let position = account.position.plus(close)
+        account.cashBalance -= price.times(openBD)
+        account.cashBalance += perp.unitAccumulativeFunding.times(openBD)
+        account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(openBD))
+        account.entryValue = account.entryValue.plus(price.times(openBD))
         account.position = position
     }
-    if (account.position != ZERO_BD) {
-        account.entryPrice = account.entryValue.div(account.position)
+    if (account.position != ZERO_BI) {
+        let positionBD = convertToDecimal(account.position, BI_18)
+        account.entryPrice = account.entryValue.div(positionBD)
     } else {
         account.entryPrice = ZERO_BD
     }
