@@ -73,6 +73,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.totalFee = ZERO_BD
     perp.txCount = ZERO_BI
     perp.lastPrice = ZERO_BD
+    perp.unitAccumulativeFunding = ZERO_BD
 
     if (liquidityPool.isRun) {
       perp.state = PerpetualState.NORMAL
@@ -93,11 +94,10 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
     account = new MarginAccount(id)
     account.user = user.id
     account.perpetual = perpetual.id
-    account.collateralAmount = ZERO_BD
     account.cashBalance = ZERO_BD
     account.position = ZERO_BI
     account.entryPrice = ZERO_BD
-    account.entryValue = ZERO_BD
+    account.entryFunding = ZERO_BD
     account.save()
   }
   return account as MarginAccount

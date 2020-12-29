@@ -15,6 +15,7 @@ import {
     Trade as TradeEvent,
     Liquidate as LiquidateEvent,
     UpdatePoolMargin as UpdatePoolMarginEvent,
+    UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -90,7 +91,7 @@ export function handleDeposit(event: DepositEvent): void {
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
-    marginAccount.collateralAmount += amount
+    marginAccount.cashBalance += amount
     marginAccount.save()
 }
 
@@ -102,7 +103,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
     let amount = convertToDecimal(event.params.amount, BI_18)
-    marginAccount.collateralAmount -= amount
+    marginAccount.cashBalance -= amount
     marginAccount.save()
 }
 
@@ -180,6 +181,13 @@ export function handleTrade(event: TradeEvent): void {
         perp.lastPrice = trade.price
         perp.save()
         trade.save()
+        // entry price and entry funding
+        let position = account.position.plus(close)
+        account.cashBalance -= price.times(close)
+        account.cashBalance += Perpetual.unitAccumulativeFunding.times(close)
+        account.entryFunding = account.entryFunding.times(position).div(account.position)
+        account.entryValue = account.entryValue.times(position).div(account.position)
+        account.position = position
     }
 
     if (open != ZERO_BI) {
@@ -205,16 +213,19 @@ export function handleTrade(event: TradeEvent): void {
         perp.lastPrice = trade.price
         perp.save()
         trade.save()
-    }
 
-    // user margin account
-    account.position += event.params.position
-    let amount = convertToDecimal(event.params.position, BI_18)
-    account.entryValue += amount.times(price)
-    if (account.position == ZERO_BI) {
-        account.entryPrice = ZERO_BD
+        // entry price and entry funding
+        let position = account.position.plus(open)
+        account.cashBalance -= price.times(open)
+        account.cashBalance += perp.unitAccumulativeFunding.times(open)
+        account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(open))
+        account.entryValue = account.entryValue.plus(price.times(open))
+        account.position = position
+    }
+    if (account.position != ZERO_BD) {
+        account.entryPrice = account.entryValue.div(account.position)
     } else {
-        account.entryPrice = account.entryValue.div(convertToDecimal(account.position, BI_18))
+        account.entryPrice = ZERO_BD
     }
     account.save()
 
@@ -258,4 +269,11 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     dayData.poolMarginUSD = liquidityPool.poolMarginUSD
     dayData.netAssetValue = nav
     dayData.save()
+}
+
+export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
+    perp.unitAccumulativeFunding = convertToDecimal(event.params.unitAccumulativeFunding, BI_18)
+    perp.save()
 }
