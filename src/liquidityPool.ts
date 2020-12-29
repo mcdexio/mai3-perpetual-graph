@@ -219,7 +219,7 @@ export function handleTrade(event: TradeEvent): void {
 
         // entry price and entry funding
         let openBD = convertToDecimal(open, BI_18)
-        let position = account.position.plus(close)
+        let position = account.position.plus(open)
         account.cashBalance -= price.times(openBD)
         account.cashBalance += perp.unitAccumulativeFunding.times(openBD)
         account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(openBD))
