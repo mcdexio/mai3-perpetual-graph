@@ -101,7 +101,6 @@ type ShareToken @entity {
     id: ID!
     liquidityPool: LiquidityPool!
     totalSupply: BigDecimal!
-    delegates: [Delegate!]! @derivedFrom(field: "contract")
 }
 
 type LiquidityAccount @entity {
@@ -301,10 +300,10 @@ type Proposal @entity {
 }
 
 type Delegate @entity {
-    # share token contract address + "-" + delegate address
+    # vote token contract address + "-" + delegate address
     id: ID!
     user: User!
-    contract: ShareToken!
+    contract: VoteToken!
     principals: [String!]
 }
 

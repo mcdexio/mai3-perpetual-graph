@@ -136,6 +136,8 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      entities:
+        - LiquidityAccount
       abis:
         - name: ShareToken
           file: ./abis/ShareToken.json
@@ -152,6 +154,8 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      entities:
+        - VoteAccount
       abis:
         - name: VoteToken
           file: ./abis/VoteToken.json

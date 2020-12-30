@@ -18,7 +18,7 @@ export function handleTransfer(event: TransferEvent): void {
     let from = fetchUser(event.params.from)
     let to = fetchUser(event.params.to)
 
-    let value = convertToDecimal(event.params.amount, BI_18)
+    let value = convertToDecimal(event.params.value, BI_18)
     if (from.id == ADDRESS_ZERO) {
         contract.totalSupply += value
     }
