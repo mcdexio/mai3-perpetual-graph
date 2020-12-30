@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, AccHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteContract, PoolHourData, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteToken, VoteContract, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -9,6 +9,7 @@ import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { 
     LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
+    VoteToken as VoteTokenTemplate,
     Vote as VoteTemplate
 } from '../generated/templates'
 
@@ -70,18 +71,26 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     shareToken.totalSupply = ZERO_BD
     liquidityPool.shareToken = shareToken.id
 
+    // create vote token
+    let voteToken = new VoteToken(event.params.shareToken.toHexString())
+    voteToken.liquidityPool = liquidityPool.id
+    voteToken.totalSupply = ZERO_BD
+    liquidityPool.voteToken = voteToken.id
+
     // create vote
     let vote = new VoteContract(event.params.governor.toHexString())
     vote.liquidityPool = liquidityPool.id
     liquidityPool.vote = vote.id 
 
     shareToken.save()
+    voteToken.save()
     vote.save()
     liquidityPool.save()
 
     // create the tracked contract based on the template
     LiquidityPoolTemplate.create(event.params.liquidityPool)
     ShareTokenTemplate.create(event.params.shareToken)
+    VoteTokenTemplate.create(event.params.shareToken)
     VoteTemplate.create(event.params.governor)
 }
 

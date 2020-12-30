@@ -50,6 +50,8 @@ type LiquidityPool @entity {
 
     # vote
     vote: VoteContract!
+    voteToken: VoteToken!
+    voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
 
     # liquidity
     liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"liquidityPool")
@@ -109,6 +111,22 @@ type LiquidityAccount @entity {
     user: User!
     collateralAmount: BigDecimal!
     shareAmount: BigDecimal!
+}
+
+type VoteToken @entity {
+    # vote token address
+    id: ID!
+    liquidityPool: LiquidityPool!
+    totalSupply: BigDecimal!
+    delegates: [Delegate!]! @derivedFrom(field: "contract")
+}
+
+type VoteAccount @entity {
+    # pool address + "-" + user address
+    id: ID!
+    liquidityPool: LiquidityPool!
+    user: User!
+    votes: BigDecimal!
 }
 
 type VoteContract @entity {
@@ -303,13 +321,13 @@ type Vote @entity {
     delegateVotes: BigDecimal
 }
 
-type ProposalShareTokenSnapshot @entity {
+type ProposalVoteTokenSnapshot @entity {
     # proposal id + "-" + user address
     id: ID!
     user: User!
     proposal: Proposal!
     totalSupply: BigDecimal!
-    shareAmount: BigDecimal!
+    votes: BigDecimal!
 }
 
 type ProposalDelegateSnapshot @entity {

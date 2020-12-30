@@ -1,9 +1,8 @@
 import {
     Transfer as TransferEvent,
-    DelegateChanged as DelegateChangedEvent,
 } from '../generated/templates/ShareToken/ShareToken'
 
-import { ShareToken, Delegate, LiquidityPool } from '../generated/schema'
+import { ShareToken, LiquidityPool } from '../generated/schema'
 
 import {
     ADDRESS_ZERO,
@@ -41,46 +40,4 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     contract.save()
-}
-
-export function handleDelegate(event: DelegateChangedEvent): void {
-    let contract = ShareToken.load(event.address.toHexString())
-    // new delegate
-    let newDelegate = fetchUser(event.params.toDelegate)
-    let id = event.address.toHexString().
-        concat('-').
-        concat(newDelegate.id)
-    
-    let delegate = Delegate.load(id)
-    if (delegate === null) {
-        delegate = new Delegate(id)
-        delegate.user = newDelegate.id
-        delegate.contract = contract.id
-        delegate.principals = []
-    }
-    let principals = delegate.principals
-    principals.push(event.params.delegator.toHexString())
-    delegate.principals = principals
-    delegate.save()
-
-    // old
-    let oldDelegate = fetchUser(event.params.fromDelegate)
-    id = event.address.toHexString().
-        concat('-').
-        concat(oldDelegate.id)
-    
-    delegate = Delegate.load(id)
-    if (delegate != null) {
-        let oldprincipals = delegate.principals as string[]
-        let newPrincipals: string[] = []
-        for (let index = 0; index < oldprincipals.length; index++) {
-            let principal = oldprincipals[index]
-            if (event.params.delegator.toHexString() != principal) {
-                newPrincipals.push(principal)
-            }
-        }
-        delegate.principals = newPrincipals
-        delegate.save()
-    }
-    return
 }
