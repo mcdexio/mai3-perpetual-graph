@@ -1,7 +1,7 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { LiquidityPool, ShareToken, VoteContract, LiquidityAccount,
-     Proposal, Vote, ProposalShareTokenSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
+import { LiquidityPool, VoteToken, VoteContract, VoteAccount,
+     Proposal, Vote, ProposalVoteTokenSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
 
 import { 
     ProposalCreated as ProposalCreatedEvent,
@@ -35,20 +35,20 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 
     // create share token snapshot and delegate snapshot for vote
     let liquidityPool = LiquidityPool.load(voteContract.liquidityPool)
-    let share = ShareToken.load(liquidityPool.shareToken)
-    let liquidityAccounts = liquidityPool.liquidityAccounts as LiquidityAccount[]
-    for (let index = 0; index < liquidityAccounts.length; index++) {
-        let liquidityAccount = liquidityAccounts[index]
-        let snapshotId = proposalId.concat('-').concat(liquidityAccount.user)
-        let shareSnapshot = new ProposalShareTokenSnapshot(snapshotId)
-        shareSnapshot.user = liquidityAccount.user
+    let voteToken = VoteToken.load(liquidityPool.voteToken)
+    let voteAccounts = liquidityPool.voteAccounts as VoteAccount[]
+    for (let index = 0; index < voteAccounts.length; index++) {
+        let voteAccount = voteAccounts[index]
+        let snapshotId = proposalId.concat('-').concat(voteAccount.user)
+        let shareSnapshot = new ProposalVoteTokenSnapshot(snapshotId)
+        shareSnapshot.user = voteAccount.user
         shareSnapshot.proposal = proposal.id
-        shareSnapshot.totalSupply = share.totalSupply
-        shareSnapshot.shareAmount = liquidityAccount.shareAmount
+        shareSnapshot.totalSupply = voteToken.totalSupply
+        shareSnapshot.votes = voteAccount.votes
         shareSnapshot.save()
     }
     
-    let delegates = share.delegates as Delegate[]
+    let delegates = voteToken.delegates as Delegate[]
     for (let index = 0; index < delegates.length; index++) {
         let delegate = delegates[index]
         let snapshotId = proposalId.concat('-').concat(delegate.user)
@@ -79,15 +79,15 @@ export function handleVote(event: VoteCastEvent): void {
     for (let index = 0; index < principals.length; index++) {
         let principal = principals[index];
         let id = vote.proposal.concat('-').concat(principal)
-        let shareTokenSnapshot = ProposalShareTokenSnapshot.load(id)
-        if (shareTokenSnapshot != null) {
+        let voteTokenSnapshot = ProposalVoteTokenSnapshot.load(id)
+        if (voteTokenSnapshot != null) {
             let principalVote = new Vote(proposalId.concat('-').concat(principal))
             principalVote.timestamp = vote.timestamp
             principalVote.voter = principal
             principalVote.proposal = proposalId
             principalVote.votes = vote.votes
             principalVote.delegate = vote.voter
-            principalVote.delegateVotes = shareTokenSnapshot.shareAmount
+            principalVote.delegateVotes = voteTokenSnapshot.votes
             principalVote.save()
         }
     }

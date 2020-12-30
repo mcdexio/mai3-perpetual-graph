@@ -57,7 +57,7 @@ dataSources:
     name: Broker
     network: mainnet
     source:
-      address: '0x2d172d0DeDa85d6B1A0C6cfEF081fB4Fb509cb7a' #broker contract address
+      address: '0x626cD536E239867B14511Ba92d606a24D13c25A4' #broker contract address
       abi: Broker
       startBlock: 921539
     mapping:
@@ -136,17 +136,31 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      entities:
-        - LiquidityPosition
       abis:
         - name: ShareToken
           file: ./abis/ShareToken.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+      file: ./src/shareToken.ts
+  - kind: ethereum/contract
+    name: VoteToken
+    network: mainnet
+    source:
+      abi: VoteToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      abis:
+        - name: VoteToken
+          file: ./abis/VoteToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
         - event: DelegateChanged(indexed address,indexed address,indexed address)
           handler: handleDelegate
-      file: ./src/shareToken.ts
+      file: ./src/voteToken.ts
   - kind: ethereum/contract
     name: Vote
     network: mainnet

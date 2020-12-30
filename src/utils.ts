@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount } from '../generated/schema'
+import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount, VoteAccount } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -116,6 +116,19 @@ export function fetchLiquidityAccount(user: User, liquidityPool: LiquidityPool):
     account.save()
   }
   return account as LiquidityAccount
+}
+
+export function fetchVoteAccount(user: User, liquidityPool: LiquidityPool): VoteAccount {
+  let id = liquidityPool.id.concat('-').concat(user.id)
+  let account = VoteAccount.load(id)
+  if (account === null) {
+    account = new VoteAccount(id)
+    account.user = user.id
+    account.liquidityPool = liquidityPool.id
+    account.votes = ZERO_BD
+    account.save()
+  }
+  return account as VoteAccount
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
