@@ -72,6 +72,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.totalVolume = ZERO_BD
     perp.totalFee = ZERO_BD
     perp.txCount = ZERO_BI
+    perp.position = ZERO_BD
     perp.lastPrice = ZERO_BD
     perp.unitAccumulativeFunding = ZERO_BD
 
