@@ -83,6 +83,7 @@ type Perpetual @entity {
     totalVolume: BigDecimal!
     totalFee: BigDecimal!
     txCount: BigInt!
+    position: BigDecimal!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!

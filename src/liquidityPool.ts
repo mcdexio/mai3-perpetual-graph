@@ -156,7 +156,9 @@ export function handleTrade(event: TradeEvent): void {
     let open = splitOpenAmount(account.position, event.params.position)
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
-
+    perp.lastPrice = price
+    perp.position += convertToDecimal(-event.params.position, BI_18)
+    perp.save()
     // save close trade
     if (close != ZERO_BI) {
         let percent = close.abs() / event.params.position.abs()
@@ -178,8 +180,6 @@ export function handleTrade(event: TradeEvent): void {
         trade.blockNumber = event.block.number
         trade.timestamp = event.block.timestamp
         trade.logIndex = event.logIndex
-        perp.lastPrice = trade.price
-        perp.save()
         trade.save()
         // entry price and entry funding
         let closeBD = convertToDecimal(close, BI_18)
@@ -213,8 +213,6 @@ export function handleTrade(event: TradeEvent): void {
         trade.blockNumber = event.block.number
         trade.timestamp = event.block.timestamp
         trade.logIndex = event.logIndex
-        perp.lastPrice = trade.price
-        perp.save()
         trade.save()
 
         // entry price and entry funding
