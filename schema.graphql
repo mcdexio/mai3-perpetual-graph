@@ -250,7 +250,6 @@ type PoolHourData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
-    deltaMargin: BigDecimal!
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
@@ -261,7 +260,6 @@ type PoolDayData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
-    deltaMargin: BigDecimal!
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
