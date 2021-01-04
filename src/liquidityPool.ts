@@ -131,10 +131,10 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
         .concat('-')
         .concat(event.logIndex.toString())
     )
-    LiquidityHistory.liquidityPool = liquidityPool.id
+    liquidityHistory.liquidityPool = liquidityPool.id
     liquidityHistory.trader = user.id
     liquidityHistory.collateral = cash
-    LiquidityHistory.type = LiquidityType.ADD
+    liquidityHistory.type = LiquidityType.ADD
     liquidityHistory.transactionHash = transactionHash
     liquidityHistory.blockNumber = event.block.number
     liquidityHistory.timestamp = event.block.timestamp
