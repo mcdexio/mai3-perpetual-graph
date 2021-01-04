@@ -65,7 +65,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.createdAtBlockNumber = event.block.number
     liquidityPool.isRun = false
     liquidityPool.voteCount = ZERO_BI
-    liquidityPool.txCount = ZERO_BI
+    liquidityPool.liquidityHisCount = ZERO_BI
 
     // create share token
     let shareToken = new ShareToken(event.params.shareToken.toHexString())

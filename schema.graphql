@@ -55,7 +55,7 @@ type LiquidityPool @entity {
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
 
     # liquidity
-    txCount: BigInt!
+    liquidityHisCount: BigInt!
     liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"liquidityPool")
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
