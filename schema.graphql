@@ -139,6 +139,19 @@ type VoteContract @entity {
     proposals: [Proposal!]! @derivedFrom(field: "contract")
 }
 
+type LiquidityHistory @entity {
+    # trasaction hash + "-" + index
+    id: ID!
+    liquidityPool: LiquidityPool!
+    trader: String!
+    collateral: BigDecimal!
+    type: Int!
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    logIndex: BigInt!
+}
+
 type Trade @entity {
     # trasaction hash + "-" + index + "-" + close/open
     id: ID!
