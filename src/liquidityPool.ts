@@ -186,7 +186,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
         // liquidator is AMM
-        perp.position += convertToDecimal(-event.params.position, BI_18)
+        perp.position += convertToDecimal(-event.params.amount, BI_18)
     } else {
         // liquidator is user
         let liquidator = fetchUser(event.params.liquidator)

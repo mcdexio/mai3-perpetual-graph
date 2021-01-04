@@ -161,7 +161,7 @@ type Liquidate @entity {
     id: ID!
     perpetual: Perpetual!
     trader: String!
-    Liquidator: String!
+    liquidator: String!
     amount: BigDecimal!
     price: BigDecimal!
     transactionHash: String!
