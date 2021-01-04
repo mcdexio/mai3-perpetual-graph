@@ -10,9 +10,9 @@ import {
 
 import {
     fetchUser,
-    ZERO_BD,
     BI_18,
     convertToDecimal,
+    ONE_BI,
 } from './utils'
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
@@ -35,6 +35,8 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 
     // create share token snapshot and delegate snapshot for vote
     let liquidityPool = LiquidityPool.load(voteContract.liquidityPool)
+    liquidityPool.voteCount += ONE_BI
+    liquidityPool.save()
     let voteToken = VoteToken.load(liquidityPool.voteToken)
     let voteAccounts = liquidityPool.voteAccounts as VoteAccount[]
     for (let index = 0; index < voteAccounts.length; index++) {

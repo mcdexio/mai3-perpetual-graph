@@ -31,6 +31,10 @@ export enum PerpetualState {
   INVALID, INITIALIZING, NORMAL, EMERGENCY, CLEARED
 }
 
+export enum TradeType {
+  NORMAL, LIQUIDATE
+}
+
 export function isUSDCollateral(collateral: string): boolean {
   for (let i = 0; i < USDTokens.length; i++) {
     if (collateral == USDTokens[i]) {
@@ -72,6 +76,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.totalVolume = ZERO_BD
     perp.totalFee = ZERO_BD
     perp.txCount = ZERO_BI
+    perp.liqCount = ZERO_BI
     perp.position = ZERO_BD
     perp.lastPrice = ZERO_BD
     perp.unitAccumulativeFunding = ZERO_BD
