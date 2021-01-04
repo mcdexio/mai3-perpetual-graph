@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, ShareToken, Trade, PriceBucket, User, MarginAccount, Liquidate } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, ShareToken, Trade, PriceBucket, User, MarginAccount, Liquidate, LiquidityHistory } from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
@@ -27,6 +27,7 @@ import {
     BI_18,
     PerpetualState,
     TradeType,
+    LiquidityType,
     fetchUser,
     fetchMarginAccount,
     fetchLiquidityAccount,
@@ -124,6 +125,22 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityPool.txCount += ONE_BI
     liquidityPool.save()
 
+    let transactionHash = event.transaction.hash.toHexString()
+    let liquidityHistory = new LiquidityHistory(
+        transactionHash
+        .concat('-')
+        .concat(event.logIndex.toString())
+    )
+    LiquidityHistory.liquidityPool = liquidityPool.id
+    liquidityHistory.trader = user.id
+    liquidityHistory.collateral = cash
+    LiquidityHistory.type = LiquidityType.ADD
+    liquidityHistory.transactionHash = transactionHash
+    liquidityHistory.blockNumber = event.block.number
+    liquidityHistory.timestamp = event.block.timestamp
+    liquidityHistory.logIndex = event.logIndex
+    liquidityHistory.save()
+
     // update deltaMargin
     updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
     updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
@@ -143,6 +160,22 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     account.save()
     liquidityPool.txCount += ONE_BI
     liquidityPool.save()
+
+    let transactionHash = event.transaction.hash.toHexString()
+    let liquidityHistory = new LiquidityHistory(
+        transactionHash
+        .concat('-')
+        .concat(event.logIndex.toString())
+    )
+    LiquidityHistory.liquidityPool = liquidityPool.id
+    liquidityHistory.trader = user.id
+    liquidityHistory.collateral = cash
+    LiquidityHistory.type = LiquidityType.REMOVE
+    liquidityHistory.transactionHash = transactionHash
+    liquidityHistory.blockNumber = event.block.number
+    liquidityHistory.timestamp = event.block.timestamp
+    liquidityHistory.logIndex = event.logIndex
+    liquidityHistory.save()
 
     // update deltaMargin
     updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, cash)

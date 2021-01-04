@@ -35,6 +35,10 @@ export enum TradeType {
   NORMAL, LIQUIDATE
 }
 
+export enum LiquidityType {
+  ADD, REMOVE
+}
+
 export function isUSDCollateral(collateral: string): boolean {
   for (let i = 0; i < USDTokens.length; i++) {
     if (collateral == USDTokens[i]) {
