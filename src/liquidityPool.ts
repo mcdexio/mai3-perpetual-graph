@@ -201,7 +201,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         .concat(event.logIndex.toString())
     )
     liquidate.perpetual = perp.id
-    liquidate.trader = trader.id
+    liquidate.trader = event.params.trader.toHexString()
     liquidate.liquidator = event.params.liquidator.toHexString()
     liquidate.amount = convertToDecimal(event.params.amount, BI_18)
     liquidate.price = price
