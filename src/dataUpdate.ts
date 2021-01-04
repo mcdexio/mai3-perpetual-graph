@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Perpetual, LiquidityPool, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData} from '../generated/schema'
+import { Perpetual, LiquidityPool, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData, ShareToken, PriceBucket} from '../generated/schema'
 import {
     Trade as TradeEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
@@ -8,7 +8,9 @@ import {
 import {
     ZERO_BD,
     BI_18,
-    convertToDecimal
+    convertToDecimal,
+    isUSDCollateral,
+    isETHCollateral,
 } from './utils'
 
 export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHourData {
@@ -119,7 +121,7 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     return tradeSevenDayData as TradeSevenDayData
 }
 
-export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, amount: BigDecimal): PoolHourData {
+export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolHourData {
     let hourIndex = timestamp.toI32() / 3600
     let hourStartUnix = hourIndex * 3600
     let hourPoolID = pool.id
@@ -129,19 +131,34 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, amoun
     if (poolHourData === null) {
         poolHourData = new PoolHourData(hourPoolID)
         poolHourData.liquidityPool = pool.id
-        poolHourData.deltaMargin = amount
-        poolHourData.poolMargin = ZERO_BD
+        poolHourData.poolMargin = poolMargin
         poolHourData.poolMarginUSD = ZERO_BD
         poolHourData.netAssetValue = ZERO_BD
         poolHourData.timestamp = hourStartUnix
-    } else {
-        poolHourData.deltaMargin += amount
+    } else if (!isRefresh) {
+        return poolHourData as PoolHourData
     }
+    let shareToken = ShareToken.load(pool.shareToken)
+    let nav = poolMargin.div(shareToken.totalSupply)
+    pool.poolMargin = poolMargin
+    if (isUSDCollateral(pool.collateralAddress)) {
+        pool.poolMarginUSD = pool.poolMargin
+    } else if (isETHCollateral(pool.collateralAddress)) {
+        let bucket = PriceBucket.load('1')
+        let ethPrice = ZERO_BD
+        if (bucket != null && bucket.ethPrice != null) {
+            ethPrice = bucket.ethPrice as BigDecimal
+        }
+        pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
+    }
+    poolHourData.poolMarginUSD = pool.poolMarginUSD
+    poolHourData.netAssetValue = nav
+    pool.save()
     poolHourData.save()
     return poolHourData as PoolHourData
 }
 
-export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, amount: BigDecimal): PoolDayData {
+export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolDayData {
     let dayIndex = timestamp.toI32() / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
     let dayPoolID = pool.id
@@ -151,14 +168,29 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, amount
     if (poolDayData === null) {
         poolDayData = new PoolDayData(dayPoolID)
         poolDayData.liquidityPool = pool.id
-        poolDayData.deltaMargin = amount
-        poolDayData.poolMargin = ZERO_BD
+        poolDayData.poolMargin = poolMargin
         poolDayData.poolMarginUSD = ZERO_BD
         poolDayData.netAssetValue = ZERO_BD
         poolDayData.timestamp = dayStartUnix
-    } else {
-        poolDayData.deltaMargin += amount
+    } else if (!isRefresh) {
+        return poolDayData as PoolDayData
     }
+    let shareToken = ShareToken.load(pool.shareToken)
+    let nav = poolMargin.div(shareToken.totalSupply)
+    pool.poolMargin = poolMargin
+    if (isUSDCollateral(pool.collateralAddress)) {
+        pool.poolMarginUSD = pool.poolMargin
+    } else if (isETHCollateral(pool.collateralAddress)) {
+        let bucket = PriceBucket.load('1')
+        let ethPrice = ZERO_BD
+        if (bucket != null && bucket.ethPrice != null) {
+            ethPrice = bucket.ethPrice as BigDecimal
+        }
+        pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
+    }
+    poolDayData.poolMarginUSD = pool.poolMarginUSD
+    poolDayData.netAssetValue = nav
+    pool.save()
     poolDayData.save()
     return poolDayData as PoolDayData
 }

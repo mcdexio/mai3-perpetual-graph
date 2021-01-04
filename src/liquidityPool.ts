@@ -140,10 +140,6 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
-
-    // update deltaMargin
-    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
-    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
@@ -176,10 +172,6 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
-
-    // update deltaMargin
-    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
-    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, cash)
 } 
 
 export function handleTrade(event: TradeEvent): void {
@@ -334,32 +326,10 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 
 export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let shareToken = ShareToken.load(liquidityPool.shareToken)
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
-    let nav = poolMargin.div(shareToken.totalSupply)
-    liquidityPool.poolMargin = poolMargin
-    if (isUSDCollateral(liquidityPool.collateralAddress)) {
-        liquidityPool.poolMarginUSD = liquidityPool.poolMargin
-    } else if (isETHCollateral(liquidityPool.collateralAddress)) {
-        let bucket = PriceBucket.load('1')
-        let ethPrice = ZERO_BD
-        if (bucket != null && bucket.ethPrice != null) {
-            ethPrice = bucket.ethPrice as BigDecimal
-        }
-        liquidityPool.poolMarginUSD = liquidityPool.poolMargin.times(ethPrice)
-    }
-    liquidityPool.save()
     // update poolMargin
-    let hourData = updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, ZERO_BD)
-    hourData.poolMargin = poolMargin
-    hourData.poolMarginUSD = liquidityPool.poolMarginUSD
-    hourData.netAssetValue = nav
-    hourData.save()
-    let dayData = updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, ZERO_BD)
-    dayData.poolMargin = poolMargin
-    dayData.poolMarginUSD = liquidityPool.poolMarginUSD
-    dayData.netAssetValue = nav
-    dayData.save()
+    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, true)
+    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, true)
 }
 
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {

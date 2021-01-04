@@ -4,6 +4,7 @@ import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDay
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
+import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
 
 import { 
@@ -132,16 +133,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
-        if (isUSDCollateral(liquidityPool.collateralAddress)) {
-            liquidityPool.poolMarginUSD = liquidityPool.poolMargin
-        } else if (isETHCollateral(liquidityPool.collateralAddress)) {
-            let ethPrice = ZERO_BD
-            if (bucket.ethPrice != null) {
-                ethPrice = bucket.ethPrice as BigDecimal
-            }
-            liquidityPool.poolMarginUSD = liquidityPool.poolMargin.times(ethPrice)
-        }
-        liquidityPool.save()
+        // update poolMargin
+        let poolMargin = ZERO_BD
+        updatePoolHourData(liquidityPool as LiquidityPool, timestamp, poolMargin, false)
+        updatePoolDayData(liquidityPool as LiquidityPool, timestamp, poolMargin, false)
     }
 
     // update perpetual's trade volume amount in USD and oracle price data
@@ -165,39 +160,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
         // perp price
         updatePriceData(perp.oracleAddress, timestamp)
-
-        // liquidity data
-        // let hourPoolID = perp.liquidityPool.id
-        // .concat('-')
-        // .concat(BigInt.fromI32(hourIndex).toString())
-        // let liquidityHourData = LiquidityHourData.load(hourPoolID)
-        // if (liquidityHourData === null) {
-        //     liquidityHourData = new LiquidityHourData(hourPoolID)
-        //     liquidityHourData.poolMargin = perp.poolMargin
-        //     liquidityHourData.poolMarginUSD = perp.poolMarginUSD
-        //     liquidityHourData.timestamp = hourStartUnix
-        //     liquidityHourData.save()
-        // }
-
-        // acc data
-        // let accHourData = AccHourData.load(hourPerpID)
-        // if (accHourData === null) {
-        //     accHourData = new AccHourData(hourPerpID)
-        //     let acc = ZERO_BD
-
-        //     let perpContract = PerpetualTemplate.bind(perpAddress)
-        //     let callResult = perpContract.try_fundingState()
-        //     if(callResult.reverted){
-        //         log.warning("Get try_price reverted at block: {}", [block.number.toString()])
-        //         return
-        //     } else {
-        //         acc = convertToDecimal(callResult.value.value0, BI_18)
-        //     }
-        //     accHourData.perpetual = perpAddress
-        //     accHourData.acc = acc
-        //     accHourData.timestamp = hourStartUnix
-        //     accHourData.save()
-        // }
     }
 
     let id = FACTORY_ADDRESS.concat('-').concat(BigInt.fromI32(hourIndex).toString())
