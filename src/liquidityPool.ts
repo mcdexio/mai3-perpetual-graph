@@ -122,7 +122,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     // shareAmount update on shareToken transfer event
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
-    liquidityPool.txCount += ONE_BI
+    liquidityPool.liquidityHisCount += ONE_BI
     liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
@@ -158,7 +158,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
         liquidityPool.liquidityProviderCount -= ONE_BI
     }
     account.save()
-    liquidityPool.txCount += ONE_BI
+    liquidityPool.liquidityHisCount += ONE_BI
     liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
