@@ -35,7 +35,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 
     // create share token snapshot and delegate snapshot for vote
     let liquidityPool = LiquidityPool.load(voteContract.liquidityPool)
-    liquidityPool.voteCount += ONE_BI
+    liquidityPool.proposalCount += ONE_BI
     liquidityPool.save()
     let voteToken = VoteToken.load(liquidityPool.voteToken)
     let voteAccounts = liquidityPool.voteAccounts as VoteAccount[]

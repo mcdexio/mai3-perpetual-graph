@@ -65,7 +65,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.createdAtTimestamp = event.block.timestamp
     liquidityPool.createdAtBlockNumber = event.block.number
     liquidityPool.isRun = false
-    liquidityPool.voteCount = ZERO_BI
+    liquidityPool.proposalCount = ZERO_BI
     liquidityPool.liquidityHisCount = ZERO_BI
 
     // create share token
@@ -145,7 +145,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let perpIndex = perpetuals[index]
         let perp = Perpetual.load(perpIndex)
         if (perp.state != PerpetualState.NORMAL) {
-            return
+            continue
         }
         if (isUSDCollateral(perp.collateralAddress)) {
             perp.totalVolumeUSD = perp.totalVolume

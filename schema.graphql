@@ -50,7 +50,7 @@ type LiquidityPool @entity {
 
     # vote
     vote: VoteContract!
-    voteCount: BigInt!
+    proposalCount: BigInt!
     voteToken: VoteToken!
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
 
