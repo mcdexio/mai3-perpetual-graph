@@ -135,8 +135,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
-        updatePoolHourData(liquidityPool as LiquidityPool, timestamp, poolMargin, false)
-        updatePoolDayData(liquidityPool as LiquidityPool, timestamp, poolMargin, false)
+        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
+        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
     }
 
     // update perpetual's trade volume amount in USD and oracle price data
