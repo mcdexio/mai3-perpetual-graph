@@ -14,7 +14,7 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 // Notice lower case
-export const FACTORY_ADDRESS = '0xddcb02044bf4eb0e312a2278cca744304005ea6f'
+export const FACTORY_ADDRESS = '0xf8473064b030ca003c0b0c13b80c954ac70d5161'
 
 // oracle address for get price
 export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
