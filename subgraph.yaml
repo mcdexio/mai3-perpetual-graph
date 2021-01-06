@@ -100,7 +100,7 @@ templates:
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[5])
+        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[6])
           handler: handleCreatePerpetual
         - event: RunLiquidityPool()
           handler: handleRunLiquidityPool
@@ -157,7 +157,7 @@ templates:
       entities:
         - LiquidityPosition
       abis:
-        - name: Vote
+        - name: Governor
           file: ./abis/Governor.json
       eventHandlers:
         - event: ProposalCreated(uint256,address,address,string,bytes[],uint256,uint256,string)

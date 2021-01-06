@@ -1,7 +1,7 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { LiquidityPool, VoteToken, Governor, VoteAccount,
-     Proposal, Vote, ProposalVoteTokenSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
+import { LiquidityPool, Governor, VoteAccount,
+     Proposal, Vote, ProposalVotesSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
 
 import { 
     ProposalCreated as ProposalCreatedEvent,
@@ -19,7 +19,7 @@ import {
 } from './utils'
 
 export function handleDelegate(event: DelegateChangedEvent): void {
-    let contract = VoteToken.load(event.address.toHexString())
+    let governor = Governor.load(event.address.toHexString())
     // new delegate
     let newDelegate = fetchUser(event.params.toDelegate)
     let id = event.address.toHexString().
@@ -30,7 +30,7 @@ export function handleDelegate(event: DelegateChangedEvent): void {
     if (delegate === null) {
         delegate = new Delegate(id)
         delegate.user = newDelegate.id
-        delegate.contract = contract.id
+        delegate.governor = governor.id
         delegate.principals = []
     }
     let principals = delegate.principals
@@ -86,20 +86,19 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     let liquidityPool = LiquidityPool.load(governor.liquidityPool)
     liquidityPool.proposalCount += ONE_BI
     liquidityPool.save()
-    let voteToken = VoteToken.load(liquidityPool.voteToken)
     let voteAccounts = liquidityPool.voteAccounts as VoteAccount[]
     for (let index = 0; index < voteAccounts.length; index++) {
         let voteAccount = voteAccounts[index]
         let snapshotId = proposalId.concat('-').concat(voteAccount.user)
-        let shareSnapshot = new ProposalVoteTokenSnapshot(snapshotId)
-        shareSnapshot.user = voteAccount.user
-        shareSnapshot.proposal = proposal.id
-        shareSnapshot.totalSupply = voteToken.totalSupply
-        shareSnapshot.votes = voteAccount.votes
-        shareSnapshot.save()
+        let votesSnapshot = new ProposalVotesSnapshot(snapshotId)
+        votesSnapshot.user = voteAccount.user
+        votesSnapshot.proposal = proposal.id
+        votesSnapshot.totalSupply = governor.totalSupply
+        votesSnapshot.votes = voteAccount.votes
+        votesSnapshot.save()
     }
     
-    let delegates = voteToken.delegates as Delegate[]
+    let delegates = governor.delegates as Delegate[]
     for (let index = 0; index < delegates.length; index++) {
         let delegate = delegates[index]
         let snapshotId = proposalId.concat('-').concat(delegate.user)
@@ -139,15 +138,15 @@ export function handleVote(event: VoteCastEvent): void {
     for (let index = 0; index < principals.length; index++) {
         let principal = principals[index];
         let id = vote.proposal.concat('-').concat(principal)
-        let voteTokenSnapshot = ProposalVoteTokenSnapshot.load(id)
-        if (voteTokenSnapshot != null) {
+        let votesSnapshot = ProposalVotesSnapshot.load(id)
+        if (votesSnapshot != null) {
             let principalVote = new Vote(proposalId.concat('-').concat(principal))
             principalVote.timestamp = vote.timestamp
             principalVote.voter = principal
             principalVote.proposal = proposalId
             principalVote.votes = vote.votes
             principalVote.delegate = vote.voter
-            principalVote.delegateVotes = voteTokenSnapshot.votes
+            principalVote.delegateVotes = votesSnapshot.votes
             principalVote.save()
         }
     }
@@ -156,7 +155,7 @@ export function handleVote(event: VoteCastEvent): void {
 export function handleProposalExecuted(event: ProposalExecutedEvent): void {
     let proposalId = event.address.toHexString()
         .concat("-")
-        .concat(event.params.proposalId.toString())
+        .concat(event.params.id.toString())
     let proposal = Proposal.load(proposalId)
     proposal.isExecuted = true
     proposal.save()
