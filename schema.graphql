@@ -316,6 +316,7 @@ type AccHourData @entity {
 type Proposal @entity {
     # vote contract address + "-" + proposal index
     id: ID!
+    index: BigInt!
     contract: VoteContract!
     proposer: User!
     targets: String!
@@ -324,6 +325,8 @@ type Proposal @entity {
     calldatas: [Bytes!]
     startBlock: BigInt!
     endBlock: BigInt!
+    for: BigDecimal!
+    against: BigDecimal!
     timestamp: BigInt!
     votes: [Vote!] @derivedFrom(field: "proposal")
 }
