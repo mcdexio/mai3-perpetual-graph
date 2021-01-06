@@ -46,10 +46,11 @@ type LiquidityPool @entity {
     voteAddress: String!
     shareAddress: String!
     operatorAddress: String!
+    collateralDecimals: BigInt!
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
 
     # vote
-    vote: VoteContract!
+    governor: Governor!
     proposalCount: BigInt!
     voteToken: VoteToken!
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
@@ -132,11 +133,11 @@ type VoteAccount @entity {
     votes: BigDecimal!
 }
 
-type VoteContract @entity {
-    # vote contract address
+type Governor @entity {
+    # governor contract address
     id: ID!
     liquidityPool: LiquidityPool!
-    proposals: [Proposal!]! @derivedFrom(field: "contract")
+    proposals: [Proposal!]! @derivedFrom(field: "governor")
 }
 
 type LiquidityHistory @entity {
@@ -317,9 +318,9 @@ type Proposal @entity {
     # vote contract address + "-" + proposal index
     id: ID!
     index: BigInt!
-    contract: VoteContract!
+    governor: Governor!
     proposer: User!
-    targets: String!
+    target: String!
     signature: String!
     description: String!
     calldatas: [Bytes!]
@@ -327,6 +328,7 @@ type Proposal @entity {
     endBlock: BigInt!
     for: BigDecimal!
     against: BigDecimal!
+    isExecuted: Boolean!
     timestamp: BigInt!
     votes: [Vote!] @derivedFrom(field: "proposal")
 }
