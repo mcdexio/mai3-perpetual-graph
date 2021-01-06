@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: mainnet
     source:
-      address: '0xddcB02044Bf4Eb0E312A2278Cca744304005eA6F'
+      address: '0xf8473064b030ca003c0b0c13b80c954ac70d5161'
       abi: Factory
-      startBlock: 921539
+      startBlock: 956960
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -37,9 +37,9 @@ dataSources:
     name: SymbolService
     network: mainnet
     source:
-      address: '0x7d008132969E0396bC6e84D4106d8bc0fC17FdF0'
+      address: '0x7b1cbD67283C136688269F2E3A4FA1e0BdBA4664'
       abi: SymbolService
-      startBlock: 921539
+      startBlock: 956960
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -59,7 +59,7 @@ dataSources:
     source:
       address: '0x626cD536E239867B14511Ba92d606a24D13c25A4' #broker contract address
       abi: Broker
-      startBlock: 921539
+      startBlock: 956960
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
