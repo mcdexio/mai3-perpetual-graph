@@ -52,7 +52,6 @@ type LiquidityPool @entity {
     # vote
     governor: Governor!
     proposalCount: BigInt!
-    voteToken: VoteToken!
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
 
     # liquidity
@@ -117,14 +116,6 @@ type LiquidityAccount @entity {
     shareAmount: BigDecimal!
 }
 
-type VoteToken @entity {
-    # vote token address
-    id: ID!
-    liquidityPool: LiquidityPool!
-    totalSupply: BigDecimal!
-    delegates: [Delegate!]! @derivedFrom(field: "contract")
-}
-
 type VoteAccount @entity {
     # pool address + "-" + user address
     id: ID!
@@ -137,6 +128,8 @@ type Governor @entity {
     # governor contract address
     id: ID!
     liquidityPool: LiquidityPool!
+    totalSupply: BigDecimal!
+    delegates: [Delegate!]! @derivedFrom(field: "governor")
     proposals: [Proposal!]! @derivedFrom(field: "governor")
 }
 
@@ -334,10 +327,10 @@ type Proposal @entity {
 }
 
 type Delegate @entity {
-    # vote token contract address + "-" + delegate address
+    # governor contract address + "-" + delegate address
     id: ID!
     user: User!
-    contract: VoteToken!
+    governor: Governor!
     principals: [String!]
 }
 
@@ -354,7 +347,7 @@ type Vote @entity {
     delegateVotes: BigDecimal
 }
 
-type ProposalVoteTokenSnapshot @entity {
+type ProposalVotesSnapshot @entity {
     # proposal id + "-" + user address
     id: ID!
     user: User!
