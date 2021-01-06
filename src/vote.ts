@@ -13,6 +13,7 @@ import {
     BI_18,
     convertToDecimal,
     ONE_BI,
+    ZERO_BD,
 } from './utils'
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
@@ -24,6 +25,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     let user = fetchUser(event.params.proposer)
     proposal.contract = voteContract.id
     proposal.proposer = user.id
+    proposal.index = event.params.id
     proposal.targets = event.params.targets.toHexString()
     proposal.signature = event.params.signature
     proposal.calldatas = event.params.calldatas
@@ -31,6 +33,8 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.description = event.params.description
     proposal.startBlock = event.params.startBlock
     proposal.endBlock = event.params.endBlock
+    proposal.for = ZERO_BD
+    proposal.against = ZERO_BD
     proposal.save()
 
     // create share token snapshot and delegate snapshot for vote
@@ -64,13 +68,22 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
   
 export function handleVote(event: VoteCastEvent): void {
     let user = fetchUser(event.params.voter)
-    let proposalId = event.params.proposalId.toString()
+    let proposalId = event.address.toHexString()
+        .concat("-")
+        .concat(event.params.proposalId.toString())
+    let proposal = Proposal.load(proposalId)
     let vote = new Vote(proposalId.concat('-').concat(user.id))
     vote.timestamp = event.block.timestamp
     vote.voter = user.id;
     vote.proposal = proposalId
     vote.support = event.params.support
     vote.votes = convertToDecimal(event.params.votes, BI_18)
+    if (vote.support) {
+        proposal.for += vote.votes
+    } else {
+        proposal.against += vote.votes
+    }
+    proposal.save()
     vote.save()
 
     // delegate
