@@ -27,7 +27,7 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        - event: CreateLiquidityPool(address,address,address,address,address,bool)
+        - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
           handler: handleCreateLiquidityPool
       blockHandlers:
         - handler: handleSyncPerpData
@@ -146,30 +146,10 @@ templates:
           handler: handleTransfer
       file: ./src/shareToken.ts
   - kind: ethereum/contract
-    name: VoteToken
+    name: Governor
     network: mainnet
     source:
-      abi: VoteToken
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - VoteAccount
-      abis:
-        - name: VoteToken
-          file: ./abis/VoteToken.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: DelegateChanged(indexed address,indexed address,indexed address)
-          handler: handleDelegate
-      file: ./src/voteToken.ts
-  - kind: ethereum/contract
-    name: Vote
-    network: mainnet
-    source:
-      abi: Vote
+      abi: Governor
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -186,4 +166,6 @@ templates:
           handler: handleProposalExecuted
         - event: VoteCast(address,uint256,bool,uint256)
           handler: handleVoteCast
-      file: ./src/vote.ts
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegate
+      file: ./src/governor.ts

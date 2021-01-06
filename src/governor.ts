@@ -1,12 +1,14 @@
 import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { LiquidityPool, VoteToken, VoteContract, VoteAccount,
+import { LiquidityPool, VoteToken, Governor, VoteAccount,
      Proposal, Vote, ProposalVoteTokenSnapshot, Delegate, ProposalDelegateSnapshot} from '../generated/schema'
 
 import { 
     ProposalCreated as ProposalCreatedEvent,
+    ProposalExecuted as ProposalExecutedEvent,
     VoteCast as VoteCastEvent,
-} from '../generated/templates/Vote/Vote'
+    DelegateChanged as DelegateChangedEvent,
+} from '../generated/templates/Governor/Governor'
 
 import {
     fetchUser,
@@ -16,17 +18,59 @@ import {
     ZERO_BD,
 } from './utils'
 
+export function handleDelegate(event: DelegateChangedEvent): void {
+    let contract = VoteToken.load(event.address.toHexString())
+    // new delegate
+    let newDelegate = fetchUser(event.params.toDelegate)
+    let id = event.address.toHexString().
+        concat('-').
+        concat(newDelegate.id)
+    
+    let delegate = Delegate.load(id)
+    if (delegate === null) {
+        delegate = new Delegate(id)
+        delegate.user = newDelegate.id
+        delegate.contract = contract.id
+        delegate.principals = []
+    }
+    let principals = delegate.principals
+    principals.push(event.params.delegator.toHexString())
+    delegate.principals = principals
+    delegate.save()
+
+    // old
+    let oldDelegate = fetchUser(event.params.fromDelegate)
+    id = event.address.toHexString().
+        concat('-').
+        concat(oldDelegate.id)
+    
+    delegate = Delegate.load(id)
+    if (delegate != null) {
+        let oldprincipals = delegate.principals as string[]
+        let newPrincipals: string[] = []
+        for (let index = 0; index < oldprincipals.length; index++) {
+            let principal = oldprincipals[index]
+            if (event.params.delegator.toHexString() != principal) {
+                newPrincipals.push(principal)
+            }
+        }
+        delegate.principals = newPrincipals
+        delegate.save()
+    }
+    return
+}
+
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
-    let voteContract = VoteContract.load(event.address.toHexString())
+    let governor = Governor.load(event.address.toHexString())
     let proposalId = event.address.toHexString()
         .concat("-")
         .concat(event.params.id.toString())
     let proposal = new Proposal(proposalId)
     let user = fetchUser(event.params.proposer)
-    proposal.contract = voteContract.id
+    proposal.governor = governor.id
     proposal.proposer = user.id
     proposal.index = event.params.id
-    proposal.targets = event.params.targets.toHexString()
+    proposal.target = event.params.target.toHexString()
     proposal.signature = event.params.signature
     proposal.calldatas = event.params.calldatas
     proposal.timestamp = event.block.timestamp
@@ -35,10 +79,11 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.endBlock = event.params.endBlock
     proposal.for = ZERO_BD
     proposal.against = ZERO_BD
+    proposal.isExecuted = false
     proposal.save()
 
     // create share token snapshot and delegate snapshot for vote
-    let liquidityPool = LiquidityPool.load(voteContract.liquidityPool)
+    let liquidityPool = LiquidityPool.load(governor.liquidityPool)
     liquidityPool.proposalCount += ONE_BI
     liquidityPool.save()
     let voteToken = VoteToken.load(liquidityPool.voteToken)
@@ -106,4 +151,13 @@ export function handleVote(event: VoteCastEvent): void {
             principalVote.save()
         }
     }
+}
+
+export function handleProposalExecuted(event: ProposalExecutedEvent): void {
+    let proposalId = event.address.toHexString()
+        .concat("-")
+        .concat(event.params.proposalId.toString())
+    let proposal = Proposal.load(proposalId)
+    proposal.isExecuted = true
+    proposal.save()
 }

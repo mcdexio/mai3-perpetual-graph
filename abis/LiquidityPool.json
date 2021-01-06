@@ -48,18 +48,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "trader",
+        "name": "newOperator",
         "type": "address"
       }
     ],
-    "name": "Clear",
+    "name": "ClaimOperatorTo",
     "type": "event"
   },
   {
@@ -78,7 +72,7 @@
         "type": "address"
       }
     ],
-    "name": "ClearAccount",
+    "name": "Clear",
     "type": "event"
   },
   {
@@ -128,9 +122,9 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[5]",
+        "internalType": "int256[6]",
         "name": "riskParams",
-        "type": "int256[5]"
+        "type": "int256[6]"
       }
     ],
     "name": "CreatePerpetual",
@@ -264,6 +258,12 @@
   {
     "anonymous": false,
     "inputs": [],
+    "name": "RevokeOperator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
     "name": "RunLiquidityPool",
     "type": "event"
   },
@@ -359,7 +359,7 @@
         "type": "int256"
       }
     ],
-    "name": "SetPerpetualParameter",
+    "name": "SetPerpetualBaseParameter",
     "type": "event"
   },
   {
@@ -434,31 +434,6 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "trader",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "amount",
-        "type": "int256"
-      }
-    ],
-    "name": "SettleAccount",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
         "indexed": true,
         "internalType": "address",
         "name": "trader",
@@ -484,6 +459,19 @@
       }
     ],
     "name": "Trade",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOperator",
+        "type": "address"
+      }
+    ],
+    "name": "TransferOperatorTo",
     "type": "event"
   },
   {
@@ -584,105 +572,24 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "trader",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "broker",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "relayer",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "referrer",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "liquidityPool",
-            "type": "address"
-          },
-          {
-            "internalType": "int256",
-            "name": "minTradeAmount",
-            "type": "int256"
-          },
-          {
-            "internalType": "int256",
-            "name": "amount",
-            "type": "int256"
-          },
-          {
-            "internalType": "int256",
-            "name": "limitPrice",
-            "type": "int256"
-          },
-          {
-            "internalType": "int256",
-            "name": "triggerPrice",
-            "type": "int256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "chainID",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint64",
-            "name": "expiredAt",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint32",
-            "name": "perpetualIndex",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "brokerFeeLimit",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "flags",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "salt",
-            "type": "uint32"
-          }
-        ],
-        "internalType": "struct Order",
-        "name": "order",
-        "type": "tuple"
+        "internalType": "bytes",
+        "name": "orderData",
+        "type": "bytes"
       },
       {
         "internalType": "int256",
         "name": "amount",
         "type": "int256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      },
-      {
-        "internalType": "uint8",
-        "name": "signType",
-        "type": "uint8"
       }
     ],
     "name": "brokerTrade",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -737,19 +644,19 @@
         "type": "int256[9]"
       },
       {
-        "internalType": "int256[5]",
+        "internalType": "int256[6]",
         "name": "riskParams",
-        "type": "int256[5]"
+        "type": "int256[6]"
       },
       {
-        "internalType": "int256[5]",
+        "internalType": "int256[6]",
         "name": "minRiskParamValues",
-        "type": "int256[5]"
+        "type": "int256[6]"
       },
       {
-        "internalType": "int256[5]",
+        "internalType": "int256[6]",
         "name": "maxRiskParamValues",
-        "type": "int256[5]"
+        "type": "int256[6]"
       }
     ],
     "name": "createPerpetual",
@@ -795,7 +702,7 @@
     ],
     "name": "donateInsuranceFund",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -870,6 +777,11 @@
       },
       {
         "internalType": "uint256",
+        "name": "collateralDecimals",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "perpetualCount",
         "type": "uint256"
       },
@@ -877,6 +789,16 @@
         "internalType": "uint256",
         "name": "fundingTime",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isInitialized",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -906,9 +828,39 @@
         "internalType": "int256",
         "name": "position",
         "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "availableCash",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "margin",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "settleableMargin",
+        "type": "int256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isInitialMarginSafe",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isMaintenanceMarginSafe",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBankrupt",
+        "type": "bool"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -932,12 +884,25 @@
         "type": "address"
       },
       {
-        "internalType": "int256[20]",
+        "internalType": "int256[21]",
         "name": "nums",
-        "type": "int256[20]"
+        "type": "int256[21]"
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPoolMargin",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "poolMargin",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -948,16 +913,21 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "trader",
-        "type": "address"
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
       }
     ],
-    "name": "getSettleableMargin",
+    "name": "getTradePrice",
     "outputs": [
       {
         "internalType": "int256",
-        "name": "settleableMargin",
+        "name": "deltaCash",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "deltaPosition",
         "type": "int256"
       }
     ],
@@ -975,6 +945,11 @@
         "internalType": "address",
         "name": "collateral",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralDecimals",
+        "type": "uint256"
       },
       {
         "internalType": "address",
@@ -1016,7 +991,13 @@
       }
     ],
     "name": "liquidateByAMM",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1049,7 +1030,13 @@
       }
     ],
     "name": "liquidateByTrader",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1068,7 +1055,7 @@
   },
   {
     "inputs": [],
-    "name": "revokeOperatingship",
+    "name": "revokeOperator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1218,13 +1205,19 @@
         "type": "address"
       },
       {
-        "internalType": "bool",
-        "name": "isCloseOnly",
-        "type": "bool"
+        "internalType": "uint32",
+        "name": "flags",
+        "type": "uint32"
       }
     ],
     "name": "trade",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1234,14 +1227,9 @@
         "internalType": "address",
         "name": "newOperator",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "expiration",
-        "type": "uint256"
       }
     ],
-    "name": "transferOperatingship",
+    "name": "transferOperator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

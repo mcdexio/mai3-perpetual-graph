@@ -83,6 +83,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "collateralDecimals",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "bool",
         "name": "isFastCreationEnabled",
         "type": "bool"
@@ -228,6 +234,11 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "collateralDecimals",
+        "type": "uint256"
+      },
+      {
         "internalType": "bool",
         "name": "isFastCreationEnabled",
         "type": "bool"
@@ -260,6 +271,11 @@
         "internalType": "address",
         "name": "collateral",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralDecimals",
+        "type": "uint256"
       },
       {
         "internalType": "bool",
@@ -376,6 +392,25 @@
   {
     "inputs": [],
     "name": "getLiquidityPoolCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "getOwnedLiquidityPoolsCountOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -613,25 +648,6 @@
         "internalType": "address[]",
         "name": "result",
         "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      }
-    ],
-    "name": "ownedLiquidityPoolsCountOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

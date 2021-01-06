@@ -1,17 +1,18 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, VoteToken, VoteContract, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
+import { LiquidityPool as PoolContract } from '../generated/templates/LiquidityPool/LiquidityPool'
+
 import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
 
 import { 
     LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
-    VoteToken as VoteTokenTemplate,
-    Vote as VoteTemplate
+    Governor as GovernorTemplate
 } from '../generated/templates'
 
 import {
@@ -59,6 +60,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = event.params.collateral.toHexString()
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
+    liquidityPool.collateralDecimals = event.params.collateralDecimals
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.liquidityProviderCount = ZERO_BI
@@ -74,27 +76,19 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     shareToken.totalSupply = ZERO_BD
     liquidityPool.shareToken = shareToken.id
 
-    // create vote token
-    let voteToken = new VoteToken(event.params.shareToken.toHexString())
-    voteToken.liquidityPool = liquidityPool.id
-    voteToken.totalSupply = ZERO_BD
-    liquidityPool.voteToken = voteToken.id
-
     // create vote
-    let vote = new VoteContract(event.params.governor.toHexString())
-    vote.liquidityPool = liquidityPool.id
-    liquidityPool.vote = vote.id 
+    let governor = new Governor(event.params.governor.toHexString())
+    governor.liquidityPool = liquidityPool.id
+    liquidityPool.governor = governor.id 
 
     shareToken.save()
-    voteToken.save()
-    vote.save()
+    governor.save()
     liquidityPool.save()
 
     // create the tracked contract based on the template
     LiquidityPoolTemplate.create(event.params.liquidityPool)
     ShareTokenTemplate.create(event.params.shareToken)
-    VoteTokenTemplate.create(event.params.shareToken)
-    VoteTemplate.create(event.params.governor)
+    GovernorTemplate.create(event.params.governor)
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
@@ -135,6 +129,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
+        let contract = PoolContract.bind(Address.fromString(poolIndex))
+        let callResult = contract.try_getPoolMargin()
+        if (!callResult.reverted) {
+            poolMargin = convertToDecimal(callResult.value, BI_18)
+        }
         updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
         updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
     }
