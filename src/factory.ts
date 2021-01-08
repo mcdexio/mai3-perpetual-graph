@@ -4,7 +4,7 @@ import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDay
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { LiquidityPool as PoolContract } from '../generated/templates/LiquidityPool/LiquidityPool'
+import { LiquidityPool as PoolContract } from '../generated/Factory/LiquidityPool'
 
 import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
@@ -79,6 +79,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     // create vote
     let governor = new Governor(event.params.governor.toHexString())
     governor.liquidityPool = liquidityPool.id
+    governor.totalSupply = ZERO_BD
     liquidityPool.governor = governor.id 
 
     shareToken.save()

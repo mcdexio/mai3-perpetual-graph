@@ -139,7 +139,10 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
         return poolHourData as PoolHourData
     }
     let shareToken = ShareToken.load(pool.shareToken)
-    let nav = poolMargin.div(shareToken.totalSupply)
+    let nav = ZERO_BD
+    if (shareToken.totalSupply != ZERO_BD) {
+        nav = poolMargin.div(shareToken.totalSupply)
+    }
     pool.poolMargin = poolMargin
     if (isUSDCollateral(pool.collateralAddress)) {
         pool.poolMarginUSD = pool.poolMargin
@@ -176,7 +179,10 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
         return poolDayData as PoolDayData
     }
     let shareToken = ShareToken.load(pool.shareToken)
-    let nav = poolMargin.div(shareToken.totalSupply)
+    let nav = ZERO_BD
+    if (shareToken.totalSupply != ZERO_BD) {
+        nav = poolMargin.div(shareToken.totalSupply)
+    }
     pool.poolMargin = poolMargin
     if (isUSDCollateral(pool.collateralAddress)) {
         pool.poolMarginUSD = pool.poolMargin
