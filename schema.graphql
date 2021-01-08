@@ -171,6 +171,8 @@ type Liquidate @entity {
     liquidator: String!
     amount: BigDecimal!
     price: BigDecimal!
+    type: Int!
+    penalty: BigDecimal!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
