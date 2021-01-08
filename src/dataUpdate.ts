@@ -17,8 +17,7 @@ export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHo
     let timestamp = event.block.timestamp.toI32()
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
-    let hourPerpID = event.address
-        .toHexString()
+    let hourPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
     let tradeHourData = TradeHourData.load(hourPerpID)
@@ -53,8 +52,7 @@ export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDay
     let timestamp = event.block.timestamp.toI32()
     let dayIndex = timestamp / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
-    let dayPerpID = event.address
-        .toHexString()
+    let dayPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeDayData = TradeDayData.load(dayPerpID)
@@ -89,8 +87,7 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     let timestamp = event.block.timestamp.toI32()
     let dayIndex = timestamp / (3600*24*7)
     let dayStartUnix = dayIndex * (3600*24*7)
-    let dayPerpID = event.address
-        .toHexString()
+    let dayPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeSevenDayData = TradeSevenDayData.load(dayPerpID)
