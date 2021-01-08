@@ -32,13 +32,10 @@ import {
     fetchMarginAccount,
     fetchLiquidityAccount,
     convertToDecimal,
-    isUSDCollateral,
-    isETHCollateral,
     splitCloseAmount,
     splitOpenAmount,
     fetchPerpetual,
     fetchOracleUnderlying,
-    ONE_BD,
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
