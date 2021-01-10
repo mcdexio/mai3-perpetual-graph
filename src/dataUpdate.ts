@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Perpetual, LiquidityPool, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData, ShareToken, PriceBucket} from '../generated/schema'
+import { Perpetual, LiquidityPool, Trade15MinData, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData, ShareToken, PriceBucket} from '../generated/schema'
 import {
     Trade as TradeEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
@@ -12,6 +12,41 @@ import {
     isUSDCollateral,
     isETHCollateral,
 } from './utils'
+
+export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade15MinData {
+    let timestamp = event.block.timestamp.toI32()
+    let minIndex = timestamp / (60*15)
+    let minStartUnix = minIndex * (60*15)
+    let minPerpID = perp.id
+        .concat('-')
+        .concat(BigInt.fromI32(minIndex).toString())
+    let trade15MinData = Trade15MinData.load(minPerpID)
+    let price = convertToDecimal(event.params.price, BI_18)
+    let amount = convertToDecimal(event.params.position, BI_18)
+    if (amount < ZERO_BD) {
+        amount = -amount
+    }
+    if (trade15MinData === null) {
+        trade15MinData = new TradeHourData(minPerpID)
+        trade15MinData.perpetual = perp.id
+        trade15MinData.timestamp = minStartUnix
+        trade15MinData.open = price
+        trade15MinData.low = price
+        trade15MinData.high = price
+        trade15MinData.close = price
+        trade15MinData.volume = amount.times(price)
+    } else {
+        trade15MinData.close = price
+        if (trade15MinData.high < price) {
+            trade15MinData.high = price
+        } else if(trade15MinData.low > price) {
+            trade15MinData.low = price
+        }
+        trade15MinData.volume = trade15MinData.volume.plus(amount.times(price))
+    }
+    trade15MinData.save()
+    return trade15MinData as Trade15MinData
+}
 
 export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHourData {
     let timestamp = event.block.timestamp.toI32()

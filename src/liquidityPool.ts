@@ -18,7 +18,7 @@ import {
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
-import { updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
+import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
 import {
     ZERO_BD,
@@ -187,6 +187,7 @@ export function handleTrade(event: TradeEvent): void {
     perp.save()
 
     // update trade data
+    updateTrade15MinData(perp as Perpetual, event)
     updateTradeHourData(perp as Perpetual, event)
     updateTradeDayData(perp as Perpetual, event)
     updateTradeSevenDayData(perp as Perpetual, event)

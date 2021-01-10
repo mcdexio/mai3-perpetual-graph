@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, McdexLiquidityHourData} from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -95,10 +95,10 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 export function handleSyncPerpData(block: ethereum.Block): void {
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
+    let minIndex = timestamp / 300
+    let minStartUnix = minIndex * 300
     let bucket = PriceBucket.load('1')
-    if (bucket === null || bucket.timestamp == hourStartUnix) {
+    if (bucket === null || bucket.timestamp == minStartUnix) {
         return
     }
 
@@ -115,7 +115,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         price = convertToDecimal(callResult.value.value0, BI_18)
     }
     bucket.ethPrice = price
-    bucket.timestamp = hourStartUnix
+    bucket.timestamp = minStartUnix
     bucket.save()
 
     let factory = Factory.load(FACTORY_ADDRESS)
@@ -162,6 +162,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         updatePriceData(perp.oracleAddress, timestamp)
     }
 
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
     let id = FACTORY_ADDRESS.concat('-').concat(BigInt.fromI32(hourIndex).toString())
     let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
     if (mcdexLiquidityHourData === null) {
@@ -175,6 +177,37 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
 function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
+    let contract = OracleContract.bind(Address.fromString(oracle))
+    let callResult = contract.try_priceTWAPShort()
+    if (!callResult.reverted) {
+        price = convertToDecimal(callResult.value.value0, BI_18)
+    }
+
+    // 15Min
+    let minIndex = timestamp / (60*15)
+    let minStartUnix = minIndex * (60*15)
+    let minPriceID = oracle
+    .concat('-')
+    .concat(BigInt.fromI32(minIndex).toString())
+    let price15MinData = Price15MinData.load(minPriceID)
+    if (price15MinData === null) {
+
+        price15MinData = new Price15MinData(minPriceID)
+        price15MinData.oracle = oracle
+        price15MinData.open = price
+        price15MinData.close = price
+        price15MinData.high = price
+        price15MinData.low = price
+        price15MinData.timestamp = minStartUnix
+    } else {
+        price15MinData.close = price
+        if (price15MinData.high < price) {
+            price15MinData.high = price
+        } else if(price15MinData.low > price) {
+            price15MinData.low = price
+        }
+    }
+    price15MinData.save()
 
     // hour
     let hourIndex = timestamp / 3600
@@ -184,17 +217,22 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     .concat(BigInt.fromI32(hourIndex).toString())
     let priceHourData = PriceHourData.load(hourPriceID)
     if (priceHourData === null) {
-        let contract = OracleContract.bind(Address.fromString(oracle))
-        let callResult = contract.try_priceTWAPShort()
-        if (!callResult.reverted) {
-            price = convertToDecimal(callResult.value.value0, BI_18)
-        }
         priceHourData = new PriceHourData(hourPriceID)
         priceHourData.oracle = oracle
-        priceHourData.price = price
+        priceHourData.open = price
+        priceHourData.close = price
+        priceHourData.high = price
+        priceHourData.low = price
         priceHourData.timestamp = hourStartUnix
-        priceHourData.save()
+    } else {
+        priceHourData.close = price
+        if (priceHourData.high < price) {
+            priceHourData.high = price
+        } else if(priceHourData.low > price) {
+            priceHourData.low = price
+        }
     }
+    priceHourData.save()
 
     // day
     let dayIndex = timestamp / (3600*24)
@@ -206,10 +244,20 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     if (priceDayData === null) {
         priceDayData = new PriceDayData(dayPriceID)
         priceDayData.oracle = oracle
-        priceDayData.price = price
+        priceDayData.open = price
+        priceDayData.close = price
+        priceDayData.high = price
+        priceDayData.low = price
         priceDayData.timestamp = dayStartUnix
-        priceDayData.save()
+    } else {
+        priceDayData.close = price
+        if (priceDayData.high < price) {
+            priceDayData.high = price
+        } else if(priceDayData.low > price) {
+            priceDayData.low = price
+        }
     }
+    priceDayData.save()
 
     // seven day
     let sevenDayIndex = timestamp / (3600*24*7)
@@ -221,8 +269,18 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     if (priceSevenDayData === null) {
         priceSevenDayData = new PriceSevenDayData(sevenDayPriceID)
         priceSevenDayData.oracle = oracle
-        priceSevenDayData.price = price
+        priceSevenDayData.open = price
+        priceSevenDayData.close = price
+        priceSevenDayData.high = price
+        priceSevenDayData.low = price
         priceSevenDayData.timestamp = sevenDayStartUnix
-        priceSevenDayData.save()
+    } else {
+        priceSevenDayData.close = price
+        if (priceSevenDayData.high < price) {
+            priceSevenDayData.high = price
+        } else if(priceSevenDayData.low > price) {
+            priceSevenDayData.low = price
+        }
     }
+    priceSevenDayData.save()
 }
