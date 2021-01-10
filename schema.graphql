@@ -206,6 +206,18 @@ type MarginAccount @entity {
     entryFunding: BigDecimal!
 }
 
+type Trade15MinData @entity {
+    # perpetual index + "-" + timeindex
+    id: ID!
+    perpetual: Perpetual!
+    timestamp: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    volume: BigDecimal!
+}
+
 type TradeHourData @entity {
     # perpetual index + "-" + timeindex
     id: ID!
@@ -262,11 +274,25 @@ type PoolDayData @entity {
     timestamp: Int
 }
 
+type Price15MinData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    oracle: String!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    timestamp: Int
+}
+
 type PriceHourData @entity {
     # oracle address + "-" + timeindex
     id: ID!
     oracle: String!
-    price: BigDecimal!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
     timestamp: Int
 }
 
@@ -274,7 +300,10 @@ type PriceDayData @entity {
     # oracle address + "-" + timeindex
     id: ID!
     oracle: String!
-    price: BigDecimal!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
     timestamp: Int
 }
 
@@ -282,7 +311,10 @@ type PriceSevenDayData @entity {
     # oracle address + "-" + timeindex
     id: ID!
     oracle: String!
-    price: BigDecimal!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
     timestamp: Int
 }
 
