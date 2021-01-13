@@ -275,6 +275,96 @@
     "anonymous": false,
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "trader",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "broker",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "relayer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "liquidityPool",
+            "type": "address"
+          },
+          {
+            "internalType": "int256",
+            "name": "minTradeAmount",
+            "type": "int256"
+          },
+          {
+            "internalType": "int256",
+            "name": "amount",
+            "type": "int256"
+          },
+          {
+            "internalType": "int256",
+            "name": "limitPrice",
+            "type": "int256"
+          },
+          {
+            "internalType": "int256",
+            "name": "triggerPrice",
+            "type": "int256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiredAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint32",
+            "name": "perpetualIndex",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "brokerFeeLimit",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "flags",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "salt",
+            "type": "uint32"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Order",
+        "name": "order",
+        "type": "tuple"
+      }
+    ],
+    "name": "DecodeOrder",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "sender",

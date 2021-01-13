@@ -45,6 +45,8 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
     perp.underlying = fetchOracleUnderlying(event.params.oracle)
+    perp.createdAtTimestamp = event.block.timestamp
+    perp.createdAtBlockNumber = event.block.number
     perp.save()
 
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
