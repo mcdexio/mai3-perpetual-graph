@@ -27,7 +27,7 @@ export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade1
         amount = -amount
     }
     if (trade15MinData === null) {
-        trade15MinData = new TradeHourData(minPerpID)
+        trade15MinData = new Trade15MinData(minPerpID)
         trade15MinData.perpetual = perp.id
         trade15MinData.timestamp = minStartUnix
         trade15MinData.open = price
