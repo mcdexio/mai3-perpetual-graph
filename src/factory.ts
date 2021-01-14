@@ -114,9 +114,12 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     } else {
         price = convertToDecimal(callResult.value.value0, BI_18)
     }
-    bucket.ethPrice = price
-    bucket.timestamp = minStartUnix
-    bucket.save()
+    if (price > ZERO_BD) {
+        bucket.ethPrice = price
+        bucket.timestamp = minStartUnix
+        bucket.save()
+    }
+
 
     let factory = Factory.load(FACTORY_ADDRESS)
     if (factory === null) {
@@ -154,7 +157,9 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             if (bucket.ethPrice != null) {
                 ethPrice = bucket.ethPrice as BigDecimal
             }
-            perp.totalVolumeUSD = perp.totalVolume.times(ethPrice)
+            if (ethPrice > ZERO_BD) {
+                perp.totalVolumeUSD = perp.totalVolume.times(ethPrice)
+            }
         }
         perp.save()
 
@@ -181,6 +186,10 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     let callResult = contract.try_priceTWAPShort()
     if (!callResult.reverted) {
         price = convertToDecimal(callResult.value.value0, BI_18)
+    }
+
+    if (price == ZERO_BD) {
+        return
     }
 
     // 15Min
