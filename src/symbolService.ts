@@ -12,10 +12,16 @@ import {
 export function handleAllocateSymbol(event: AllocateSymbolEvent): void {
     let liquidityPool = LiquidityPool.load(event.params.liquidityPool.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let symbol = event.params.symbol.toString()
+    if (symbol.length < 5) {
+        for (let index = 0; index < 5-symbol.length; index++) {
+            symbol = "0".concat(symbol)
+        }
+    }
     if (perp.symbol == "") {
-        perp.symbol = event.params.symbol.toString()
+        perp.symbol = symbol
     } else {
-        perp.symbol = perp.symbol.concat('-').concat(event.params.symbol.toString())
+        perp.symbol = perp.symbol.concat('-').concat(symbol)
     }
     perp.save()
 }

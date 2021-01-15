@@ -112,9 +112,9 @@ templates:
           handler: handleSetEmergencyState
         - event: SetClearedState(uint256)
           handler: handleSetClearedState
-        - event: Deposit(uint256,address,int256)
+        - event: Deposit(uint256,indexed address,int256)
           handler: handleDeposit
-        - event: Withdraw(uint256,address,int256)
+        - event: Withdraw(uint256,indexed address,int256)
           handler: handleWithdraw
         - event: AddLiquidity(indexed address,int256,int256)
           handler: handleAddLiquidity
@@ -122,7 +122,7 @@ templates:
           handler: handleRemoveLiquidity
         - event: Trade(uint256,indexed address,int256,int256,int256)
           handler: handleTrade
-        - event: Liquidate(uint256,indexed address,indexed address,int256,int256)
+        - event: Liquidate(uint256,indexed address,indexed address,int256,int256,int256)
           handler: handleLiquidate
         - event: UpdatePoolMargin(int256)
           handler: handleUpdatePoolMargin
