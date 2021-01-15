@@ -267,9 +267,11 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.amount = closeBD
         trade.price = priceBD
         trade.isClose = true
-        trade.pnl = closeBD.times(priceBD.minus(account.entryPrice))
+        let pnl1 = -closeBD.times(priceBD).minus(account.entryValue)
+        let fundingPnl = account.entryFunding.minus(-closeBD.times(perp.unitAccumulativeFunding))
+        trade.pnl = pnl1 + fundingPnl
         trade.fee = convertToDecimal(fee*percent, BI_18)
-        trade.type = type // position by trade
+        trade.type = type
         trade.transactionHash = transactionHash
         trade.blockNumber = blockNumber
         trade.timestamp = timestamp
@@ -288,7 +290,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         perp.txCount += ONE_BI
     }
 
-    // close position
+    // open position
     if (open != ZERO_BI) {
         let percent = open.abs() / amount.abs()
         let trade = new Trade(
@@ -305,7 +307,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.isClose = false
         trade.pnl = ZERO_BD
         trade.fee = convertToDecimal(fee*percent, BI_18)
-        trade.type = type // position by trade
+        trade.type = type
         trade.transactionHash = transactionHash
         trade.blockNumber = blockNumber
         trade.timestamp = timestamp
@@ -323,12 +325,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 
         perp.txCount += ONE_BI
     }
-    if (account.position != ZERO_BI) {
-        let positionBD = convertToDecimal(account.position, BI_18)
-        account.entryPrice = account.entryValue.div(positionBD)
-    } else {
-        account.entryPrice = ZERO_BD
-    }
+    
     account.save()
 }
 
