@@ -19,7 +19,11 @@ export const FACTORY_ADDRESS = '0x01c4edb6a57ec75ea1b71b1964b5768348c30e54'
 // oracle address for get price
 export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
 
-export const ETH_ADDRESS = '0xfa53fd78b5176b4d772194511cc16c02c7f183f9'
+export let ETHTokens:string[] = [
+  "0xdea04ead9bce0ba129120c137117504f6dfaf78f",
+  "0x1520d5561dfb209c6df5149cb6146f6b18d7ad2a",
+  "0x726e650f0bdf5bd57b4a3e23f81973d3c225a94c"
+]
 
 // Notice lower case
 // added ["USDT", "USDC", "DAI"]
@@ -49,7 +53,12 @@ export function isUSDCollateral(collateral: string): boolean {
 }
 
 export function isETHCollateral(collateral: string): boolean {
-  return collateral==ETH_ADDRESS
+  for (let i = 0; i < ETHTokens.length; i++) {
+    if (collateral == ETHTokens[i]) {
+      return true
+    }
+  }
+  return false
 }
 
 export function fetchUser(address: Address): User {
