@@ -202,7 +202,6 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let perp = Perpetual.load(id)
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
-    let entryPrice = account.entryPrice
     let transactionHash = event.transaction.hash.toHexString()
 
     let price = convertToDecimal(event.params.price, BI_18)
@@ -219,7 +218,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let amount = convertToDecimal(event.params.amount, BI_18)
     liquidate.price = price
     liquidate.amount = amount
-    liquidate.penalty = amount.times(price.minus(entryPrice))
+    liquidate.penalty = convertToDecimal(event.params.penalty, BI_18)
     liquidate.transactionHash = transactionHash
     liquidate.blockNumber = event.block.number
     liquidate.timestamp = event.block.timestamp
