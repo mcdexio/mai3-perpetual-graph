@@ -185,7 +185,8 @@ export function handleTrade(event: TradeEvent): void {
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
     let position = convertToDecimal(event.params.position, BI_18)
-    newTrade(perp as Perpetual, trader, account, position, price, event.params.fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    let fee = convertToDecimal(event.params.fee, BI_18)
+    newTrade(perp as Perpetual, trader, account, position, price, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     perp.lastPrice = price
     perp.position += convertToDecimal(-event.params.position, BI_18)
@@ -228,7 +229,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.logIndex = event.logIndex
 
     // trader
-    newTrade(perp as Perpetual, trader, account, amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
+    newTrade(perp as Perpetual, trader, account, amount, price, ZERO_BD, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
 
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
@@ -240,7 +241,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         liquidate.type = 1
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, ZERO_BD, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
     }
 
     liquidate.save()
@@ -250,7 +251,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     perp.save()
 }
 
-function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigInt,
+function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigDecimal,
     transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType ): void {
     let close = splitCloseAmount(account.position, amount)
     let open = splitOpenAmount(account.position, amount)
@@ -273,7 +274,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         let pnl1 = NegBigDecimal(close).times(price).minus(account.entryValue.times(pnlPercent))
         let fundingPnl = account.entryFunding.times(pnlPercent).minus(NegBigDecimal(close).times(perp.unitAccumulativeFunding))
         trade.pnl = pnl1 + fundingPnl
-        trade.fee = convertToDecimal(fee*percent, BI_18)
+        trade.fee = fee.times(percent)
         trade.type = type
         trade.transactionHash = transactionHash
         trade.blockNumber = blockNumber
@@ -308,7 +309,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.price = price
         trade.isClose = false
         trade.pnl = ZERO_BD
-        trade.fee = convertToDecimal(fee*percent, BI_18)
+        trade.fee = fee.times(percent)
         trade.type = type
         trade.transactionHash = transactionHash
         trade.blockNumber = blockNumber
