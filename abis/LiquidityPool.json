@@ -225,6 +225,12 @@
         "internalType": "int256",
         "name": "price",
         "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "penalty",
+        "type": "int256"
       }
     ],
     "name": "Liquidate",
