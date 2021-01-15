@@ -73,6 +73,7 @@ type Perpetual @entity {
     index: BigInt!
     factory: Factory!
     symbol: String!
+    oldSymbol: String!
     underlying: String!
     oracleAddress: String!
     operatorAddress: String!

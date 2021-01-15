@@ -84,6 +84,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.liquidityPool = liquidityPool.id
     perp.underlying = ''
     perp.symbol = ''
+    perp.oldSymbol = ''
 
     perp.totalVolumeUSD = ZERO_BD
     perp.totalVolume = ZERO_BD
