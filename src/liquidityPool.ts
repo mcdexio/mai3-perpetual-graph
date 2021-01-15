@@ -36,6 +36,8 @@ import {
     splitOpenAmount,
     fetchPerpetual,
     fetchOracleUnderlying,
+    AbsBigDecimal,
+    NegBigDecimal,
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
@@ -182,7 +184,8 @@ export function handleTrade(event: TradeEvent): void {
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
-    newTrade(perp as Perpetual, trader, account, event.params.position, price, event.params.fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    let position = convertToDecimal(event.params.position, BI_18)
+    newTrade(perp as Perpetual, trader, account, position, price, event.params.fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     perp.lastPrice = price
     perp.position += convertToDecimal(-event.params.position, BI_18)
@@ -225,7 +228,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.logIndex = event.logIndex
 
     // trader
-    newTrade(perp as Perpetual, trader, account, event.params.amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
+    newTrade(perp as Perpetual, trader, account, amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
 
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
@@ -237,7 +240,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         liquidate.type = 1
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, event.params.amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
     }
 
     liquidate.save()
@@ -247,13 +250,13 @@ export function handleLiquidate(event: LiquidateEvent): void {
     perp.save()
 }
 
-function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigInt, priceBD: BigDecimal, fee: BigInt,
+function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigInt,
     transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType ): void {
     let close = splitCloseAmount(account.position, amount)
     let open = splitOpenAmount(account.position, amount)
     // close position
-    if (close != ZERO_BI) {
-        let percent = close.abs() / amount.abs()
+    if (close != ZERO_BD) {
+        let percent = AbsBigDecimal(close) / AbsBigDecimal(amount)
         let trade = new Trade(
             transactionHash
             .concat('-')
@@ -263,12 +266,12 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         )
         trade.perpetual = perp.id
         trade.trader = trader.id
-        let closeBD = convertToDecimal(close, BI_18)
-        trade.amount = closeBD
-        trade.price = priceBD
+        trade.amount = close
+        trade.price = price
         trade.isClose = true
-        let pnl1 = -closeBD.times(priceBD).minus(account.entryValue)
-        let fundingPnl = account.entryFunding.minus(-closeBD.times(perp.unitAccumulativeFunding))
+        let pnlPercent = AbsBigDecimal(close.div(account.position))
+        let pnl1 = NegBigDecimal(close).times(price).minus(account.entryValue.times(pnlPercent))
+        let fundingPnl = account.entryFunding.times(pnlPercent).minus(NegBigDecimal(close).times(perp.unitAccumulativeFunding))
         trade.pnl = pnl1 + fundingPnl
         trade.fee = convertToDecimal(fee*percent, BI_18)
         trade.type = type
@@ -277,22 +280,21 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.timestamp = timestamp
         trade.logIndex = logIndex
         trade.save()
-        // entry price and entry funding
+        // entry value and entry funding
         let position = account.position.plus(close)
-        let positionBD = convertToDecimal(position, BI_18)
-        let oldPositionBD = convertToDecimal(account.position, BI_18)
-        account.cashBalance -= priceBD.times(closeBD)
-        account.cashBalance += perp.unitAccumulativeFunding.times(positionBD)
-        account.entryFunding = account.entryFunding.times(positionBD).div(oldPositionBD)
-        account.entryValue = account.entryValue.times(positionBD).div(oldPositionBD)
+        let oldPosition = account.position
+        account.cashBalance -= price.times(close)
+        account.cashBalance += perp.unitAccumulativeFunding.times(position)
+        account.entryFunding = account.entryFunding.times(position).div(oldPosition)
+        account.entryValue = account.entryValue.times(position).div(oldPosition)
         account.position = position
 
         perp.txCount += ONE_BI
     }
 
     // open position
-    if (open != ZERO_BI) {
-        let percent = open.abs() / amount.abs()
+    if (open != ZERO_BD) {
+        let percent = AbsBigDecimal(open) / AbsBigDecimal(amount)
         let trade = new Trade(
             transactionHash
             .concat('-')
@@ -303,7 +305,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.perpetual = perp.id
         trade.trader = trader.id
         trade.amount = convertToDecimal(open, BI_18)
-        trade.price = priceBD
+        trade.price = price
         trade.isClose = false
         trade.pnl = ZERO_BD
         trade.fee = convertToDecimal(fee*percent, BI_18)
@@ -314,13 +316,12 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.logIndex = logIndex
         trade.save()
 
-        // entry price and entry funding
-        let openBD = convertToDecimal(open, BI_18)
+        // entry value and entry funding
         let position = account.position.plus(open)
-        account.cashBalance -= priceBD.times(openBD)
-        account.cashBalance += perp.unitAccumulativeFunding.times(openBD)
-        account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(openBD))
-        account.entryValue = account.entryValue.plus(priceBD.times(openBD))
+        account.cashBalance -= price.times(open)
+        account.cashBalance += perp.unitAccumulativeFunding.times(open)
+        account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(open))
+        account.entryValue = account.entryValue.plus(price.times(open))
         account.position = position
 
         perp.txCount += ONE_BI

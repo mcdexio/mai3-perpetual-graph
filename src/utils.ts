@@ -115,7 +115,7 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
     account.user = user.id
     account.perpetual = perpetual.id
     account.cashBalance = ZERO_BD
-    account.position = ZERO_BI
+    account.position = ZERO_BD
     account.entryValue = ZERO_BD
     account.entryFunding = ZERO_BD
     account.save()
@@ -165,33 +165,44 @@ export function convertToDecimal(amount: BigInt, decimals: BigInt): BigDecimal {
   return amount.toBigDecimal().div(exponentToBigDecimal(decimals))
 }
 
-export function hasSameSign(x: BigInt, y: BigInt): boolean {
-  if (x==ZERO_BI || y==ZERO_BI) {
+export function AbsBigDecimal(x: BigDecimal): BigDecimal {
+  if (x >= ZERO_BD) {
+    return x
+  }
+  return -x
+}
+
+export function NegBigDecimal(x: BigDecimal): BigDecimal {
+  return -x
+}
+
+export function hasSameSign(x: BigDecimal, y: BigDecimal): boolean {
+  if (x==ZERO_BD || y==ZERO_BD) {
     return true
   }
-  if (x > ZERO_BI && y > ZERO_BI) {
+  if (x > ZERO_BD && y > ZERO_BD) {
     return true
   }
-  if (x < ZERO_BI && y < ZERO_BI) {
+  if (x < ZERO_BD && y < ZERO_BD) {
     return true
   }
   return false
 }
 
-export function splitCloseAmount(amount: BigInt, delta: BigInt): BigInt {
+export function splitCloseAmount(amount: BigDecimal, delta: BigDecimal): BigDecimal {
   if (hasSameSign(amount, delta)) {
-    return ZERO_BI
-  } else if (amount.abs() >= delta.abs()) {
+    return ZERO_BD
+  } else if (AbsBigDecimal(amount) >= AbsBigDecimal(delta)) {
     return delta
   } else {
     return -amount
   }
 }
-export function splitOpenAmount(amount: BigInt, delta: BigInt): BigInt {
+export function splitOpenAmount(amount: BigDecimal, delta: BigDecimal): BigDecimal {
   if (hasSameSign(amount, delta)) {
     return delta
-  } else if (amount.abs() >= delta.abs()) {
-    return ZERO_BI
+  } else if (AbsBigDecimal(amount) >= AbsBigDecimal(delta)) {
+    return ZERO_BD
   } else {
     return amount+delta
   }
