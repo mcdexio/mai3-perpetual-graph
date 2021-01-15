@@ -305,7 +305,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         )
         trade.perpetual = perp.id
         trade.trader = trader.id
-        trade.amount = convertToDecimal(open, BI_18)
+        trade.amount = open
         trade.price = price
         trade.isClose = false
         trade.pnl = ZERO_BD
