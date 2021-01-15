@@ -264,9 +264,11 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         )
         trade.perpetual = perp.id
         trade.trader = trader.id
-        trade.amount = convertToDecimal(close, BI_18)
+        let closeBD = convertToDecimal(close, BI_18)
+        trade.amount = closeBD
         trade.price = priceBD
         trade.isClose = true
+        trade.pnl = closeBD.times(priceBD.minus(account.entryPrice))
         trade.fee = convertToDecimal(fee*percent, BI_18)
         trade.type = type // position by trade
         trade.transactionHash = transactionHash
@@ -275,7 +277,6 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.logIndex = logIndex
         trade.save()
         // entry price and entry funding
-        let closeBD = convertToDecimal(close, BI_18)
         let position = account.position.plus(close)
         let positionBD = convertToDecimal(position, BI_18)
         let oldPositionBD = convertToDecimal(account.position, BI_18)
@@ -303,6 +304,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.amount = convertToDecimal(open, BI_18)
         trade.price = priceBD
         trade.isClose = false
+        trade.pnl = ZERO_BD
         trade.fee = convertToDecimal(fee*percent, BI_18)
         trade.type = type // position by trade
         trade.transactionHash = transactionHash
