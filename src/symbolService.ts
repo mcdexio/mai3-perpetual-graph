@@ -19,10 +19,6 @@ export function handleAllocateSymbol(event: AllocateSymbolEvent): void {
             symbol = "0".concat(symbol)
         }
     }
-    if (perp.symbol == "") {
-        perp.symbol = symbol
-    } else {
-        perp.symbol = perp.symbol.concat('-').concat(symbol)
-    }
+    perp.symbol = symbol
     perp.save()
 }
