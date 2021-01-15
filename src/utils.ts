@@ -116,7 +116,6 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
     account.perpetual = perpetual.id
     account.cashBalance = ZERO_BD
     account.position = ZERO_BI
-    account.entryPrice = ZERO_BD
     account.entryValue = ZERO_BD
     account.entryFunding = ZERO_BD
     account.save()
