@@ -182,7 +182,7 @@ export function handleTrade(event: TradeEvent): void {
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
-    newTrade(perp as Perpetual, trader, account, event.params.position, price, ZERO_BI, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    newTrade(perp as Perpetual, trader, account, event.params.position, price, event.params.fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     perp.lastPrice = price
     perp.position += convertToDecimal(-event.params.position, BI_18)
