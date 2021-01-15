@@ -116,9 +116,9 @@ templates:
           handler: handleDeposit
         - event: Withdraw(uint256,address,int256)
           handler: handleWithdraw
-        - event: AddLiquidity(address,int256,int256)
+        - event: AddLiquidity(indexed address,int256,int256)
           handler: handleAddLiquidity
-        - event: RemoveLiquidity(address,int256,int256)
+        - event: RemoveLiquidity(indexed address,int256,int256)
           handler: handleRemoveLiquidity
         - event: Trade(uint256,indexed address,int256,int256,int256)
           handler: handleTrade

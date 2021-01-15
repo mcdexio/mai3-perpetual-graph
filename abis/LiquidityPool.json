@@ -3,7 +3,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -28,7 +28,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "claimer",
         "type": "address"
@@ -47,7 +47,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "newOperator",
         "type": "address"
@@ -66,7 +66,7 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -140,7 +140,7 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -178,7 +178,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "recipient",
         "type": "address"
@@ -234,7 +234,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -409,7 +409,7 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -465,7 +465,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "newOperator",
         "type": "address"
@@ -541,7 +541,7 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "trader",
         "type": "address"
@@ -613,7 +613,14 @@
   },
   {
     "inputs": [],
-    "name": "claimOperatingship",
+    "name": "claimOperator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "claimOperatorFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -721,12 +728,44 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getActiveAccountCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "activeAccountCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "claimer",
         "type": "address"
       }
     ],
     "name": "getClaimableFee",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getClaimableOperatorFee",
     "outputs": [
       {
         "internalType": "int256",
@@ -766,14 +805,29 @@
     "name": "getLiquidityPoolInfo",
     "outputs": [
       {
-        "internalType": "address[6]",
-        "name": "addresses",
-        "type": "address[6]"
+        "internalType": "bool",
+        "name": "isRunning",
+        "type": "bool"
       },
       {
-        "internalType": "int256[2]",
-        "name": "nums",
-        "type": "int256[2]"
+        "internalType": "bool",
+        "name": "isFastCreationEnabled",
+        "type": "bool"
+      },
+      {
+        "internalType": "address[7]",
+        "name": "addresses",
+        "type": "address[7]"
+      },
+      {
+        "internalType": "int256",
+        "name": "vaultFeeRate",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "poolCash",
+        "type": "int256"
       },
       {
         "internalType": "uint256",
@@ -789,16 +843,6 @@
         "internalType": "uint256",
         "name": "fundingTime",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isInitialized",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "isFastCreationEnabled",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -856,7 +900,7 @@
       },
       {
         "internalType": "bool",
-        "name": "isBankrupt",
+        "name": "isMarginSafe",
         "type": "bool"
       }
     ],
@@ -884,9 +928,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256[21]",
+        "internalType": "int256[34]",
         "name": "nums",
-        "type": "int256[21]"
+        "type": "int256[34]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -899,35 +943,6 @@
       {
         "internalType": "int256",
         "name": "poolMargin",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "int256",
-        "name": "amount",
-        "type": "int256"
-      }
-    ],
-    "name": "getTradePrice",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "deltaCash",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "deltaPosition",
         "type": "int256"
       }
     ],
@@ -983,11 +998,6 @@
         "internalType": "address",
         "name": "trader",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
       }
     ],
     "name": "liquidateByAMM",
@@ -1038,6 +1048,64 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "listActiveAccounts",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "result",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
+      }
+    ],
+    "name": "queryTradeWithAMM",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "deltaCash",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "deltaPosition",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1279,5 +1347,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
