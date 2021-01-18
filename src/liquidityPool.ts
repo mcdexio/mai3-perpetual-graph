@@ -357,6 +357,7 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
         .concat(BigInt.fromI32(hourIndex).toString())
     let accHourData = AccHourData.load(hourPerpID)
     if (accHourData === null) {
+        accHourData = new AccHourData(hourPerpID)
         accHourData.perpetual = perp.id
         accHourData.acc = acc
         accHourData.timestamp = hourStartUnix
