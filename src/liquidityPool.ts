@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, ShareToken, Trade, PriceBucket, User, MarginAccount, Liquidate, LiquidityHistory } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, User, MarginAccount, Liquidate, LiquidityHistory } from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
@@ -345,6 +345,21 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
-    perp.unitAccumulativeFunding = convertToDecimal(event.params.unitAccumulativeFunding, BI_18)
+    let acc = convertToDecimal(event.params.unitAccumulativeFunding, BI_18)
+    perp.unitAccumulativeFunding = acc
     perp.save()
+
+    let timestamp = event.block.timestamp.toI32()
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
+    let hourPerpID = perp.id
+        .concat('-')
+        .concat(BigInt.fromI32(hourIndex).toString())
+    let accHourData = AccHourData.load(hourPerpID)
+    if (accHourData === null) {
+        accHourData.perpetual = perp.id
+        accHourData.acc = acc
+        accHourData.timestamp = hourStartUnix
+        accHourData.save()
+    }
 }
