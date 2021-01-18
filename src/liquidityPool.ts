@@ -222,15 +222,14 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let amount = convertToDecimal(event.params.amount, BI_18)
     liquidate.price = price
     liquidate.amount = amount
-    liquidate.penalty = convertToDecimal(event.params.penalty, BI_18)
+    let penalty = convertToDecimal(event.params.penalty, BI_18)
+    liquidate.penalty = penalty
     liquidate.transactionHash = transactionHash
     liquidate.blockNumber = event.block.number
     liquidate.timestamp = event.block.timestamp
     liquidate.logIndex = event.logIndex
 
-    // trader
-    newTrade(perp as Perpetual, trader, account, amount, price, ZERO_BD, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
-
+    let type = TradeType.LIQUIDATEBYAMM
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
         // liquidator is AMM
@@ -239,10 +238,14 @@ export function handleLiquidate(event: LiquidateEvent): void {
     } else {
         // liquidator is user
         liquidate.type = 1
+        type = TradeType.LIQUIDATEBYTRADER
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, ZERO_BD, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.LIQUIDATE)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
     }
+    
+    // trader
+    newTrade(perp as Perpetual, trader, account, amount, price, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
 
     liquidate.save()
 

@@ -36,7 +36,7 @@ export enum PerpetualState {
 }
 
 export enum TradeType {
-  NORMAL, LIQUIDATE
+  NORMAL, LIQUIDATEBYAMM, LIQUIDATEBYTRADER
 }
 
 export enum LiquidityType {
