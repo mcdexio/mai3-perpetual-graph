@@ -48,6 +48,7 @@ type LiquidityPool @entity {
     operatorAddress: String!
     collateralDecimals: BigInt!
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
+    perpetualIDs: [String!]
 
     # vote
     governor: Governor!
