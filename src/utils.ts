@@ -106,7 +106,10 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.createdAtBlockNumber = ZERO_BI
     perp.save()
 
-    liquidityPool.perpetualIDs.push(id)
+    // update pool perpetualIDs
+    let perpetualIDs = liquidityPool.perpetualIDs
+    perpetualIDs.push(id)
+    liquidityPool.perpetualIDs = perpetualIDs
     liquidityPool.save()
   }
   return perp as Perpetual
