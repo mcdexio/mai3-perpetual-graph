@@ -97,12 +97,17 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
 
     if (liquidityPool.isRun) {
       perp.state = PerpetualState.NORMAL
+      perp.isRun = true
     } else {
       perp.state = PerpetualState.INITIALIZING
+      perp.isRun = false
     }
     perp.createdAtTimestamp = ZERO_BI
     perp.createdAtBlockNumber = ZERO_BI
     perp.save()
+
+    liquidityPool.perpetualIDs.push(id)
+    liquidityPool.save()
   }
   return perp as Perpetual
 }
