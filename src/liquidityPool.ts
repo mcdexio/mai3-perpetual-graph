@@ -61,6 +61,13 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
 export function handleRunLiquidityPool(event: RunLiquidityPoolEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     liquidityPool.isRun = true
+    let perpIDs = liquidityPool.perpetualIDs as string[]
+    for (let index = 0; index < perpIDs.length; index++) {
+        let id = perpIDs[index]
+        let perp = Perpetual.load(id)
+        perp.isRun = true
+        perp.save()
+    }
     liquidityPool.save()
 }
 

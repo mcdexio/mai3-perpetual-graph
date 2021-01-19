@@ -96,6 +96,7 @@ type Perpetual @entity {
     state: Int!
     settledAtTimestamp: BigInt
     settledAtBlockNumber: BigInt
+    isRun: Boolean!
 
     lastPrice: BigDecimal!
     unitAccumulativeFunding: BigDecimal!
