@@ -93,18 +93,18 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.governor = governor.id
     proposal.proposer = user.id
     proposal.index = event.params.id
-    let targets = []
+    let targets:string[] = []
     for (let index = 0; index < event.params.targets.length; index++) {
         targets.push(event.params.target[index].toHexString())
     }
     proposal.targets = targets
-    let values = []
+    let values:string[] = []
     for (let index = 0; index < event.params.values.length; index++) {
         values.push(convertToDecimal(event.params.values[index], BI_18))
     }
     proposal.values = values
 
-    let signatures = []
+    let signatures:string[] = []
     for (let index = 0; index < event.params.signatures.length; index++) {
         signatures.push(event.params.signatures[index])
     }
@@ -126,7 +126,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     for (let index = 0; index < voteAccountIDs.length; index++) {
         let id = voteAccountIDs[index]
         let voteAccount = VoteAccount.load(id)
-        if (VoteAccount != null) {
+        if (voteAccount != null) {
             let snapshotId = proposalId.concat('-').concat(voteAccount.user)
             let votesSnapshot = new ProposalVotesSnapshot(snapshotId)
             votesSnapshot.user = voteAccount.user
@@ -205,9 +205,8 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
 
 export function handleStake(event: StakeEvent): void {
     let governor = Governor.load(event.address.toHexString())
-    let liquidityPool = LiquidityPool.load(governor.liquidityPool)
     let user = fetchUser(event.params.account)
-    let account = fetchVoteAccount(user, liquidityPool)
+    let account = fetchVoteAccount(user, governor as Governor)
     let amount = convertToDecimal(event.params.amount, BI_18)
     account.votes += amount
     governor.totalVotes += amount
@@ -218,7 +217,7 @@ export function handleStake(event: StakeEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
     let governor = Governor.load(event.address.toHexString())
     let user = fetchUser(event.params.account)
-    let account = fetchVoteAccount(user, governor)
+    let account = fetchVoteAccount(user, governor as Governor)
     let amount = convertToDecimal(event.params.amount, BI_18)
     account.votes -= amount
     governor.totalVotes -= amount
@@ -241,7 +240,7 @@ export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
 export function handleRewardPaid(event: RewardPaidEvent): void {
     let governor = Governor.load(event.address.toHexString())
     let user = fetchUser(event.params.user)
-    let account = fetchVoteAccount(user, governor)
+    let account = fetchVoteAccount(user, governor as Governor)
     account.reward += convertToDecimal(event.params.reward, BI_18)
     account.save()
 }
