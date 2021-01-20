@@ -93,8 +93,22 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.governor = governor.id
     proposal.proposer = user.id
     proposal.index = event.params.id
-    proposal.target = event.params.target.toHexString()
-    proposal.signature = event.params.signature
+    let targets = []
+    for (let index = 0; index < event.params.targets.length; index++) {
+        targets.push(event.params.target[index].toHexString())
+    }
+    proposal.targets = targets
+    let values = []
+    for (let index = 0; index < event.params.values.length; index++) {
+        values.push(convertToDecimal(event.params.values[index], BI_18))
+    }
+    proposal.values = values
+
+    let signatures = []
+    for (let index = 0; index < event.params.signatures.length; index++) {
+        signatures.push(event.params.signatures[index])
+    }
+    proposal.signatures = signatures
     proposal.calldatas = event.params.calldatas
     proposal.timestamp = event.block.timestamp
     proposal.description = event.params.description
