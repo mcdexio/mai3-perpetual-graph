@@ -67,7 +67,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.createdAtTimestamp = event.block.timestamp
     liquidityPool.createdAtBlockNumber = event.block.number
     liquidityPool.isRun = false
-    liquidityPool.proposalCount = ZERO_BI
     liquidityPool.liquidityHisCount = ZERO_BI
     liquidityPool.perpetualIDs = []
 
@@ -80,7 +79,12 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     // create vote
     let governor = new Governor(event.params.governor.toHexString())
     governor.liquidityPool = liquidityPool.id
-    governor.totalSupply = ZERO_BD
+    governor.totalVotes = ZERO_BD
+    governor.totalReward = ZERO_BD
+    governor.rewardRate = ZERO_BD
+    governor.proposalCount = ZERO_BI
+    governor.voteAccountIDs = []
+    governor.delegateIDs = []
     liquidityPool.governor = governor.id 
 
     shareToken.save()
