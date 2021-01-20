@@ -8,6 +8,11 @@ import {
     ProposalExecuted as ProposalExecutedEvent,
     VoteCast as VoteCastEvent,
     DelegateChanged as DelegateChangedEvent,
+    Stake as StakeEvent,
+    Withdraw as WithdrawEvent,
+    RewardAdded as RewardAddedEvent,
+    RewardRateChanged as RewardRateChangedEvent,
+    RewardPaid as RewardPaidEvent,
 } from '../generated/templates/Governor/Governor'
 
 import {
@@ -16,48 +21,66 @@ import {
     convertToDecimal,
     ONE_BI,
     ZERO_BD,
+    fetchVoteAccount,
 } from './utils'
 
 export function handleDelegate(event: DelegateChangedEvent): void {
-    let governor = Governor.load(event.address.toHexString())
-    // new delegate
-    let newDelegate = fetchUser(event.params.toDelegate)
-    let id = event.address.toHexString().
-        concat('-').
-        concat(newDelegate.id)
-    
-    let delegate = Delegate.load(id)
-    if (delegate === null) {
-        delegate = new Delegate(id)
-        delegate.user = newDelegate.id
-        delegate.governor = governor.id
-        delegate.principals = []
-    }
-    let principals = delegate.principals
-    principals.push(event.params.delegator.toHexString())
-    delegate.principals = principals
-    delegate.save()
+    let delegator = event.params.delegator.toHexString()
+    let fromDelegate = event.params.fromDelegate.toHexString()
+    let toDelegate = event.params.toDelegate.toHexString()
 
-    // old
-    let oldDelegate = fetchUser(event.params.fromDelegate)
-    id = event.address.toHexString().
-        concat('-').
-        concat(oldDelegate.id)
+    if (fromDelegate == toDelegate) {
+        return
+    }
+
+    let governor = Governor.load(event.address.toHexString())
     
-    delegate = Delegate.load(id)
-    if (delegate != null) {
-        let oldprincipals = delegate.principals as string[]
-        let newPrincipals: string[] = []
-        for (let index = 0; index < oldprincipals.length; index++) {
-            let principal = oldprincipals[index]
-            if (event.params.delegator.toHexString() != principal) {
-                newPrincipals.push(principal)
-            }
+    // new delegate
+    if (delegator != toDelegate) {
+        let newDelegate = fetchUser(event.params.toDelegate)
+        let id = event.address.toHexString().
+            concat('-').
+            concat(newDelegate.id)
+        
+        let delegate = Delegate.load(id)
+        if (delegate === null) {
+            delegate = new Delegate(id)
+            delegate.user = newDelegate.id
+            delegate.governor = governor.id
+            delegate.principals = []
+            let delegateIDs = governor.delegateIDs
+            delegateIDs.push(id)
+            governor.delegateIDs = delegateIDs
+            governor.save()
         }
-        delegate.principals = newPrincipals
+        let principals = delegate.principals
+        principals.push(event.params.delegator.toHexString())
+        delegate.principals = principals
         delegate.save()
     }
-    return
+
+
+    // old delegate
+    if (delegator != fromDelegate) {
+        let oldDelegate = fetchUser(event.params.fromDelegate)
+        let id = event.address.toHexString().
+            concat('-').
+            concat(oldDelegate.id)
+        
+        let delegate = Delegate.load(id)
+        if (delegate != null) {
+            let oldprincipals = delegate.principals as string[]
+            let newPrincipals: string[] = []
+            for (let index = 0; index < oldprincipals.length; index++) {
+                let principal = oldprincipals[index]
+                if (delegator != principal) {
+                    newPrincipals.push(principal)
+                }
+            }
+            delegate.principals = newPrincipals
+            delegate.save()
+        }
+    }
 }
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
@@ -82,31 +105,36 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.isExecuted = false
     proposal.save()
 
-    // create share token snapshot and delegate snapshot for vote
-    let liquidityPool = LiquidityPool.load(governor.liquidityPool)
-    liquidityPool.proposalCount += ONE_BI
-    liquidityPool.save()
-    let voteAccounts = liquidityPool.voteAccounts as VoteAccount[]
-    for (let index = 0; index < voteAccounts.length; index++) {
-        let voteAccount = voteAccounts[index]
-        let snapshotId = proposalId.concat('-').concat(voteAccount.user)
-        let votesSnapshot = new ProposalVotesSnapshot(snapshotId)
-        votesSnapshot.user = voteAccount.user
-        votesSnapshot.proposal = proposal.id
-        votesSnapshot.totalSupply = governor.totalSupply
-        votesSnapshot.votes = voteAccount.votes
-        votesSnapshot.save()
+    // create vote account snapshots and delegate snapshots
+    governor.proposalCount += ONE_BI
+    governor.save()
+    let voteAccountIDs = governor.voteAccountIDs as string[]
+    for (let index = 0; index < voteAccountIDs.length; index++) {
+        let id = voteAccountIDs[index]
+        let voteAccount = VoteAccount.load(id)
+        if (VoteAccount != null) {
+            let snapshotId = proposalId.concat('-').concat(voteAccount.user)
+            let votesSnapshot = new ProposalVotesSnapshot(snapshotId)
+            votesSnapshot.user = voteAccount.user
+            votesSnapshot.proposal = proposal.id
+            votesSnapshot.totalVotes = governor.totalVotes
+            votesSnapshot.votes = voteAccount.votes
+            votesSnapshot.save()
+        }
     }
     
-    let delegates = governor.delegates as Delegate[]
+    let delegates = governor.delegateIDs as string[]
     for (let index = 0; index < delegates.length; index++) {
-        let delegate = delegates[index]
-        let snapshotId = proposalId.concat('-').concat(delegate.user)
-        let snapshot = new ProposalDelegateSnapshot(snapshotId)
-        snapshot.proposal = proposal.id
-        snapshot.delegate = delegate.user
-        snapshot.principals = delegate.principals
-        snapshot.save()
+        let id = delegates[index]
+        let delegate = Delegate.load(id)
+        if (delegate != null) {
+            let snapshotId = proposalId.concat('-').concat(delegate.user)
+            let snapshot = new ProposalDelegateSnapshot(snapshotId)
+            snapshot.proposal = proposal.id
+            snapshot.delegate = delegate.user
+            snapshot.principals = delegate.principals
+            snapshot.save()
+        }
     }
 }
   
@@ -159,4 +187,47 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
     let proposal = Proposal.load(proposalId)
     proposal.isExecuted = true
     proposal.save()
+}
+
+export function handleStake(event: StakeEvent): void {
+    let governor = Governor.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(governor.liquidityPool)
+    let user = fetchUser(event.params.account)
+    let account = fetchVoteAccount(user, liquidityPool)
+    let amount = convertToDecimal(event.params.amount, BI_18)
+    account.votes += amount
+    governor.totalVotes += amount
+    account.save()
+    governor.save()
+}
+
+export function handleWithdraw(event: WithdrawEvent): void {
+    let governor = Governor.load(event.address.toHexString())
+    let user = fetchUser(event.params.account)
+    let account = fetchVoteAccount(user, governor)
+    let amount = convertToDecimal(event.params.amount, BI_18)
+    account.votes -= amount
+    governor.totalVotes -= amount
+    account.save()
+    governor.save()
+}
+
+export function handleRewardAdded(event: RewardAddedEvent): void {
+    let governor = Governor.load(event.address.toHexString())
+    governor.totalReward += convertToDecimal(event.params.reward, BI_18)
+    governor.save()
+}
+
+export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
+    let governor = Governor.load(event.address.toHexString())
+    governor.rewardRate += convertToDecimal(event.params.currentRate, BI_18)
+    governor.save()
+}
+
+export function handleRewardPaid(event: RewardPaidEvent): void {
+    let governor = Governor.load(event.address.toHexString())
+    let user = fetchUser(event.params.user)
+    let account = fetchVoteAccount(user, governor)
+    account.reward += convertToDecimal(event.params.reward, BI_18)
+    account.save()
 }

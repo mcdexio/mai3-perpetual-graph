@@ -50,10 +50,8 @@ type LiquidityPool @entity {
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
     perpetualIDs: [String!]
 
-    # vote
+    # governor
     governor: Governor!
-    proposalCount: BigInt!
-    voteAccounts: [VoteAccount!]! @derivedFrom(field:"liquidityPool")
 
     # liquidity
     liquidityHisCount: BigInt!
@@ -120,20 +118,27 @@ type LiquidityAccount @entity {
 }
 
 type VoteAccount @entity {
-    # pool address + "-" + user address
+    # governor address + "-" + user address
     id: ID!
-    liquidityPool: LiquidityPool!
+    governor: Governor!
     user: User!
     votes: BigDecimal!
+    reward: BigDecimal!
 }
 
 type Governor @entity {
     # governor contract address
     id: ID!
     liquidityPool: LiquidityPool!
-    totalSupply: BigDecimal!
+    totalVotes: BigDecimal!
+    totalReward: BigDecimal!
+    rewardRate: BigDecimal!
+    proposalCount: BigInt!
     delegates: [Delegate!]! @derivedFrom(field: "governor")
     proposals: [Proposal!]! @derivedFrom(field: "governor")
+    voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
+    voteAccountIDs: [String!]
+    delegateIDs: [String!]
 }
 
 type LiquidityHistory @entity {
@@ -344,7 +349,7 @@ type AccHourData @entity {
 
 # ====================== Voting ======================
 type Proposal @entity {
-    # vote contract address + "-" + proposal index
+    # governor contract address + "-" + proposal index
     id: ID!
     index: BigInt!
     governor: Governor!
@@ -388,7 +393,7 @@ type ProposalVotesSnapshot @entity {
     id: ID!
     user: User!
     proposal: Proposal!
-    totalSupply: BigDecimal!
+    totalVotes: BigDecimal!
     votes: BigDecimal!
 }
 
