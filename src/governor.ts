@@ -93,7 +93,12 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.governor = governor.id
     proposal.proposer = user.id
     proposal.index = event.params.id
-    proposal.targets = event.params.targets
+    proposal.targets = []
+    let targets = event.params.targets
+    for (let index = 0; index < targets.length; index++) {
+        let target = targets[index].toHexString()
+        proposal.targets.push(target)
+    }
     proposal.values = event.params.values
     proposal.signatures = event.params.signatures
     proposal.calldatas = event.params.calldatas
