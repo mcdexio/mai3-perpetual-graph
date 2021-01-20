@@ -354,8 +354,9 @@ type Proposal @entity {
     index: BigInt!
     governor: Governor!
     proposer: User!
-    target: String!
-    signature: String!
+    targets: [String!]
+    values: [BigDecimal!]
+    signatures: [String!]
     description: String!
     calldatas: [Bytes!]
     startBlock: BigInt!
