@@ -122,7 +122,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
-    if (account.collateralAmount != ZERO_BD) {
+    if (account.shareAmount == ZERO_BD) {
         liquidityPool.liquidityProviderCount += ONE_BI
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
@@ -231,6 +231,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.amount = amount
     let penalty = convertToDecimal(event.params.penalty, BI_18)
     liquidate.penalty = penalty
+    liquidate.penaltyToLP = convertToDecimal(event.params.penaltyToLP, BI_18)
     liquidate.transactionHash = transactionHash
     liquidate.blockNumber = event.block.number
     liquidate.timestamp = event.block.timestamp

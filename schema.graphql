@@ -134,6 +134,7 @@ type Governor @entity {
     totalReward: BigDecimal!
     rewardRate: BigDecimal!
     proposalCount: BigInt!
+    periodFinish: BigInt!
     delegates: [Delegate!]! @derivedFrom(field: "governor")
     proposals: [Proposal!]! @derivedFrom(field: "governor")
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
@@ -181,6 +182,7 @@ type Liquidate @entity {
     price: BigDecimal!
     type: Int!
     penalty: BigDecimal!
+    penaltyToLP: BigDecimal!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
