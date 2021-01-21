@@ -466,7 +466,13 @@
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "fee",
+        "name": "totalFee",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "lpFee",
         "type": "int256"
       }
     ],

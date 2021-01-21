@@ -82,6 +82,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     governor.totalVotes = ZERO_BD
     governor.totalReward = ZERO_BD
     governor.rewardRate = ZERO_BD
+    governor.periodFinish = ZERO_BI
     governor.proposalCount = ZERO_BI
     governor.voteAccountIDs = []
     governor.delegateIDs = []

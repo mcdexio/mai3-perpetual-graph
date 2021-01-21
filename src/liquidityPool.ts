@@ -192,7 +192,7 @@ export function handleTrade(event: TradeEvent): void {
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
     let position = convertToDecimal(event.params.position, BI_18)
-    let fee = convertToDecimal(event.params.fee, BI_18)
+    let fee = convertToDecimal(event.params.totalFee, BI_18)
     newTrade(perp as Perpetual, trader, account, position, price, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     perp.lastPrice = price
