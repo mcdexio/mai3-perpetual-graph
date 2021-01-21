@@ -120,7 +120,7 @@ templates:
           handler: handleAddLiquidity
         - event: RemoveLiquidity(indexed address,int256,int256)
           handler: handleRemoveLiquidity
-        - event: Trade(uint256,indexed address,int256,int256,int256)
+        - event: Trade(uint256,indexed address,int256,int256,int256,int256)
           handler: handleTrade
         - event: Liquidate(uint256,indexed address,indexed address,int256,int256,int256,int256)
           handler: handleLiquidate
