@@ -122,7 +122,7 @@ templates:
           handler: handleRemoveLiquidity
         - event: Trade(uint256,indexed address,int256,int256,int256)
           handler: handleTrade
-        - event: Liquidate(uint256,indexed address,indexed address,int256,int256,int256)
+        - event: Liquidate(uint256,indexed address,indexed address,int256,int256,int256,int256)
           handler: handleLiquidate
         - event: UpdatePoolMargin(int256)
           handler: handleUpdatePoolMargin
@@ -174,9 +174,9 @@ templates:
           handler: handleStake
         - event: Withdraw(indexed address,uint256)
           handler: handleWithdraw
-        - event: RewardAdded(uint256)
+        - event: RewardAdded(uint256,uint256)
           handler: handleRewardAdded
-        - event: RewardRateChanged(uint256,uint256)
+        - event: RewardRateChanged(uint256,uint256,uint256)
           handler: handleRewardRateChanged
         - event: RewardPaid(indexed address,uint256)
           handler: handleRewardPaid

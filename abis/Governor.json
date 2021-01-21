@@ -182,6 +182,12 @@
         "internalType": "uint256",
         "name": "reward",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "periodFinish",
+        "type": "uint256"
       }
     ],
     "name": "RewardAdded",
@@ -219,6 +225,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "currentRate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "periodFinish",
         "type": "uint256"
       }
     ],
@@ -423,67 +435,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "_checkpoints",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "fromBlock",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "votes",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "_durationOnSucceeded",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "_numCheckpoints",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "_rewardToken",
     "outputs": [
@@ -590,6 +541,19 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "delayAfterSucceeded",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -747,35 +711,6 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "checkpointIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "getCheckpoints",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
       }
     ],
     "name": "getDelegate",
@@ -811,12 +746,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
       }
     ],
-    "name": "getNumCheckpoints",
+    "name": "getPriorThreshold",
     "outputs": [
       {
         "internalType": "uint256",
@@ -903,7 +838,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct BallotBox.Receipt",
+        "internalType": "struct Receipt",
         "name": "",
         "type": "tuple"
       }
@@ -939,6 +874,19 @@
   },
   {
     "inputs": [],
+    "name": "gracePeriod",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "guardian",
     "outputs": [
       {
@@ -948,6 +896,34 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "shareToken_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "rewardToken_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "timelock_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "guardian_",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -966,7 +942,7 @@
         "type": "bool"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1402,7 +1378,7 @@
     "name": "state",
     "outputs": [
       {
-        "internalType": "enum BallotBox.ProposalState",
+        "internalType": "enum ProposalState",
         "name": "",
         "type": "uint8"
       }
@@ -1466,6 +1442,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unlockPeriod",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
