@@ -7,7 +7,6 @@ import {
 
 import {
     ZERO_BD,
-    ONE_BI,
     BI_18,
     convertToDecimal,
     isUSDCollateral,
@@ -16,7 +15,7 @@ import {
 
 import {
     getPoolHourData
-} from ./liquidityPool.ts
+} from './liquidityPool'
 
 export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade15MinData {
     let timestamp = event.block.timestamp.toI32()
@@ -159,7 +158,7 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
 }
 
 export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolHourData {
-    let { poolHourData, isNew } = getPoolHourData(timestamp, pool.id, poolMargin)
+    let { poolHourData, isNew } = getPoolHourData(timestamp, pool.id)
     if (!isNew && !isRefresh) {
         return poolHourData as PoolHourData
     }
@@ -180,6 +179,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
         pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
     }
     poolHourData.poolMarginUSD = pool.poolMarginUSD
+    poolHourData.poolMargin = pool.poolMargin
     poolHourData.netAssetValue = nav
     pool.save()
     poolHourData.save()
