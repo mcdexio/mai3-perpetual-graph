@@ -7,11 +7,16 @@ import {
 
 import {
     ZERO_BD,
+    ONE_BI,
     BI_18,
     convertToDecimal,
     isUSDCollateral,
     isETHCollateral,
 } from './utils'
+
+import {
+    getPoolHourData
+} from ./liquidityPool.ts
 
 export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade15MinData {
     let timestamp = event.block.timestamp.toI32()
@@ -154,20 +159,8 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
 }
 
 export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolHourData {
-    let hourIndex = timestamp.toI32() / 3600
-    let hourStartUnix = hourIndex * 3600
-    let hourPoolID = pool.id
-        .concat('-')
-        .concat(BigInt.fromI32(hourIndex).toString())
-    let poolHourData = PoolHourData.load(hourPoolID)
-    if (poolHourData === null) {
-        poolHourData = new PoolHourData(hourPoolID)
-        poolHourData.liquidityPool = pool.id
-        poolHourData.poolMargin = poolMargin
-        poolHourData.poolMarginUSD = ZERO_BD
-        poolHourData.netAssetValue = ZERO_BD
-        poolHourData.timestamp = hourStartUnix
-    } else if (!isRefresh) {
+    let { poolHourData, isNew } = getPoolHourData(timestamp, pool.id, poolMargin)
+    if (!isNew && !isRefresh) {
         return poolHourData as PoolHourData
     }
     let shareToken = ShareToken.load(pool.shareToken)
