@@ -128,6 +128,8 @@ templates:
           handler: handleUpdatePoolMargin
         - event: UpdateUnitAccumulativeFunding(uint256,int256)
           handler: handleUpdateUnitAccumulativeFunding
+        - event: TransferExcessInsuranceFundToLP(uint256,int256)
+          handler: handleTransferExcessInsuranceFundToLP
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken

@@ -87,6 +87,8 @@ type Perpetual @entity {
     txCount: BigInt!
     liqCount: BigInt!
     position: BigDecimal!
+    entryPrice: BigDecimal!
+    entryUnitAcc: BigDecimal!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
@@ -270,6 +272,11 @@ type PoolHourData @entity {
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
+    lpFee: BigDecimal!
+    fundingPayment: BigDecimal!
+    tradePNL: BigDecimal!
+    lpPenalty: BigDecimal!
+    excessInsuranceFund: BigDecimal!
     timestamp: Int
 }
 
