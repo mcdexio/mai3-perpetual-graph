@@ -272,10 +272,10 @@ type PoolHourData @entity {
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
-    lpFee: BigDecimal!
-    fundingPayment: BigDecimal!
+    fee: BigDecimal!
+    funding: BigDecimal!
     tradePNL: BigDecimal!
-    lpPenalty: BigDecimal!
+    penalty: BigDecimal!
     excessInsuranceFund: BigDecimal!
     timestamp: Int
 }
