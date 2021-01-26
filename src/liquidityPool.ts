@@ -193,7 +193,7 @@ export function handleTrade(event: TradeEvent): void {
     let transactionHash = event.transaction.hash.toHexString()
     let price = convertToDecimal(event.params.price, BI_18)
     let position = convertToDecimal(event.params.position, BI_18)
-    let fee = convertToDecimal(event.params.totalFee, BI_18)
+    let fee = convertToDecimal(event.params.fee, BI_18)
     let lpFee = convertToDecimal(event.params.lpFee, BI_18)
     let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
     poolHourData.fee += lpFee
@@ -298,7 +298,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
         poolHourData.timestamp = hourStartUnix
         let lastHourPoolID = poolID
             .concat('-')
-            .concat(BigInt.fromI32(hourIndex - ONE_BI).toString())
+            .concat(BigInt.fromI32(hourIndex - 1).toString())
         let lastPoolHourData = PoolHourData.load(lastHourPoolID)
         if (lastPoolHourData == null) {
             poolHourData.poolMargin = ZERO_BD
