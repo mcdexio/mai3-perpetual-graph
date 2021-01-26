@@ -160,7 +160,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             perp.totalVolumeUSD = perp.totalVolume
         } else if (isETHCollateral(perp.collateralAddress)) {
             let ethPrice = ZERO_BD
-            if (bucket.ethPrice != null) {
+            if (bucket.ethPrice != ZERO_BD) {
                 ethPrice = bucket.ethPrice as BigDecimal
             }
             if (ethPrice > ZERO_BD) {

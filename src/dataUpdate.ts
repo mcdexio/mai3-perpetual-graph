@@ -173,7 +173,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
     } else if (isETHCollateral(pool.collateralAddress)) {
         let bucket = PriceBucket.load('1')
         let ethPrice = ZERO_BD
-        if (bucket != null && bucket.ethPrice != null) {
+        if (bucket != null && bucket.ethPrice != ZERO_BD) {
             ethPrice = bucket.ethPrice as BigDecimal
         }
         pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
@@ -214,7 +214,7 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
     } else if (isETHCollateral(pool.collateralAddress)) {
         let bucket = PriceBucket.load('1')
         let ethPrice = ZERO_BD
-        if (bucket != null && bucket.ethPrice != null) {
+        if (bucket != null && bucket.ethPrice != ZERO_BD) {
             ethPrice = bucket.ethPrice as BigDecimal
         }
         pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
