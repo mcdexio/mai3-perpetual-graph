@@ -466,7 +466,7 @@
       {
         "indexed": false,
         "internalType": "int256",
-        "name": "totalFee",
+        "name": "fee",
         "type": "int256"
       },
       {
@@ -572,6 +572,25 @@
       }
     ],
     "name": "Withdraw",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
+      }
+    ],
+    "name": "transferExcessInsuranceFundToLP",
     "type": "event"
   },
   {
@@ -736,9 +755,21 @@
         "internalType": "uint256",
         "name": "perpetualIndex",
         "type": "uint256"
+      },
+      {
+        "internalType": "int256",
+        "name": "settlementPrice",
+        "type": "int256"
       }
     ],
     "name": "forceToSetEmergencyState",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "forceToSyncState",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -951,7 +982,7 @@
         "type": "int256[34]"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1180,6 +1211,19 @@
       }
     ],
     "name": "setLiquidityPoolParameter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOperator",
+        "type": "address"
+      }
+    ],
+    "name": "setOperator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

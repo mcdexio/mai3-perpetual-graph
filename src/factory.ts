@@ -144,8 +144,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (!callResult.reverted) {
             poolMargin = convertToDecimal(callResult.value, BI_18)
         }
-        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
-        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, false)
+        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
     }
 
     // update perpetual's trade volume amount in USD and oracle price data

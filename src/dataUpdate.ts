@@ -157,11 +157,8 @@ export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): Tra
     return tradeSevenDayData as TradeSevenDayData
 }
 
-export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolHourData {
-    let { poolHourData, isNew } = getPoolHourData(timestamp, pool.id)
-    if (!isNew && !isRefresh) {
-        return poolHourData as PoolHourData
-    }
+export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal): PoolHourData {
+    let poolHourData = getPoolHourData(timestamp, pool.id)
     let shareToken = ShareToken.load(pool.shareToken)
     let nav = ZERO_BD
     if (shareToken.totalSupply != ZERO_BD) {
@@ -186,7 +183,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
     return poolHourData as PoolHourData
 }
 
-export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, isRefresh: boolean): PoolDayData {
+export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal): PoolDayData {
     let dayIndex = timestamp.toI32() / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
     let dayPoolID = pool.id
@@ -200,9 +197,8 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
         poolDayData.poolMarginUSD = ZERO_BD
         poolDayData.netAssetValue = ZERO_BD
         poolDayData.timestamp = dayStartUnix
-    } else if (!isRefresh) {
-        return poolDayData as PoolDayData
     }
+    
     let shareToken = ShareToken.load(pool.shareToken)
     let nav = ZERO_BD
     if (shareToken.totalSupply != ZERO_BD) {
