@@ -195,7 +195,7 @@ export function handleTrade(event: TradeEvent): void {
     let position = convertToDecimal(event.params.position, BI_18)
     let fee = convertToDecimal(event.params.totalFee, BI_18)
     let lpFee = convertToDecimal(event.params.lpFee, BI_18)
-    let { poolHourData } = getPoolHourData(event.block.timestamp, event.address.toHexString())
+    let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
     poolHourData.fee += lpFee
     poolHourData.funding += perp.position * (perp.entryUnitAcc - perp.unitAccumulativeFunding)
     poolHourData.tradePNL += perp.position * (price - perp.entryPrice)
@@ -250,7 +250,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let type = TradeType.LIQUIDATEBYAMM
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
-        let { poolHourData } = getPoolHourData(event.block.timestamp, event.address.toHexString())
+        let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
         poolHourData.penalty += lpPenalty
         poolHourData.funding += perp.position * (perp.entryUnitAcc - perp.unitAccumulativeFunding)
         poolHourData.tradePNL += perp.position * (price - perp.entryPrice)
@@ -280,19 +280,18 @@ export function handleLiquidate(event: LiquidateEvent): void {
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {
-    let { poolHourData } = getPoolHourData(event.block.timestamp, event.address.toHexString())
+    let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
     poolHourData.excessInsuranceFund += convertToDecimal(event.params.amount, BI_18)
     poolHourData.save()
 }
 
-export function getPoolHourData(timestamp: BigInt, poolID: String): { poolHourData: PoolHourData; isNew: boolean } {
+export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData {
     let hourIndex = timestamp.toI32() / 3600
     let hourStartUnix = hourIndex * 3600
     let hourPoolID = poolID
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
     let poolHourData = PoolHourData.load(hourPoolID)
-    let isNew: boolean = false
     if (poolHourData === null) {
         poolHourData = new PoolHourData(hourPoolID)
         poolHourData.liquidityPool = poolID
@@ -321,9 +320,8 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): { poolHourDa
             poolHourData.penalty = lastPoolHourData.penalty
             poolHourData.excessInsuranceFund = lastPoolHourData.excessInsuranceFund
         }
-        isNew = true
     }
-    return {poolHourData, isNew}
+    return poolHourData as PoolHourData
 }
 
 function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigDecimal,
@@ -410,8 +408,8 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
     // update poolMargin
-    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, true)
-    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, true)
+    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin)
+    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin)
 }
 
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {
