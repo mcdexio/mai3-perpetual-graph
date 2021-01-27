@@ -17,6 +17,8 @@ type Factory @entity {
 
     # transactions
     txCount: BigInt!
+
+    latestBlock: BigInt!
 }
 
 type User @entity {

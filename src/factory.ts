@@ -99,6 +99,13 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
+    let factory = Factory.load(FACTORY_ADDRESS)
+    if (factory === null) {
+        return
+    }
+    factory.latestBlock = block.number
+    factory.save()
+
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
     let minIndex = timestamp / 300
@@ -127,10 +134,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     }
 
 
-    let factory = Factory.load(FACTORY_ADDRESS)
-    if (factory === null) {
-        return
-    }
 
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
