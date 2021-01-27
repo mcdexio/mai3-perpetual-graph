@@ -38,6 +38,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalLiquidityUSD = ZERO_BD
         factory.txCount = ZERO_BI
+        factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
         factory.perpetuals = []
 
