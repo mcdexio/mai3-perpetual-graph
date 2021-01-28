@@ -15,7 +15,7 @@ import {
     Trade as TradeEvent,
     Liquidate as LiquidateEvent,
     UpdatePoolMargin as UpdatePoolMarginEvent,
-    TransferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
+    transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
