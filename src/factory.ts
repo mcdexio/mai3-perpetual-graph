@@ -144,10 +144,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
-        let contract = ReaderContract.bind(READER_ADDRESS)
+        let contract = ReaderContract.bind(Address.fromString(READER_ADDRESS))
         let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
         if (!callResult.reverted) {
-            poolMargin = convertToDecimal(callResult.value, BI_18)
+            poolMargin = convertToDecimal(callResult.value.value1, BI_18)
         }
         updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
         updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
