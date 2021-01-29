@@ -26,8 +26,8 @@ dataSources:
           file: ./abis/Oracle.json
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: LiquidityPool
-          file: ./abis/LiquidityPool.json
+        - name: Reader
+          file: ./abis/Reader.json
       eventHandlers:
         - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
           handler: handleCreateLiquidityPool
@@ -169,7 +169,7 @@ templates:
         - event: ProposalExecuted(uint256)
           handler: handleProposalExecuted
         - event: VoteCast(address,uint256,bool,uint256)
-          handler: handleVoteCast
+          handler: handleVote
         - event: DelegateChanged(indexed address,indexed address,indexed address)
           handler: handleDelegate
         - event: Stake(indexed address,uint256)

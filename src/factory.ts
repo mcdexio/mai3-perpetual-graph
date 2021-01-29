@@ -4,7 +4,7 @@ import { Factory, LiquidityPool, Perpetual, PriceBucket, Price15MinData, PriceHo
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { LiquidityPool as PoolContract } from '../generated/Factory/LiquidityPool'
+import { Reader as ReaderContract } from '../generated/Factory/Reader'
 
 import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
@@ -22,6 +22,7 @@ import {
     BI_18,
     PerpetualState,
     FACTORY_ADDRESS,
+    READER_ADDRESS,
     isETHCollateral,
     convertToDecimal,
     fetchCollateralSymbol,
@@ -143,8 +144,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
-        let contract = PoolContract.bind(Address.fromString(poolIndex))
-        let callResult = contract.try_getPoolMargin()
+        let contract = ReaderContract.bind(READER_ADDRESS)
+        let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
         if (!callResult.reverted) {
             poolMargin = convertToDecimal(callResult.value, BI_18)
         }
