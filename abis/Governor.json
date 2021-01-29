@@ -54,6 +54,49 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "bytes32",
+        "name": "txHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "signature",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "eta",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExecuteTransaction",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
         "type": "address"
@@ -249,6 +292,25 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      }
+    ],
+    "name": "SaveVoteBalanceCheckpoint",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -385,25 +447,26 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "__abdicate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "__acceptAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "newPendingAdmin",
+        "name": "target",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "signature",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       },
       {
         "internalType": "uint256",
@@ -411,27 +474,15 @@
         "type": "uint256"
       }
     ],
-    "name": "__executeSetTimelockPendingAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "name": "_executeTransaction",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "newPendingAdmin",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "eta",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
       }
     ],
-    "name": "__queueSetTimelockPendingAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -464,19 +515,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "proposalId",
-        "type": "uint256"
-      }
-    ],
-    "name": "cancel",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -873,6 +911,78 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVoteBalanceAt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "checkpointIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVoteBalanceCheckpointAt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getVoteBalanceCheckpointCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "gracePeriod",
     "outputs": [
@@ -902,22 +1012,17 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "target_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "shareToken_",
         "type": "address"
       },
       {
         "internalType": "address",
         "name": "rewardToken_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "timelock_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "guardian_",
         "type": "address"
       }
     ],
@@ -1175,16 +1280,6 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "targets",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "values",
-        "type": "uint256[]"
-      },
-      {
         "internalType": "string[]",
         "name": "signatures",
         "type": "string[]"
@@ -1208,19 +1303,6 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "proposalId",
-        "type": "uint256"
-      }
-    ],
-    "name": "queue",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1388,10 +1470,10 @@
   },
   {
     "inputs": [],
-    "name": "timelock",
+    "name": "target",
     "outputs": [
       {
-        "internalType": "contract ITimeLock",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
