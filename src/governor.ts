@@ -8,8 +8,7 @@ import {
     ProposalExecuted as ProposalExecutedEvent,
     VoteCast as VoteCastEvent,
     DelegateChanged as DelegateChangedEvent,
-    Stake as StakeEvent,
-    Withdraw as WithdrawEvent,
+    Transfer as TransferEvent,
     RewardAdded as RewardAddedEvent,
     RewardRateChanged as RewardRateChangedEvent,
     RewardPaid as RewardPaidEvent,
@@ -22,6 +21,7 @@ import {
     ONE_BI,
     ZERO_BD,
     fetchVoteAccount,
+    ADDRESS_ZERO,
 } from './utils'
 
 export function handleDelegate(event: DelegateChangedEvent): void {
@@ -195,25 +195,32 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
     proposal.save()
 }
 
-export function handleStake(event: StakeEvent): void {
+export function handleTransfer(event: TransferEvent): void {
     let governor = Governor.load(event.address.toHexString())
-    let user = fetchUser(event.params.account)
-    let account = fetchVoteAccount(user, governor as Governor)
-    let amount = convertToDecimal(event.params.amount, BI_18)
-    account.votes += amount
-    governor.totalVotes += amount
-    account.save()
-    governor.save()
-}
+    let from = fetchUser(event.params.from)
+    let to = fetchUser(event.params.to)
 
-export function handleWithdraw(event: WithdrawEvent): void {
-    let governor = Governor.load(event.address.toHexString())
-    let user = fetchUser(event.params.account)
-    let account = fetchVoteAccount(user, governor as Governor)
-    let amount = convertToDecimal(event.params.amount, BI_18)
-    account.votes -= amount
-    governor.totalVotes -= amount
-    account.save()
+    let value = convertToDecimal(event.params.value, BI_18)
+    if (from.id == ADDRESS_ZERO) {
+        governor.totalVotes += value
+    }
+
+    if (to.id == ADDRESS_ZERO) {
+        governor.totalVotes -= value
+    }
+
+    if (from.id != ADDRESS_ZERO) {
+        let fromAccount = fetchVoteAccount(from, governor as Governor)
+        fromAccount.votes -= value
+        fromAccount.save()
+    }
+
+    if (to.id != ADDRESS_ZERO) {
+        let toAccount = fetchVoteAccount(to, governor as Governor)
+        toAccount.votes += value
+        toAccount.save()
+    }
+
     governor.save()
 }
 
