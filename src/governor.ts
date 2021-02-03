@@ -38,6 +38,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.description = event.params.description
     proposal.startBlock = event.params.startBlock
     proposal.endBlock = event.params.endBlock
+    proposal.quorumVotes = convertToDecimal(event.params.quorumVotes, BI_18)
     proposal.for = ZERO_BD
     proposal.against = ZERO_BD
     proposal.isExecuted = false
@@ -48,7 +49,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 }
   
 export function handleVote(event: VoteCastEvent): void {
-    let user = fetchUser(event.params.voter)
+    let user = fetchUser(event.params.account)
     let proposalId = event.address.toHexString()
         .concat("-")
         .concat(event.params.proposalId.toString())
