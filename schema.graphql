@@ -367,6 +367,7 @@ type Proposal @entity {
     calldatas: [Bytes!]
     startBlock: BigInt!
     endBlock: BigInt!
+    quorumVotes: BigDecimal!
     for: BigDecimal!
     against: BigDecimal!
     isExecuted: Boolean!
