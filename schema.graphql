@@ -139,11 +139,8 @@ type Governor @entity {
     rewardRate: BigDecimal!
     proposalCount: BigInt!
     periodFinish: BigInt!
-    delegates: [Delegate!]! @derivedFrom(field: "governor")
     proposals: [Proposal!]! @derivedFrom(field: "governor")
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
-    voteAccountIDs: [String!]
-    delegateIDs: [String!]
 }
 
 type LiquidityHistory @entity {
@@ -377,14 +374,6 @@ type Proposal @entity {
     votes: [Vote!] @derivedFrom(field: "proposal")
 }
 
-type Delegate @entity {
-    # governor contract address + "-" + delegate address
-    id: ID!
-    user: User!
-    governor: Governor!
-    principals: [String!]
-}
-
 type Vote @entity {
     # proposal id + "-" + user address
     id: ID!
@@ -393,24 +382,4 @@ type Vote @entity {
     support: Boolean!
     votes: BigDecimal!
     timestamp: BigInt!
-    # for delegated user
-    delegate: String
-    delegateVotes: BigDecimal
-}
-
-type ProposalVotesSnapshot @entity {
-    # proposal id + "-" + user address
-    id: ID!
-    user: User!
-    proposal: Proposal!
-    totalVotes: BigDecimal!
-    votes: BigDecimal!
-}
-
-type ProposalDelegateSnapshot @entity {
-    # proposal id + "-" + delegate address
-    id: ID!
-    proposal: Proposal!
-    delegate: String!
-    principals: [String!]
 }

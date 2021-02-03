@@ -172,8 +172,6 @@ templates:
           handler: handleVote
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-        - event: DelegateChanged(indexed address,indexed address,indexed address)
-          handler: handleDelegate
         - event: RewardAdded(uint256,uint256)
           handler: handleRewardAdded
         - event: RewardRateChanged(uint256,uint256,uint256)
