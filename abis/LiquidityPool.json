@@ -244,6 +244,12 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "OperatorCheckIn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": true,
@@ -646,6 +652,13 @@
         "type": "int256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "checkIn",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1162,14 +1175,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "int256",
-        "name": "newValue",
-        "type": "int256"
+        "internalType": "int256[1]",
+        "name": "params",
+        "type": "int256[1]"
       }
     ],
     "name": "setLiquidityPoolParameter",
@@ -1198,14 +1206,27 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "oracle",
+        "type": "address"
+      }
+    ],
+    "name": "setOracle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
       },
       {
-        "internalType": "int256",
-        "name": "newValue",
-        "type": "int256"
+        "internalType": "int256[9]",
+        "name": "baseParams",
+        "type": "int256[9]"
       }
     ],
     "name": "setPerpetualBaseParameter",
@@ -1221,24 +1242,19 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
+        "internalType": "int256[6]",
+        "name": "riskParams",
+        "type": "int256[6]"
       },
       {
-        "internalType": "int256",
-        "name": "newValue",
-        "type": "int256"
+        "internalType": "int256[6]",
+        "name": "minRiskParamValues",
+        "type": "int256[6]"
       },
       {
-        "internalType": "int256",
-        "name": "minValue",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "maxValue",
-        "type": "int256"
+        "internalType": "int256[6]",
+        "name": "maxRiskParamValues",
+        "type": "int256[6]"
       }
     ],
     "name": "setPerpetualRiskParameter",
@@ -1334,14 +1350,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "int256",
-        "name": "newValue",
-        "type": "int256"
+        "internalType": "int256[6]",
+        "name": "riskParams",
+        "type": "int256[6]"
       }
     ],
     "name": "updatePerpetualRiskParameter",

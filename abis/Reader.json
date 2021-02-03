@@ -35,10 +35,40 @@
               "internalType": "int256",
               "name": "position",
               "type": "int256"
+            },
+            {
+              "internalType": "int256",
+              "name": "availableCash",
+              "type": "int256"
+            },
+            {
+              "internalType": "int256",
+              "name": "margin",
+              "type": "int256"
+            },
+            {
+              "internalType": "int256",
+              "name": "settleableMargin",
+              "type": "int256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isInitialMarginSafe",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "isMaintenanceMarginSafe",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "isMarginSafe",
+              "type": "bool"
             }
           ],
-          "internalType": "struct MarginAccount",
-          "name": "marginAccount",
+          "internalType": "struct Reader.AccountReaderResult",
+          "name": "accountStorage",
           "type": "tuple"
         }
       ],

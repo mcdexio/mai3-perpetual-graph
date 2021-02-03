@@ -164,7 +164,7 @@ templates:
         - name: Governor
           file: ./abis/Governor.json
       eventHandlers:
-        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+        - event: ProposalCreated(uint256,address,string[],bytes[],uint256,uint256,string)
           handler: handleProposalCreated
         - event: ProposalExecuted(uint256)
           handler: handleProposalExecuted
