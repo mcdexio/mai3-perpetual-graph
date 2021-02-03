@@ -159,10 +159,6 @@ export function fetchVoteAccount(user: User, governor: Governor): VoteAccount {
     account.votes = ZERO_BD
     account.reward = ZERO_BD
     account.save()
-    let voteAccountIDs = governor.voteAccountIDs
-    voteAccountIDs.push(id)
-    governor.voteAccountIDs = voteAccountIDs
-    governor.save()
   }
   return account as VoteAccount
 }
