@@ -212,7 +212,7 @@ function updatePriceData(oracle: String, timestamp: i32): void {
 
     // 15Min
     let fifminIndex = timestamp / (60*15)
-    let fifminStartUnix = minIndex * (60*15)
+    let fifminStartUnix = fifminIndex * (60*15)
     let fifminPriceID = oracle
     .concat('-')
     .concat(BigInt.fromI32(fifminIndex).toString())
