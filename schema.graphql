@@ -289,6 +289,17 @@ type PoolDayData @entity {
     timestamp: Int
 }
 
+type PriceMinData @entity {
+    # oracle address + "-" + timeindex
+    id: ID!
+    oracle: String!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal!
+    timestamp: Int
+}
+
 type Price15MinData @entity {
     # oracle address + "-" + timeindex
     id: ID!
@@ -336,14 +347,6 @@ type PriceSevenDayData @entity {
 type PriceBucket @entity {
     id: ID!
     ethPrice: BigDecimal
-    timestamp: Int
-}
-
-type McdexLiquidityHourData @entity {
-    # factory address + "-" + timeindex
-    id: ID!
-    poolMarginUSD: BigDecimal!
-    totalVolumeUSD: BigDecimal!
     timestamp: Int
 }
 
