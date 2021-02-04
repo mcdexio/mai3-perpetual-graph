@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, McdexLiquidityHourData} from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -111,29 +111,25 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let minIndex = timestamp / 300
     let minStartUnix = minIndex * 300
     let bucket = PriceBucket.load('1')
-    if (bucket === null || bucket.timestamp == minStartUnix) {
-        return
+    if (bucket != null && bucket.timestamp != minStartUnix) {
+        // update eth price
+        let ethOracle = Address.fromString(ETH_ORACLE)
+        let ethContract = OracleContract.bind(ethOracle)
+        let price = ZERO_BD
+
+        let callResult = ethContract.try_priceTWAPShort()
+        if(callResult.reverted){
+            log.warning("Get try_price reverted at block: {}", [block.number.toString()])
+            return
+        } else {
+            price = convertToDecimal(callResult.value.value0, BI_18)
+        }
+        if (price > ZERO_BD) {
+            bucket.ethPrice = price
+            bucket.timestamp = minStartUnix
+            bucket.save()
+        }
     }
-
-    // update eth price
-    let ethOracle = Address.fromString(ETH_ORACLE)
-    let ethContract = OracleContract.bind(ethOracle)
-    let price = ZERO_BD
-
-    let callResult = ethContract.try_priceTWAPShort()
-    if(callResult.reverted){
-        log.warning("Get try_price reverted at block: {}", [block.number.toString()])
-        return
-    } else {
-        price = convertToDecimal(callResult.value.value0, BI_18)
-    }
-    if (price > ZERO_BD) {
-        bucket.ethPrice = price
-        bucket.timestamp = minStartUnix
-        bucket.save()
-    }
-
-
 
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
@@ -175,18 +171,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         // perp price
         updatePriceData(perp.oracleAddress, timestamp)
     }
-
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let id = FACTORY_ADDRESS.concat('-').concat(BigInt.fromI32(hourIndex).toString())
-    let mcdexLiquidityHourData = McdexLiquidityHourData.load(id)
-    if (mcdexLiquidityHourData === null) {
-        mcdexLiquidityHourData = new McdexLiquidityHourData(id)
-        mcdexLiquidityHourData.poolMarginUSD = factory.totalLiquidityUSD
-        mcdexLiquidityHourData.totalVolumeUSD = factory.totalVolumeUSD
-        mcdexLiquidityHourData.timestamp = hourStartUnix
-        mcdexLiquidityHourData.save()
-    }
 }
 
 function updatePriceData(oracle: String, timestamp: i32): void {
@@ -202,21 +186,46 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     }
 
     // 15Min
-    let minIndex = timestamp / (60*15)
-    let minStartUnix = minIndex * (60*15)
+    let minIndex = timestamp / 60
+    let minStartUnix = minIndex * 60
     let minPriceID = oracle
     .concat('-')
     .concat(BigInt.fromI32(minIndex).toString())
-    let price15MinData = Price15MinData.load(minPriceID)
+    let priceMinData = PriceMinData.load(minPriceID)
+    if (priceMinData === null) {
+        priceMinData = new PriceMinData(minPriceID)
+        priceMinData.oracle = oracle
+        priceMinData.open = price
+        priceMinData.close = price
+        priceMinData.high = price
+        priceMinData.low = price
+        priceMinData.timestamp = minStartUnix
+    } else {
+        priceMinData.close = price
+        if (priceMinData.high < price) {
+            priceMinData.high = price
+        } else if(priceMinData.low > price) {
+            priceMinData.low = price
+        }
+    }
+    priceMinData.save()
+
+    // 15Min
+    let fifminIndex = timestamp / (60*15)
+    let fifminStartUnix = minIndex * (60*15)
+    let fifminPriceID = oracle
+    .concat('-')
+    .concat(BigInt.fromI32(fifminIndex).toString())
+    let price15MinData = Price15MinData.load(fifminPriceID)
     if (price15MinData === null) {
 
-        price15MinData = new Price15MinData(minPriceID)
+        price15MinData = new Price15MinData(fifminPriceID)
         price15MinData.oracle = oracle
         price15MinData.open = price
         price15MinData.close = price
         price15MinData.high = price
         price15MinData.low = price
-        price15MinData.timestamp = minStartUnix
+        price15MinData.timestamp = fifminStartUnix
     } else {
         price15MinData.close = price
         if (price15MinData.high < price) {
