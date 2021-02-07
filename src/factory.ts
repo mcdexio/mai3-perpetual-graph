@@ -134,7 +134,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             bucket.save()
         }
     } else {
-        if (block.number < HANDLER_BLOCK) {
+        if (block.number < BigInt.fromI32(HANDLER_BLOCK)) {
             return
         }
     } 
