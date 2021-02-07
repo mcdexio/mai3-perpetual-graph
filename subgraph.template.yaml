@@ -1,0 +1,181 @@
+specVersion: 0.0.2
+description: mai-v3-graph
+repository: https://github.com/mcdexio/mai-v3-graph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Factory
+    network: {{network}}
+    source:
+      address: '{{factory_address}}'
+      abi: Factory
+      startBlock: {{start_block}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Factory
+        - Token
+        - LiquidityPool
+      abis:
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: Oracle
+          file: ./abis/Oracle.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: Reader
+          file: ./abis/Reader.json
+      eventHandlers:
+        - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
+          handler: handleCreateLiquidityPool
+      blockHandlers:
+        - handler: handleSyncPerpData
+      file: ./src/factory.ts
+
+  - kind: ethereum/contract
+    name: SymbolService
+    network: {{network}}
+    source:
+      address: '{{symbol_address}}'
+      abi: SymbolService
+      startBlock: {{start_block}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Perpetual
+      abis:
+        - name: SymbolService
+          file: ./abis/SymbolService.json
+      eventHandlers:
+        - event: AllocateSymbol(address,uint256,uint256)
+          handler: handleAllocateSymbol
+      file: ./src/symbolService.ts
+  - kind: ethereum/contract
+    name: Broker
+    network: {{network}}
+    source:
+      address: '{{broker_address}}' #broker contract address
+      abi: Broker
+      startBlock: {{start_block}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - MatchOrder
+      abis:
+        - name: Broker
+          file: ./abis/Broker.json
+      eventHandlers:
+        - event: TradeSuccess(bytes32,(address,address,address,address,address,int256,int256,int256,int256,uint256,uint64,uint32,uint32,uint32,uint32),int256,uint256)
+          handler: handleTradeSuccess
+      file: ./src/broker.ts
+templates:
+  - kind: ethereum/contract
+    name: LiquidityPool
+    network: mainnet
+    source:
+      abi: LiquidityPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Token
+        - Transaction
+        - Perpetual
+        - MarginAccount
+        - LiquidityPosition
+        - Trade
+        - Position
+        - ClosedPosition
+        - PerpHourData
+      abis:
+        - name: LiquidityPool
+          file: ./abis/LiquidityPool.json
+        - name: Oracle
+          file: ./abis/Oracle.json
+      eventHandlers:
+        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[6])
+          handler: handleCreatePerpetual
+        - event: RunLiquidityPool()
+          handler: handleRunLiquidityPool
+        - event: SetNormalState(uint256)
+          handler: handleSetNormalState
+        - event: SetEmergencyState(uint256,int256,uint256)
+          handler: handleSetEmergencyState
+        - event: SetClearedState(uint256)
+          handler: handleSetClearedState
+        - event: Deposit(uint256,indexed address,int256)
+          handler: handleDeposit
+        - event: Withdraw(uint256,indexed address,int256)
+          handler: handleWithdraw
+        - event: AddLiquidity(indexed address,int256,int256)
+          handler: handleAddLiquidity
+        - event: RemoveLiquidity(indexed address,int256,int256)
+          handler: handleRemoveLiquidity
+        - event: Trade(uint256,indexed address,int256,int256,int256,int256)
+          handler: handleTrade
+        - event: Liquidate(uint256,indexed address,indexed address,int256,int256,int256,int256)
+          handler: handleLiquidate
+        - event: UpdatePoolMargin(int256)
+          handler: handleUpdatePoolMargin
+        - event: UpdateUnitAccumulativeFunding(uint256,int256)
+          handler: handleUpdateUnitAccumulativeFunding
+        - event: transferExcessInsuranceFundToLP(uint256,int256)
+          handler: handleTransferExcessInsuranceFundToLP
+      file: ./src/liquidityPool.ts
+  - kind: ethereum/contract
+    name: ShareToken
+    network: mainnet
+    source:
+      abi: ShareToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityAccount
+      abis:
+        - name: ShareToken
+          file: ./abis/ShareToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/shareToken.ts
+  - kind: ethereum/contract
+    name: Governor
+    network: mainnet
+    source:
+      abi: Governor
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityPosition
+      abis:
+        - name: Governor
+          file: ./abis/Governor.json
+      eventHandlers:
+        - event: ProposalCreated(uint256,address,string[],bytes[],uint256,uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: VoteCast(address,uint256,bool,uint256)
+          handler: handleVote
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: RewardAdded(uint256,uint256)
+          handler: handleRewardAdded
+        - event: RewardRateChanged(uint256,uint256,uint256)
+          handler: handleRewardRateChanged
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+      file: ./src/governor.ts
