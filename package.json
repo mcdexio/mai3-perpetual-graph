@@ -2,10 +2,8 @@
   "name": "mai-v3-graph",
   "version": "0.1.0",
   "scripts": {
-    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:mainnet:const": "mustache config/mainnet.json const.template.ts > src/const.ts",
-    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:kovan:const": "mustache config/kovan.json const.template.ts > src/const.ts",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml; mustache config/mainnet.json const.template.ts > src/const.ts",
+    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml; mustache config/kovan.json const.template.ts > src/const.ts",
     "create": "graph create mcarloai/mai-v3-graph --node https://api.thegraph.com/deploy/",
     "create-local": "graph create mcarloai/mai-v3-graph --node http://10.30.206.10:8020",
     "codegen": "graph codegen",
