@@ -4,5 +4,7 @@
     "symbol_address": "0x26C9BEbCd3A00107c8Ec964Ac03B899565231EA5",
     "broker_address": "0x626cD536E239867B14511Ba92d606a24D13c25A4",
     "reader_address": "0x626cD536E239867B14511Ba92d606a24D13c25A4",
-    "start_block": 961207
+    "eth_oracle": "0xbb05666820137b3b1344fe6802830515c015dd4f",
+    "start_block": 961207,
+    "handler_block": 1008525
 }

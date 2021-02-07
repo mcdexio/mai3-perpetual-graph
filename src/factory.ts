@@ -18,17 +18,21 @@ import {
 import {
     ZERO_BD,
     ONE_BI,
-    ETH_ORACLE,
     BI_18,
     PerpetualState,
-    FACTORY_ADDRESS,
-    READER_ADDRESS,
     isETHCollateral,
     convertToDecimal,
     fetchCollateralSymbol,
     ZERO_BI,
     isUSDCollateral
 } from './utils'
+
+import {
+    ETH_ORACLE,
+    FACTORY_ADDRESS,
+    READER_ADDRESS,
+    HANDLER_BLOCK
+} from './const'
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let factory = Factory.load(event.address.toHexString())
@@ -108,10 +112,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
-    let minIndex = timestamp / 300
-    let minStartUnix = minIndex * 300
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
     let bucket = PriceBucket.load('1')
-    if (bucket != null && bucket.timestamp != minStartUnix) {
+    if (bucket != null && bucket.timestamp != hourStartUnix) {
         // update eth price
         let ethOracle = Address.fromString(ETH_ORACLE)
         let ethContract = OracleContract.bind(ethOracle)
@@ -126,10 +130,14 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
         if (price > ZERO_BD) {
             bucket.ethPrice = price
-            bucket.timestamp = minStartUnix
+            bucket.timestamp = hourStartUnix
             bucket.save()
         }
-    }
+    } else {
+        if (block.number < HANDLER_BLOCK) {
+            return
+        }
+    } 
 
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]

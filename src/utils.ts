@@ -5,21 +5,12 @@ import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount, VoteAc
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
-
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
 export let ZERO_BD = BigDecimal.fromString('0')
 export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
-
-// Notice lower case
-export const FACTORY_ADDRESS = '0x01c4edb6a57ec75ea1b71b1964b5768348c30e54'
-export const READER_ADDRESS = '0x3563cb8eDEB55f12861a3c194143874b05b1aB9e'
-
-
-// oracle address for get price
-export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
 
 export let ETHTokens:string[] = [
   "0xdea04ead9bce0ba129120c137117504f6dfaf78f",
