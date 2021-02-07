@@ -1,0 +1,8 @@
+{
+    "network": "mainnet",
+    "factory_address": "0xB7CF2e0cD6Ac6F30f00Ac0cDE2E95F553fE1d356",
+    "symbol_address": "0xa86cc4E67330a4E5430638AEA2BA5b14D0Fd8015",
+    "broker_address": "0xA794E448e60a4e800DfEDa5Df87abddfEa3f686C",
+    "reader_address": "0x39457166011481ece2143f8834106e28cf17d6f0",
+    "start_block": 1008525
+}
