@@ -78,7 +78,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: LiquidityPool
-    network: mainnet
+    network: {{network}}
     source:
       abi: LiquidityPool
     mapping:
@@ -133,7 +133,7 @@ templates:
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken
-    network: mainnet
+    network: {{network}}
     source:
       abi: ShareToken
     mapping:
@@ -151,7 +151,7 @@ templates:
       file: ./src/shareToken.ts
   - kind: ethereum/contract
     name: Governor
-    network: mainnet
+    network: {{network}}
     source:
       abi: Governor
     mapping:
