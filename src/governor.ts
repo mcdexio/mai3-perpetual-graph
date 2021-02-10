@@ -116,7 +116,7 @@ export function handleRewardAdded(event: RewardAddedEvent): void {
 
 export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
     let governor = Governor.load(event.address.toHexString())
-    governor.rewardRate += convertToDecimal(event.params.currentRate, BI_18)
+    governor.rewardRate = convertToDecimal(event.params.currentRate, BI_18)
     governor.periodFinish = event.params.periodFinish
     governor.save()
 }
