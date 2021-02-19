@@ -197,6 +197,11 @@
           "internalType": "int256",
           "name": "poolMargin",
           "type": "int256"
+        },
+        {
+            "internalType": "bool",
+            "name": "isSafe",
+            "type": "bool"
         }
       ],
       "stateMutability": "nonpayable",
