@@ -51,6 +51,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         let bucket = new PriceBucket('1')
         bucket.ethPrice = ZERO_BD
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
+        bucket.minTimestamp = event.block.timestamp.toI32()  / 60
         bucket.save()
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
@@ -103,19 +104,15 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
-    let factory = Factory.load(FACTORY_ADDRESS)
-    if (factory === null) {
-        return
-    }
-    factory.latestBlock = block.number
-    factory.save()
-
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
     let bucket = PriceBucket.load('1')
-    if (bucket != null && bucket.timestamp != hourStartUnix) {
+    if (bucket == null) {
+        return 
+    }
+    if (bucket.timestamp != hourStartUnix) {
         // update eth price
         let ethOracle = Address.fromString(ETH_ORACLE)
         let ethContract = OracleContract.bind(ethOracle)
@@ -137,7 +134,21 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (block.number < BigInt.fromI32(HANDLER_BLOCK)) {
             return
         }
+        let minStartUnix = (timestamp / 60) * 60
+        if (bucket.minTimestamp == minStartUnix) {
+            return
+        }
+
+        bucket.minTimestamp = minStartUnix
+        bucket.save()
     } 
+
+    let factory = Factory.load(FACTORY_ADDRESS)
+    if (factory === null) {
+        return
+    }
+    factory.latestBlock = block.number
+    factory.save()
 
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
