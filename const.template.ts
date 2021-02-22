@@ -1,5 +1,3 @@
-// Notice lower case
-export const FACTORY_ADDRESS = '{{factory_address}}'
 export const READER_ADDRESS = '{{reader_address}}'
 
 // oracle address for get price

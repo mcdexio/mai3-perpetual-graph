@@ -29,7 +29,7 @@ import {
 
 import {
     ETH_ORACLE,
-    FACTORY_ADDRESS,
+    FACTORY,
     READER_ADDRESS,
     HANDLER_BLOCK
 } from './const'
@@ -143,7 +143,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         bucket.save()
     } 
 
-    let factory = Factory.load(FACTORY_ADDRESS)
+    let factory = Factory.load(FACTORY)
     if (factory === null) {
         return
     }

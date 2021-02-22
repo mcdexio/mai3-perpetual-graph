@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, User, MarginAccount, Liquidate, LiquidityHistory } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, User, MarginAccount, Liquidate, LiquidityHistory, PriceBucket } from '../generated/schema'
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
@@ -39,6 +39,9 @@ import {
     fetchOracleUnderlying,
     AbsBigDecimal,
     NegBigDecimal,
+    isUSDCollateral,
+    FACTORY,
+    isETHCollateral
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
@@ -206,6 +209,18 @@ export function handleTrade(event: TradeEvent): void {
     perp.position += convertToDecimal(-event.params.position, BI_18)
     perp.entryPrice = price
     perp.entryUnitAcc = perp.unitAccumulativeFunding
+    perp.totalVolume += AbsBigDecimal(position)
+    perp.totalFee += fee
+    perp.txCount += ONE_BI
+    if (isUSDCollateral(perp.collateralAddress)) {
+        perp.totalVolumeUSD += AbsBigDecimal(position)
+    }
+    if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            perp.totalVolumeUSD += AbsBigDecimal(position).times(priceBucket.ethPrice)
+        }
+    }
     perp.save()
 
     // update trade data
