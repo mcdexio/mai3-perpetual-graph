@@ -12,6 +12,8 @@ export let ZERO_BD = BigDecimal.fromString('0')
 export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
+export const FACTORY = "mcdex"
+// Notice lower case
 export let ETHTokens:string[] = [
   "0xdea04ead9bce0ba129120c137117504f6dfaf78f",
   "0x1520d5561dfb209c6df5149cb6146f6b18d7ad2a",

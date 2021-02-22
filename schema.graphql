@@ -359,6 +359,22 @@ type AccHourData @entity {
     timestamp: Int
 }
 
+type McdexHourData @entity {
+    # factory + "-" + timeindex
+    id: ID!
+    timestamp: Int!
+    totalValueLockedUSD: BigDecimal!
+    totalVolumeUSD: BigDecimal!
+}
+
+type McdexDayData @entity {
+    # factory + "-" + timeindex
+    id: ID!
+    timestamp: Int!
+    totalValueLockedUSD: BigDecimal!
+    totalVolumeUSD: BigDecimal!
+}
+
 # ====================== Voting ======================
 type Proposal @entity {
     # governor contract address + "-" + proposal index
