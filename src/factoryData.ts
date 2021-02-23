@@ -7,7 +7,7 @@ import {
 } from './utils'
 
 
-export function updateFactoryData(volumeUSD: BigDecimal, valueLockedUSD: BigDecimal, blockTimestamp: BigInt) {
+export function updateFactoryData(volumeUSD: BigDecimal, valueLockedUSD: BigDecimal, blockTimestamp: BigInt):void {
     let timestamp = blockTimestamp.toI32()
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
