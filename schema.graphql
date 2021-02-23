@@ -6,10 +6,12 @@ type Factory @entity {
     liquidityPoolCount: BigInt!
 
     # total volume
+    totalVolume: BigDecimal!
     totalVolumeUSD: BigDecimal!
 
     # total liquidity
-    totalLiquidityUSD: BigDecimal!
+    totalValueLocked: BigDecimal!
+    totalValueLockedUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]

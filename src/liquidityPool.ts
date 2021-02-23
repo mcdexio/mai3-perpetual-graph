@@ -17,9 +17,11 @@ import {
     UpdatePoolMargin as UpdatePoolMarginEvent,
     transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
+    DonateInsuranceFund as DonateInsuranceFundEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
+import { updateFactoryData } from './factoryData'
 
 import {
     ZERO_BD,
@@ -108,6 +110,22 @@ export function handleDeposit(event: DepositEvent): void {
     let amount = convertToDecimal(event.params.amount, BI_18)
     marginAccount.cashBalance += amount
     marginAccount.save()
+    let valueLockedUSD = ZERO_BD
+    let factory = Factory.load(FACTORY)
+    if (isUSDCollateral(perp.collateralAddress)) {
+        factory.totalValueLockedUSD += amount
+        valueLockedUSD = amount
+    }
+    if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            factory.totalValueLockedUSD += amount.times(priceBucket.ethPrice)
+            valueLockedUSD = amount.times(priceBucket.ethPrice)
+        }
+    }
+    factory.save()
+    // update factory trade data
+    updateFactoryData(ZERO_BD, valueLockedUSD, event.block.timestamp)
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
@@ -120,6 +138,23 @@ export function handleWithdraw(event: WithdrawEvent): void {
     let amount = convertToDecimal(event.params.amount, BI_18)
     marginAccount.cashBalance -= amount
     marginAccount.save()
+
+    let valueLockedUSD = ZERO_BD
+    let factory = Factory.load(FACTORY)
+    if (isUSDCollateral(perp.collateralAddress)) {
+        factory.totalValueLockedUSD -= amount
+        valueLockedUSD = -amount
+    }
+    if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            factory.totalValueLockedUSD -= amount.times(priceBucket.ethPrice)
+            valueLockedUSD = -amount.times(priceBucket.ethPrice)
+        }
+    }
+    factory.save()
+    // update factory trade data
+    updateFactoryData(ZERO_BD, valueLockedUSD, event.block.timestamp)
 }
 
 export function handleAddLiquidity(event: AddLiquidityEvent): void {
@@ -152,6 +187,23 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
+
+    let valueLockedUSD = ZERO_BD
+    let factory = Factory.load(FACTORY)
+    if (isUSDCollateral(liquidityPool.collateralAddress)) {
+        factory.totalValueLockedUSD += cash
+        valueLockedUSD = cash
+    }
+    if (isETHCollateral(liquidityPool.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            factory.totalValueLockedUSD += cash.times(priceBucket.ethPrice)
+            valueLockedUSD = cash.times(priceBucket.ethPrice)
+        }
+    }
+    factory.save()
+    // update factory trade data
+    updateFactoryData(ZERO_BD, valueLockedUSD, event.block.timestamp)
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
@@ -184,9 +236,27 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
+
+    let valueLockedUSD = ZERO_BD
+    let factory = Factory.load(FACTORY)
+    if (isUSDCollateral(liquidityPool.collateralAddress)) {
+        factory.totalValueLockedUSD += cash
+        valueLockedUSD = cash
+    }
+    if (isETHCollateral(liquidityPool.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            factory.totalValueLockedUSD += cash.times(priceBucket.ethPrice)
+            valueLockedUSD = cash.times(priceBucket.ethPrice)
+        }
+    }
+    factory.save()
+    // update factory trade data
+    updateFactoryData(ZERO_BD, valueLockedUSD, event.block.timestamp)
 } 
 
 export function handleTrade(event: TradeEvent): void {
+    let factory = Factory.load(FACTORY)
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
@@ -209,28 +279,42 @@ export function handleTrade(event: TradeEvent): void {
     perp.position += convertToDecimal(-event.params.position, BI_18)
     perp.entryPrice = price
     perp.entryUnitAcc = perp.unitAccumulativeFunding
-    perp.totalVolume += AbsBigDecimal(position)
+    let volume = AbsBigDecimal(position).times(price)
+    let volumeUSD = ZERO_BD
+    let valueLockedUSD = ZERO_BD
+    perp.totalVolume += volume
+    factory.totalVolume += volume
     perp.totalFee += fee
     perp.txCount += ONE_BI
     if (isUSDCollateral(perp.collateralAddress)) {
-        perp.totalVolumeUSD += AbsBigDecimal(position)
+        perp.totalVolumeUSD += volume
+        factory.totalVolumeUSD += volume
+        volumeUSD = volume
+        valueLockedUSD = lpFee-fee
     }
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            perp.totalVolumeUSD += AbsBigDecimal(position).times(priceBucket.ethPrice)
+            perp.totalVolumeUSD += volume.times(priceBucket.ethPrice)
+            factory.totalVolumeUSD += volume.times(priceBucket.ethPrice)
+            volumeUSD = volume.times(priceBucket.ethPrice)
+            valueLockedUSD = lpFee.times(priceBucket.ethPrice) - fee.times(priceBucket.ethPrice)
         }
     }
     perp.save()
+    factory.save()
 
     // update trade data
-    updateTrade15MinData(perp as Perpetual, event)
-    updateTradeHourData(perp as Perpetual, event)
-    updateTradeDayData(perp as Perpetual, event)
-    updateTradeSevenDayData(perp as Perpetual, event)
+    updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
+    updateTradeHourData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
+    updateTradeDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
+    updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
+    // update factory trade data
+    updateFactoryData(volumeUSD, valueLockedUSD, event.block.timestamp)
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
+    let factory = Factory.load(FACTORY)
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
@@ -291,7 +375,33 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
     perp.lastPrice = price
     perp.liqCount += ONE_BI
+    let volume = AbsBigDecimal(amount).times(price)
+    let volumeUSD = ZERO_BD
+    perp.totalVolume += volume
+    factory.totalVolume += volume
+    if (isUSDCollateral(perp.collateralAddress)) {
+        perp.totalVolumeUSD += volume
+        factory.totalVolume += volume
+        volumeUSD = volume
+    }
+    if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            perp.totalVolumeUSD += volume.times(priceBucket.ethPrice)
+            factory.totalVolumeUSD += volume.times(priceBucket.ethPrice)
+            volumeUSD = volume.times(priceBucket.ethPrice)
+        }
+    }
     perp.save()
+    factory.save()
+
+    // update trade data
+    updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
+    updateTradeHourData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
+    updateTradeDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
+    updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
+    // update factory trade data
+    updateFactoryData(volumeUSD, ZERO_BD, event.block.timestamp)
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {
@@ -448,4 +558,28 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
         accHourData.timestamp = hourStartUnix
         accHourData.save()
     }
+}
+
+export function handleDonateInsuranceFund(event: DonateInsuranceFundEvent): void {
+    let factory = Factory.load(FACTORY)
+    let id = event.address.toHexString()
+        .concat('-')
+        .concat(event.params.perpetualIndex.toString())
+    let perp = Perpetual.load(id)
+    let amount = convertToDecimal(event.params.amount, BI_18)
+    let valueLockedUSD = ZERO_BD
+    if (isUSDCollateral(perp.collateralAddress)) {
+        factory.totalValueLockedUSD += amount
+        valueLockedUSD = amount
+    }
+    if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            factory.totalValueLockedUSD += amount.times(priceBucket.ethPrice)
+            valueLockedUSD = amount.times(priceBucket.ethPrice)
+        }
+    }
+    factory.save()
+    // update factory trade data
+    updateFactoryData(ZERO_BD, valueLockedUSD, event.block.timestamp)
 }
