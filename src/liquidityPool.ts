@@ -119,8 +119,9 @@ export function handleDeposit(event: DepositEvent): void {
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            factory.totalValueLockedUSD += amount.times(priceBucket.ethPrice)
-            valueLockedUSD = amount.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalValueLockedUSD += amount.times(ethPrice)
+            valueLockedUSD = amount.times(ethPrice)
         }
     }
     factory.save()
@@ -148,8 +149,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            factory.totalValueLockedUSD -= amount.times(priceBucket.ethPrice)
-            valueLockedUSD = -amount.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalValueLockedUSD -= amount.times(ethPrice)
+            valueLockedUSD = -amount.times(ethPrice)
         }
     }
     factory.save()
@@ -197,8 +199,9 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     if (isETHCollateral(liquidityPool.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            factory.totalValueLockedUSD += cash.times(priceBucket.ethPrice)
-            valueLockedUSD = cash.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalValueLockedUSD += cash.times(ethPrice)
+            valueLockedUSD = cash.times(ethPrice)
         }
     }
     factory.save()
@@ -246,8 +249,9 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     if (isETHCollateral(liquidityPool.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            factory.totalValueLockedUSD += cash.times(priceBucket.ethPrice)
-            valueLockedUSD = cash.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalValueLockedUSD += cash.times(ethPrice)
+            valueLockedUSD = cash.times(ethPrice)
         }
     }
     factory.save()
@@ -295,10 +299,11 @@ export function handleTrade(event: TradeEvent): void {
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            perp.totalVolumeUSD += volume.times(priceBucket.ethPrice)
-            factory.totalVolumeUSD += volume.times(priceBucket.ethPrice)
-            volumeUSD = volume.times(priceBucket.ethPrice)
-            valueLockedUSD = lpFee.times(priceBucket.ethPrice) - fee.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            perp.totalVolumeUSD += volume.times(ethPrice)
+            factory.totalVolumeUSD += volume.times(ethPrice)
+            volumeUSD = volume.times(ethPrice)
+            valueLockedUSD = lpFee.times(ethPrice) - fee.times(ethPrice)
         }
     }
     perp.save()
@@ -387,9 +392,10 @@ export function handleLiquidate(event: LiquidateEvent): void {
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            perp.totalVolumeUSD += volume.times(priceBucket.ethPrice)
-            factory.totalVolumeUSD += volume.times(priceBucket.ethPrice)
-            volumeUSD = volume.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            perp.totalVolumeUSD += volume.times(ethPrice)
+            factory.totalVolumeUSD += volume.times(ethPrice)
+            volumeUSD = volume.times(ethPrice)
         }
     }
     perp.save()
@@ -575,8 +581,9 @@ export function handleDonateInsuranceFund(event: DonateInsuranceFundEvent): void
     if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
-            factory.totalValueLockedUSD += amount.times(priceBucket.ethPrice)
-            valueLockedUSD = amount.times(priceBucket.ethPrice)
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalValueLockedUSD += amount.times(ethPrice)
+            valueLockedUSD = amount.times(ethPrice)
         }
     }
     factory.save()

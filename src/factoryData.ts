@@ -33,7 +33,7 @@ export function updateFactoryData(volumeUSD: BigDecimal, valueLockedUSD: BigDeci
         .concat(BigInt.fromI32(dayIndex).toString())
     let mcdexDayData = McdexDayData.load(dayID)
     if (mcdexDayData === null) {
-        mcdexDayData = new McdexHourData(dayID)
+        mcdexDayData = new McdexDayData(dayID)
         mcdexDayData.timestamp = dayStartUnix
         mcdexDayData.totalValueLockedUSD = valueLockedUSD
         mcdexDayData.totalVolumeUSD = volumeUSD
