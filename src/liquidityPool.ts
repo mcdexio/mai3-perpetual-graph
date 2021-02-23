@@ -386,7 +386,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     factory.totalVolume += volume
     if (isUSDCollateral(perp.collateralAddress)) {
         perp.totalVolumeUSD += volume
-        factory.totalVolume += volume
+        factory.totalVolumeUSD += volume
         volumeUSD = volume
     }
     if (isETHCollateral(perp.collateralAddress)) {
