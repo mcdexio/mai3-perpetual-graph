@@ -287,7 +287,6 @@ export function handleTrade(event: TradeEvent): void {
     let volumeUSD = ZERO_BD
     let valueLockedUSD = ZERO_BD
     perp.totalVolume += volume
-    factory.totalVolume += volume
     perp.totalFee += fee
     perp.txCount += ONE_BI
     if (isUSDCollateral(perp.collateralAddress)) {
@@ -383,7 +382,6 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let volume = AbsBigDecimal(amount).times(price)
     let volumeUSD = ZERO_BD
     perp.totalVolume += volume
-    factory.totalVolume += volume
     if (isUSDCollateral(perp.collateralAddress)) {
         perp.totalVolumeUSD += volume
         factory.totalVolumeUSD += volume
