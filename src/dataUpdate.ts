@@ -1,14 +1,9 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
 import { Perpetual, LiquidityPool, Trade15MinData, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData, ShareToken, PriceBucket} from '../generated/schema'
-import {
-    Trade as TradeEvent,
-} from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import {
     ZERO_BD,
-    BI_18,
-    convertToDecimal,
     isUSDCollateral,
     isETHCollateral,
 } from './utils'
@@ -17,19 +12,14 @@ import {
     getPoolHourData
 } from './liquidityPool'
 
-export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade15MinData {
-    let timestamp = event.block.timestamp.toI32()
+export function updateTrade15MinData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): Trade15MinData {
+    let timestamp = blockTimestamp.toI32()
     let minIndex = timestamp / (60*15)
     let minStartUnix = minIndex * (60*15)
     let minPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(minIndex).toString())
     let trade15MinData = Trade15MinData.load(minPerpID)
-    let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.position, BI_18)
-    if (amount < ZERO_BD) {
-        amount = -amount
-    }
     if (trade15MinData === null) {
         trade15MinData = new Trade15MinData(minPerpID)
         trade15MinData.perpetual = perp.id
@@ -52,19 +42,14 @@ export function updateTrade15MinData(perp: Perpetual, event: TradeEvent): Trade1
     return trade15MinData as Trade15MinData
 }
 
-export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHourData {
-    let timestamp = event.block.timestamp.toI32()
+export function updateTradeHourData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): TradeHourData {
+    let timestamp = blockTimestamp.toI32()
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
     let hourPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(hourIndex).toString())
     let tradeHourData = TradeHourData.load(hourPerpID)
-    let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.position, BI_18)
-    if (amount < ZERO_BD) {
-        amount = -amount
-    }
     if (tradeHourData === null) {
         tradeHourData = new TradeHourData(hourPerpID)
         tradeHourData.perpetual = perp.id
@@ -87,19 +72,14 @@ export function updateTradeHourData(perp: Perpetual, event: TradeEvent): TradeHo
     return tradeHourData as TradeHourData
 }
 
-export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDayData {
-    let timestamp = event.block.timestamp.toI32()
+export function updateTradeDayData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): TradeDayData {
+    let timestamp = blockTimestamp.toI32()
     let dayIndex = timestamp / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
     let dayPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeDayData = TradeDayData.load(dayPerpID)
-    let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.position, BI_18)
-    if (amount < ZERO_BD) {
-        amount = -amount
-    }
     if (tradeDayData === null) {
         tradeDayData = new TradeDayData(dayPerpID)
         tradeDayData.perpetual = perp.id
@@ -122,19 +102,14 @@ export function updateTradeDayData(perp: Perpetual, event: TradeEvent): TradeDay
     return tradeDayData as TradeDayData
 }
 
-export function updateTradeSevenDayData(perp: Perpetual, event: TradeEvent): TradeSevenDayData {
-    let timestamp = event.block.timestamp.toI32()
+export function updateTradeSevenDayData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): TradeSevenDayData {
+    let timestamp = blockTimestamp.toI32()
     let dayIndex = timestamp / (3600*24*7)
     let dayStartUnix = dayIndex * (3600*24*7)
     let dayPerpID = perp.id
         .concat('-')
         .concat(BigInt.fromI32(dayIndex).toString())
     let tradeSevenDayData = TradeSevenDayData.load(dayPerpID)
-    let price = convertToDecimal(event.params.price, BI_18)
-    let amount = convertToDecimal(event.params.position, BI_18)
-    if (amount < ZERO_BD) {
-        amount = -amount
-    }
     if (tradeSevenDayData === null) {
         tradeSevenDayData = new TradeSevenDayData(dayPerpID)
         tradeSevenDayData.perpetual = perp.id

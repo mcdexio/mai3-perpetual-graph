@@ -24,20 +24,20 @@ import {
     convertToDecimal,
     fetchCollateralSymbol,
     ZERO_BI,
+    FACTORY,
     isUSDCollateral
 } from './utils'
 
 import {
     ETH_ORACLE,
-    FACTORY,
     READER_ADDRESS,
     HANDLER_BLOCK
 } from './const'
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
-    let factory = Factory.load(event.address.toHexString())
+    let factory = Factory.load(FACTORY)
     if (factory === null) {
-        factory = new Factory(event.address.toHexString())
+        factory = new Factory(FACTORY)
         factory.liquidityPoolCount = ZERO_BI
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
