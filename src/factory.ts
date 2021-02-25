@@ -2,7 +2,7 @@ import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprot
 
 import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
-import { CreateLiquidityPool, SetVaultFeeRate } from '../generated/Factory/Factory'
+import { CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { Reader as ReaderContract } from '../generated/Factory/Reader'
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
@@ -72,6 +72,12 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
+        factory.vaultFeeRate = ZERO_BD
+        let contract = FactoryContract.bind(event.address)
+        let result = contract.try_getVaultFeeRate()
+        if (!result.reverted) {
+            factory.vaultFeeRate = convertToDecimal(result.value, BI_18)
+        }
         factory.vaultFeeRate = ZERO_BD
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
