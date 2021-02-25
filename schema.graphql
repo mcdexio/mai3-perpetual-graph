@@ -11,6 +11,10 @@ type Factory @entity {
     # total liquidity
     totalValueLockedUSD: BigDecimal!
 
+    # total vault fee
+    vaultFeeRate: BigDecimal!
+    totalVaultFeeUSD: BigDecimal!
+
     # perpetuals for block handler
     perpetuals: [String!]
     liquidityPools: [String!]
@@ -49,6 +53,7 @@ type LiquidityPool @entity {
     shareAddress: String!
     operatorAddress: String!
     collateralDecimals: BigInt!
+    vaultFee: BigDecimal!
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
     perpetualIDs: [String!]
 
@@ -360,7 +365,7 @@ type AccHourData @entity {
 }
 
 type McdexHourData @entity {
-    # factory + "-" + timeindex
+    # timeindex
     id: ID!
     timestamp: Int!
     totalValueLockedUSD: BigDecimal!
@@ -368,11 +373,18 @@ type McdexHourData @entity {
 }
 
 type McdexDayData @entity {
-    # factory + "-" + timeindex
+    # timeindex
     id: ID!
     timestamp: Int!
     totalValueLockedUSD: BigDecimal!
     totalVolumeUSD: BigDecimal!
+}
+
+type McdexDaoHourData @entity {
+    # timeindex
+    id: ID!
+    timestamp: Int!
+    capturedValueUSD: BigDecimal!   
 }
 
 # ====================== Voting ======================

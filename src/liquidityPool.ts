@@ -20,7 +20,7 @@ import {
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
-import { updateFactoryData } from './factoryData'
+import { updateFactoryData, updateMcdexDaodata } from './factoryData'
 
 import {
     ZERO_BD,
@@ -189,6 +189,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
 
 export function handleTrade(event: TradeEvent): void {
     let factory = Factory.load(FACTORY)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
@@ -213,6 +214,8 @@ export function handleTrade(event: TradeEvent): void {
     perp.entryUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
     let volumeUSD = ZERO_BD
+    let vaultFee = factory.vaultFeeRate.times(volume)
+    let vaultFeeUSD = ZERO_BD
     perp.totalVolume += volume
     perp.totalFee += fee
     perp.txCount += ONE_BI
@@ -220,18 +223,23 @@ export function handleTrade(event: TradeEvent): void {
         perp.totalVolumeUSD += volume
         factory.totalVolumeUSD += volume
         volumeUSD = volume
-    }
-    if (isETHCollateral(perp.collateralAddress)) {
+        vaultFeeUSD = vaultFee
+    } else if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
             let ethPrice = priceBucket.ethPrice as BigDecimal
             perp.totalVolumeUSD += volume.times(ethPrice)
             factory.totalVolumeUSD += volume.times(ethPrice)
             volumeUSD = volume.times(ethPrice)
+            vaultFeeUSD = vaultFee.times(ethPrice)
         }
     }
     perp.save()
     factory.save()
+
+    // vault fee
+    liquidityPool.vaultFee += factory.vaultFeeRate.times(volume)
+    liquidityPool.save()
 
     // update trade data
     updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
@@ -240,10 +248,13 @@ export function handleTrade(event: TradeEvent): void {
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
     // update factory trade data
     updateFactoryData(volumeUSD, ZERO_BD, event.block.timestamp)
+    // update factory vault fee
+    updateMcdexDaodata(vaultFeeUSD, event.block.timestamp)
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
     let factory = Factory.load(FACTORY)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
@@ -306,23 +317,30 @@ export function handleLiquidate(event: LiquidateEvent): void {
     perp.liqCount += ONE_BI
     let volume = AbsBigDecimal(amount).times(price)
     let volumeUSD = ZERO_BD
+    let vaultFee = factory.vaultFeeRate.times(volume)
+    let vaultFeeUSD = ZERO_BD
     perp.totalVolume += volume
     if (isUSDCollateral(perp.collateralAddress)) {
         perp.totalVolumeUSD += volume
         factory.totalVolumeUSD += volume
         volumeUSD = volume
-    }
-    if (isETHCollateral(perp.collateralAddress)) {
+        vaultFeeUSD = vaultFee
+    } else if (isETHCollateral(perp.collateralAddress)) {
         let priceBucket = PriceBucket.load('1')
         if (priceBucket != null) {
             let ethPrice = priceBucket.ethPrice as BigDecimal
             perp.totalVolumeUSD += volume.times(ethPrice)
             factory.totalVolumeUSD += volume.times(ethPrice)
             volumeUSD = volume.times(ethPrice)
+            vaultFeeUSD = vaultFee.times(ethPrice)
         }
     }
     perp.save()
     factory.save()
+
+    // vault fee
+    liquidityPool.vaultFee += vaultFee
+    liquidityPool.save()
 
     // update trade data
     updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
@@ -331,6 +349,8 @@ export function handleLiquidate(event: LiquidateEvent): void {
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
     // update factory trade data
     updateFactoryData(volumeUSD, ZERO_BD, event.block.timestamp)
+    // update factory vault fee
+    updateMcdexDaodata(vaultFeeUSD, event.block.timestamp)
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {

@@ -2,7 +2,7 @@ import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprot
 
 import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
-import { CreateLiquidityPool } from '../generated/Factory/Factory'
+import { CreateLiquidityPool, SetVaultFeeRate } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { Reader as ReaderContract } from '../generated/Factory/Reader'
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
@@ -38,6 +38,31 @@ import {
 
 import { updateFactoryData } from './factoryData'
 
+export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
+    let factory = Factory.load(FACTORY)
+    if (factory === null) {
+        factory = new Factory(FACTORY)
+        factory.liquidityPoolCount = ZERO_BI
+        factory.perpetualCount = ZERO_BI
+        factory.totalVolumeUSD = ZERO_BD
+        factory.totalValueLockedUSD = ZERO_BD
+        factory.totalVaultFeeUSD = ZERO_BD
+        factory.txCount = ZERO_BI
+        factory.latestBlock = ZERO_BI
+        factory.liquidityPools = []
+        factory.perpetuals = []
+
+        // create price bucket for save eth price
+        let bucket = new PriceBucket('1')
+        bucket.ethPrice = ZERO_BD
+        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
+        bucket.minTimestamp = event.block.timestamp.toI32()  / 60
+        bucket.save()
+    }
+    factory.vaultFeeRate = convertToDecimal(event.params.newFeeRate, BI_18)
+    factory.save()
+}
+
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let factory = Factory.load(FACTORY)
     if (factory === null) {
@@ -46,6 +71,8 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
+        factory.totalVaultFeeUSD = ZERO_BD
+        factory.vaultFeeRate = ZERO_BD
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
@@ -72,6 +99,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.collateralAddress = event.params.collateral.toHexString()
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
+    liquidityPool.vaultFee = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.liquidityProviderCount = ZERO_BI
@@ -156,6 +184,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
     let totalValueLockedUSD = ZERO_BD
+    factory.totalVaultFee = ZERO_BD
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
@@ -178,9 +207,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
         if (isUSDCollateral(liquidityPool.collateralAddress)) {
             totalValueLockedUSD += balance
+            factory.totalVaultFeeUSD += liquidityPool.vaultFee
         } else if (isETHCollateral(liquidityPool.collateralAddress)) {
             let ethPrice = bucket.ethPrice as BigDecimal
             totalValueLockedUSD += balance.times(ethPrice)
+            factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(ethPrice)
         }
     }
     updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
