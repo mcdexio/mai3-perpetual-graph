@@ -174,7 +174,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
         let balance = ZERO_BD
         if (!erc20Result.reverted) {
-            balance = convertToDecimal(callResult.value, BI_18)
+            balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
         }
         if (isUSDCollateral(liquidityPool.collateralAddress)) {
             totalValueLockedUSD += balance
