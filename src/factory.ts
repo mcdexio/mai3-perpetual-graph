@@ -47,6 +47,8 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
+        factory.daoAssetUSD = ZERO_BD
+        factory.vault = ''
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
@@ -73,10 +75,16 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
         factory.vaultFeeRate = ZERO_BD
+        factory.daoAssetUSD = ZERO_BD
         let contract = FactoryContract.bind(event.address)
         let result = contract.try_getVaultFeeRate()
         if (!result.reverted) {
             factory.vaultFeeRate = convertToDecimal(result.value, BI_18)
+        }
+        factory.vault = ''
+        let vaultResult = contract.try_getVault()
+        if (!vaultResult.reverted) {
+            factory.vault = vaultResult.value.toHexString()
         }
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
@@ -190,6 +198,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let liquidityPools = factory.liquidityPools as string[]
     let totalValueLockedUSD = ZERO_BD
     factory.totalVaultFeeUSD = ZERO_BD
+    factory.daoAssetUSD = ZERO_BD
+    let collateralMap = new TypedMap<String, boolean>()
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
@@ -210,6 +220,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (!erc20Result.reverted) {
             balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
         }
+
         if (isUSDCollateral(liquidityPool.collateralAddress)) {
             totalValueLockedUSD += balance
             factory.totalVaultFeeUSD += liquidityPool.vaultFee
@@ -218,7 +229,24 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             totalValueLockedUSD += balance.times(ethPrice)
             factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(ethPrice)
         }
+
+        // mcdex dao asset
+        if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
+            collateralMap.set(liquidityPool.oracleAddress, true)
+            let vaultResult = erc20Contract.try_balanceOf(Address.fromString(factory.vault))
+            let vaultBalance = ZERO_BD
+            if (!vaultResult.reverted) {
+                vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
+            }
+            if (isUSDCollateral(liquidityPool.collateralAddress)) {
+                factory.daoAssetUSD += vaultBalance
+            } else if (isETHCollateral(liquidityPool.collateralAddress)) {
+                let ethPrice = bucket.ethPrice as BigDecimal
+                factory.daoAssetUSD += vaultBalance.times(ethPrice)
+            }
+        }
     }
+    
     updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
     factory.totalValueLockedUSD = totalValueLockedUSD
     factory.save()
