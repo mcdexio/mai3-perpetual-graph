@@ -184,7 +184,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
     let totalValueLockedUSD = ZERO_BD
-    factory.totalVaultFee = ZERO_BD
+    factory.totalVaultFeeUSD = ZERO_BD
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
