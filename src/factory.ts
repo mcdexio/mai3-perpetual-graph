@@ -232,7 +232,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
         // mcdex dao asset
         if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
-            collateralMap.set(liquidityPool.oracleAddress, true)
+            collateralMap.set(liquidityPool.collateralAddress, true)
             let vaultResult = erc20Contract.try_balanceOf(Address.fromString(factory.vault))
             let vaultBalance = ZERO_BD
             if (!vaultResult.reverted) {
@@ -246,7 +246,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             }
         }
     }
-    
+
     updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
     factory.totalValueLockedUSD = totalValueLockedUSD
     factory.save()
