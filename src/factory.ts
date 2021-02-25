@@ -78,7 +78,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         if (!result.reverted) {
             factory.vaultFeeRate = convertToDecimal(result.value, BI_18)
         }
-        factory.vaultFeeRate = ZERO_BD
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
