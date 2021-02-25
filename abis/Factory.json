@@ -103,13 +103,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "grantor",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "grantor",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -147,13 +147,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "grantor",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "grantor",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -167,17 +167,23 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "accessController",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "indexed": false,
+        "internalType": "int256",
+        "name": "prevFeeRate",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "newFeeRate",
+        "type": "int256"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "SetVaultFeeRate",
+    "type": "event"
   },
   {
     "inputs": [
@@ -192,7 +198,7 @@
         "type": "uint256"
       }
     ],
-    "name": "activateLiquidityPoolFor",
+    "name": "activatePerpetualFor",
     "outputs": [
       {
         "internalType": "bool",
@@ -312,7 +318,7 @@
         "type": "uint256"
       }
     ],
-    "name": "deactivateLiquidityPoolFor",
+    "name": "deactivatePerpetualFor",
     "outputs": [
       {
         "internalType": "bool",
@@ -321,6 +327,37 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "governor",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "share",
+        "type": "address"
+      }
+    ],
+    "name": "debugSetTemplate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAccessController",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -403,6 +440,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getMCBToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -422,10 +472,62 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getSymbolService",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVault",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVaultFeeRate",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getWeth",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "grantor",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -472,12 +574,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "grantor",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "trader",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -520,16 +622,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "base",
+        "name": "target",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "target",
+        "name": "base",
         "type": "address"
       }
     ],
-    "name": "isVersionCompatibleWith",
+    "name": "isVersionCompatible",
     "outputs": [
       {
         "internalType": "bool",
@@ -595,6 +697,30 @@
         "internalType": "struct Tracer.PerpetualUID[]",
         "name": "result",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "start",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "name": "listAvailableVersions",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "result",
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -677,7 +803,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "grantor",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -710,16 +836,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "symbolService",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "internalType": "int256",
+        "name": "newVaultFeeRate",
+        "type": "int256"
       }
     ],
-    "stateMutability": "view",
+    "name": "setVaultFeeRate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -733,45 +859,6 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "vault",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "vaultFeeRate",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "weth",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]

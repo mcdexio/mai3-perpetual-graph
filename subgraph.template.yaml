@@ -31,6 +31,8 @@ dataSources:
       eventHandlers:
         - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
           handler: handleCreateLiquidityPool
+        - event: SetVaultFeeRate(int256,int256)
+          handler: handleSetVaultFeeRate
       blockHandlers:
         - handler: handleSyncPerpData
       file: ./src/factory.ts
