@@ -1,10 +1,12 @@
-import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
 import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
 import { CreateLiquidityPool } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { Reader as ReaderContract } from '../generated/Factory/Reader'
+import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
+
 
 import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
 
@@ -33,6 +35,8 @@ import {
     READER_ADDRESS,
     HANDLER_BLOCK
 } from './const'
+
+import { updateFactoryData } from './factoryData'
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let factory = Factory.load(FACTORY)
@@ -148,10 +152,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         return
     }
     factory.latestBlock = block.number
-    factory.save()
 
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
+    let totalValueLockedUSD = ZERO_BD
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
@@ -164,10 +168,28 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
         updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
         updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+
+        // update mcdex totalValueLocked
+        let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
+        let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
+        let balance = ZERO_BD
+        if (!erc20Result.reverted) {
+            balance = convertToDecimal(callResult.value, BI_18)
+        }
+        if (isUSDCollateral(liquidityPool.collateralAddress)) {
+            totalValueLockedUSD += balance
+        } else if (isETHCollateral(liquidityPool.collateralAddress)) {
+            let ethPrice = bucket.ethPrice as BigDecimal
+            totalValueLockedUSD += balance.times(ethPrice)
+        }
     }
+    updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
+    factory.totalValueLockedUSD = totalValueLockedUSD
+    factory.save()
 
     // update perpetual's trade volume amount in USD and oracle price data
     let perpetuals = factory.perpetuals as string[]
+    let oracleMap = new TypedMap<String, boolean>()
     for (let index = 0; index < perpetuals.length; index++) {
         let perpIndex = perpetuals[index]
         let perp = Perpetual.load(perpIndex)
@@ -188,7 +210,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         perp.save()
 
         // perp price
-        updatePriceData(perp.oracleAddress, timestamp)
+        if (!oracleMap.isSet(perp.oracleAddress)) {
+            oracleMap.set(perp.oracleAddress, true)
+            updatePriceData(perp.oracleAddress, timestamp)
+        }
     }
 }
 
