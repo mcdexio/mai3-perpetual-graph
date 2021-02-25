@@ -12,8 +12,10 @@ type Factory @entity {
     totalValueLockedUSD: BigDecimal!
 
     # total vault fee
+    vault: String!
     vaultFeeRate: BigDecimal!
     totalVaultFeeUSD: BigDecimal!
+    daoAssetUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
