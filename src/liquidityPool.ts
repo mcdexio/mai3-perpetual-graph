@@ -17,6 +17,7 @@ import {
     UpdatePoolMargin as UpdatePoolMarginEvent,
     transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
+    Settle as SettleEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -90,6 +91,21 @@ export function handleSetEmergencyState(event: SetEmergencyStateEvent): void {
     perp.settledAtTimestamp = event.block.timestamp
     perp.settledAtBlockNumber = event.block.number
     perp.save()
+}
+
+export function handleSettle(event: SettleEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    // update amm position
+    if (event.params.trader.toHexString() == event.address.toHexString()) {
+        perp.position = ZERO_BD
+        perp.save()
+        return
+    }
+    let user = fetchUser(event.params.trader)
+    let marginAccount = fetchMarginAccount(user, perp as Perpetual)
+    marginAccount.position = ZERO_BD
+    marginAccount.save()
 }
 
 export function handleSetClearedState(event: SetClearedStateEvent): void {
