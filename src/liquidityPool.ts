@@ -234,7 +234,6 @@ export function handleTrade(event: TradeEvent): void {
     let vaultFeeUSD = ZERO_BD
     perp.totalVolume += volume
     perp.totalFee += fee
-    perp.txCount += ONE_BI
     if (isUSDCollateral(perp.collateralAddress)) {
         perp.totalVolumeUSD += volume
         factory.totalVolumeUSD += volume
