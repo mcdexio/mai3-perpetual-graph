@@ -3,8 +3,8 @@ import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph
 import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, User, MarginAccount, Liquidate, LiquidityHistory, PriceBucket } from '../generated/schema'
 
 import { 
-    CreatePerpetualOld as CreatePerpetualOldEvent,
     CreatePerpetual as CreatePerpetualEvent,
+    CreatePerpetual1 as CreatePerpetualV004Event,
     RunLiquidityPool as RunLiquidityPoolEvent,
     SetNormalState as SetNormalStateEvent,
     SetEmergencyState as SetEmergencyStateEvent,
@@ -65,7 +65,7 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     factory.save()
 }
 
-export function handleCreatePerpetualOld(event: CreatePerpetualOldEvent): void {
+export function handleCreatePerpetualV004(event: CreatePerpetualV004Event): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
