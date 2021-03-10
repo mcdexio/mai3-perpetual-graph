@@ -32,7 +32,9 @@ import {
 
 import {
     ETH_ORACLE,
+    OLD_READER_ADDRESS,
     READER_ADDRESS,
+    NEW_READER_BLOCK,
     HANDLER_BLOCK
 } from './const'
 
@@ -200,12 +202,17 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     factory.totalVaultFeeUSD = ZERO_BD
     factory.daoAssetUSD = ZERO_BD
     let collateralMap = new TypedMap<String, boolean>()
+    let reader_address = READER_ADDRESS
+    if (block.number < BigInt.fromI32(NEW_READER_BLOCK)) {
+        reader_address = OLD_READER_ADDRESS
+    }
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
-        let contract = ReaderContract.bind(Address.fromString(READER_ADDRESS))
+        
+        let contract = ReaderContract.bind(Address.fromString(reader_address))
         let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
         if (!callResult.reverted) {
             poolMargin = convertToDecimal(callResult.value.value1, BI_18)
