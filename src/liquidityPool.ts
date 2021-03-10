@@ -3,6 +3,7 @@ import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph
 import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, User, MarginAccount, Liquidate, LiquidityHistory, PriceBucket } from '../generated/schema'
 
 import { 
+    CreatePerpetualOld as CreatePerpetualOldEvent,
     CreatePerpetual as CreatePerpetualEvent,
     RunLiquidityPool as RunLiquidityPoolEvent,
     SetNormalState as SetNormalStateEvent,
@@ -47,6 +48,24 @@ import {
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let factory = Factory.load(liquidityPool.factory)
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    perp.oracleAddress = event.params.oracle.toHexString()
+    perp.operatorAddress = event.params.operator.toHexString()
+    perp.underlying = fetchOracleUnderlying(event.params.oracle)
+    perp.createdAtTimestamp = event.block.timestamp
+    perp.createdAtBlockNumber = event.block.number
+    perp.save()
+
+    factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
+    let perpetuals = factory.perpetuals
+    perpetuals.push(perp.id)
+    factory.perpetuals = perpetuals
+    factory.save()
+}
+
+export function handleCreatePerpetualOld(event: CreatePerpetualOldEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
