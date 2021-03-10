@@ -1,10 +1,12 @@
 {
     "network": "kovan",
-    "factory_address": "0x01C4eDB6a57EC75Ea1B71B1964b5768348c30e54",
-    "symbol_address": "0x26C9BEbCd3A00107c8Ec964Ac03B899565231EA5",
-    "broker_address": "0x626cD536E239867B14511Ba92d606a24D13c25A4",
-    "reader_address": "0x626cD536E239867B14511Ba92d606a24D13c25A4",
-    "eth_oracle": "0xbb05666820137b3b1344fe6802830515c015dd4f",
-    "start_block": 961207,
-    "handler_block": 1008525
+    "factory_address": "0xF55cF7BbaF548115DCea6DF10c57DF7c7eD88b9b",
+    "symbol_address": "0x0A701c621210859eAbE2F47BE37456BEc2427462",
+    "broker_address": "0x243d3bB879779911a5299592d38e84E54B83fd19",
+    "old_reader_address": "0x1605275a33b2ab2f00dc96e75190b3fe49272401",
+    "reader_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
+    "eth_oracle": "0x84F9B276de73c6766aB714f095C93ef2aeE0952E",
+    "start_block": 23370949,
+    "handler_block": 23816007,
+    "new_reader_block": 23847386
 }
