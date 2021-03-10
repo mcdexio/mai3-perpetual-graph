@@ -116,18 +116,18 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[9]",
-        "name": "coreParams",
-        "type": "int256[9]"
+        "internalType": "int256[10]",
+        "name": "baseParams",
+        "type": "int256[10]"
       },
       {
         "indexed": false,
-        "internalType": "int256[6]",
+        "internalType": "int256[7]",
         "name": "riskParams",
-        "type": "int256[6]"
+        "type": "int256[7]"
       }
     ],
-    "name": "CreatePerpetualOld",
+    "name": "CreatePerpetual",
     "type": "event"
   },
   {
@@ -171,15 +171,15 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[10]",
-        "name": "baseParams",
-        "type": "int256[10]"
+        "internalType": "int256[9]",
+        "name": "coreParams",
+        "type": "int256[9]"
       },
       {
         "indexed": false,
-        "internalType": "int256[7]",
+        "internalType": "int256[6]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[6]"
       }
     ],
     "name": "CreatePerpetual",
