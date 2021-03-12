@@ -5,6 +5,7 @@ import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15Mi
 import { CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { Reader as ReaderContract } from '../generated/Factory/Reader'
+import { ReaderV004 as ReaderV004Contract } from '../generated/Factory/ReaderV004'
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 
 
@@ -196,68 +197,77 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     }
     factory.latestBlock = block.number
 
-    // update liquity pool's liquidity amount in USD
-    let liquidityPools = factory.liquidityPools as string[]
-    let totalValueLockedUSD = ZERO_BD
-    factory.totalVaultFeeUSD = ZERO_BD
-    factory.daoAssetUSD = ZERO_BD
-    let collateralMap = new TypedMap<String, boolean>()
-    let reader_address = READER_ADDRESS
-    if (block.number < BigInt.fromI32(NEW_READER_BLOCK)) {
-        reader_address = OLD_READER_ADDRESS
-    }
-    for (let index = 0; index < liquidityPools.length; index++) {
-        let poolIndex = liquidityPools[index]
-        let liquidityPool = LiquidityPool.load(poolIndex)
-        // update poolMargin
-        let poolMargin = ZERO_BD
-        
-        let contract = ReaderContract.bind(Address.fromString(reader_address))
-        let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
-        if (!callResult.reverted) {
-            poolMargin = convertToDecimal(callResult.value.value1, BI_18)
+    /*=============================== hour datas begin ==================================*/ 
+    if (bucket.timestamp != hourStartUnix) {
+        // update liquity pool's liquidity amount in USD
+        let liquidityPools = factory.liquidityPools as string[]
+        let totalValueLockedUSD = ZERO_BD
+        factory.totalVaultFeeUSD = ZERO_BD
+        factory.daoAssetUSD = ZERO_BD
+        let collateralMap = new TypedMap<String, boolean>()
+        let reader_address = READER_ADDRESS
+        if (block.number < BigInt.fromI32(NEW_READER_BLOCK)) {
+            reader_address = OLD_READER_ADDRESS
         }
-        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
-        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
-
-        // update mcdex totalValueLocked
-        let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
-        let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
-        let balance = ZERO_BD
-        if (!erc20Result.reverted) {
-            balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
-        }
-
-        if (isUSDCollateral(liquidityPool.collateralAddress)) {
-            totalValueLockedUSD += balance
-            factory.totalVaultFeeUSD += liquidityPool.vaultFee
-        } else if (isETHCollateral(liquidityPool.collateralAddress)) {
-            let ethPrice = bucket.ethPrice as BigDecimal
-            totalValueLockedUSD += balance.times(ethPrice)
-            factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(ethPrice)
-        }
-
-        // mcdex dao asset
-        if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
-            collateralMap.set(liquidityPool.collateralAddress, true)
-            let vaultResult = erc20Contract.try_balanceOf(Address.fromString(factory.vault))
-            let vaultBalance = ZERO_BD
-            if (!vaultResult.reverted) {
-                vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
+        for (let index = 0; index < liquidityPools.length; index++) {
+            let poolIndex = liquidityPools[index]
+            let liquidityPool = LiquidityPool.load(poolIndex)
+            // update poolMargin
+            let poolMargin = ZERO_BD
+            
+            let contract = ReaderContract.bind(Address.fromString(reader_address))
+            if (block.number < BigInt.fromI32(NEW_READER_BLOCK)) {
+                contract = ReaderV004Contract.bind(Address.fromString(reader_address))
             }
+            let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
+            if (!callResult.reverted) {
+                poolMargin = convertToDecimal(callResult.value.value1, BI_18)
+            }
+            updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+            updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+
+            // update mcdex totalValueLocked
+            let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
+            let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
+            let balance = ZERO_BD
+            if (!erc20Result.reverted) {
+                balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
+            }
+
             if (isUSDCollateral(liquidityPool.collateralAddress)) {
-                factory.daoAssetUSD += vaultBalance
+                totalValueLockedUSD += balance
+                factory.totalVaultFeeUSD += liquidityPool.vaultFee
             } else if (isETHCollateral(liquidityPool.collateralAddress)) {
                 let ethPrice = bucket.ethPrice as BigDecimal
-                factory.daoAssetUSD += vaultBalance.times(ethPrice)
+                totalValueLockedUSD += balance.times(ethPrice)
+                factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(ethPrice)
+            }
+
+            // mcdex dao asset
+            if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
+                collateralMap.set(liquidityPool.collateralAddress, true)
+                let vaultResult = erc20Contract.try_balanceOf(Address.fromString(factory.vault))
+                let vaultBalance = ZERO_BD
+                if (!vaultResult.reverted) {
+                    vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
+                }
+                if (isUSDCollateral(liquidityPool.collateralAddress)) {
+                    factory.daoAssetUSD += vaultBalance
+                } else if (isETHCollateral(liquidityPool.collateralAddress)) {
+                    let ethPrice = bucket.ethPrice as BigDecimal
+                    factory.daoAssetUSD += vaultBalance.times(ethPrice)
+                }
             }
         }
-    }
 
-    updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
-    factory.totalValueLockedUSD = totalValueLockedUSD
+        updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
+        factory.totalValueLockedUSD = totalValueLockedUSD
+    }
+    /*=============================== hour datas end ==================================*/ 
+
     factory.save()
 
+    /*=============================== price minute datas  ==================================*/ 
     // update perpetual's trade volume amount in USD and oracle price data
     let perpetuals = factory.perpetuals as string[]
     let oracleMap = new TypedMap<String, boolean>()
@@ -286,6 +296,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             updatePriceData(perp.oracleAddress, timestamp)
         }
     }
+    /*=============================== price minute datas end ==================================*/ 
 }
 
 function updatePriceData(oracle: String, timestamp: i32): void {

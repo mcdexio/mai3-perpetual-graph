@@ -28,6 +28,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: Reader
           file: ./abis/Reader.json
+        - name: ReaderV004
+          file: ./abis/ReaderV004.json
       eventHandlers:
         - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
           handler: handleCreateLiquidityPool
