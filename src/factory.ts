@@ -160,6 +160,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     if (bucket == null) {
         return 
     }
+    let isHour = false
     if (bucket.timestamp != hourStartUnix) {
         // update eth price
         let ethOracle = Address.fromString(ETH_ORACLE)
@@ -178,6 +179,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             bucket.timestamp = hourStartUnix
             bucket.save()
         }
+        isHour = true
     } else {
         if (block.number < BigInt.fromI32(HANDLER_BLOCK)) {
             return
@@ -198,7 +200,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     factory.latestBlock = block.number
 
     /*=============================== hour datas begin ==================================*/ 
-    if (bucket.timestamp != hourStartUnix) {
+    if (isHour) {
         // update liquity pool's liquidity amount in USD
         let liquidityPools = factory.liquidityPools as string[]
         let totalValueLockedUSD = ZERO_BD
