@@ -56,6 +56,15 @@ export function isETHCollateral(collateral: string): boolean {
   return false
 }
 
+export function isCollateralAdded(collaterals: string[], collateral: string): boolean {
+  for (let i = 0; i < collaterals.length; i++) {
+    if (collateral == collaterals[i]) {
+      return true
+    }
+  }
+  return false
+}
+
 export function fetchUser(address: Address): User {
   let user = User.load(address.toHexString())
   if (user === null) {
