@@ -28,7 +28,8 @@ import {
     fetchCollateralSymbol,
     ZERO_BI,
     FACTORY,
-    isUSDCollateral
+    isUSDCollateral,
+    isCollateralAdded
 } from './utils'
 
 import {
@@ -93,6 +94,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
         factory.perpetuals = []
+        factory.collaterals = []
 
         // create price bucket for save eth price
         let bucket = new PriceBucket('1')
@@ -105,6 +107,12 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     let liquidityPools = factory.liquidityPools
     liquidityPools.push(event.params.liquidityPool.toHexString())
     factory.liquidityPools = liquidityPools
+    let collateral = event.params.collateral.toHexString()
+    let collaterals = factory.collaterals
+    if (!isCollateralAdded(collaterals, collateral)) {
+        collaterals.push(collateral)
+        factory.collaterals = collaterals
+    }
     factory.save()
 
     let liquidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
@@ -112,7 +120,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
     liquidityPool.factory = factory.id
-    liquidityPool.collateralAddress = event.params.collateral.toHexString()
+    liquidityPool.collateralAddress = collateral
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
     liquidityPool.vaultFee = ZERO_BD
