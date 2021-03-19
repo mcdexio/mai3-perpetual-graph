@@ -19,6 +19,7 @@ import {
     transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
     Settle as SettleEvent,
+    TransferOperatorTo as TransferOperatorToEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -541,4 +542,10 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
         accHourData.timestamp = hourStartUnix
         accHourData.save()
     }
+}
+
+export function handleTransferOperatorTo(event: TransferOperatorToEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    liquidityPool.operatorAddress = event.params.newOperator.toHexString()
+    liquidityPool.save()
 }
