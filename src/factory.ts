@@ -29,7 +29,8 @@ import {
     ZERO_BI,
     FACTORY,
     isUSDCollateral,
-    isCollateralAdded
+    isCollateralAdded,
+    OPERATOR_EXP,
 } from './utils'
 
 import {
@@ -119,6 +120,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.voteAddress = event.params.governor.toHexString()
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
+    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = collateral
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)

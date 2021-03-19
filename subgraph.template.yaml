@@ -140,6 +140,8 @@ templates:
           handler: handleSettle
         - event: TransferOperatorTo(indexed address)
           handler: handleTransferOperatorTo
+        - event: OperatorCheckIn(indexed address)
+          handler: handleOperatorCheckIn
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken

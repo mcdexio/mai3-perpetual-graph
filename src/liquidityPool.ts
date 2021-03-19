@@ -20,6 +20,7 @@ import {
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
     Settle as SettleEvent,
     TransferOperatorTo as TransferOperatorToEvent,
+    OperatorCheckIn as OperatorCheckInEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -28,7 +29,7 @@ import { updateFactoryData, updateMcdexDaodata } from './factoryData'
 import {
     ZERO_BD,
     ONE_BI,
-    ZERO_BI,
+    OPERATOR_EXP,
     BI_18,
     PerpetualState,
     TradeType,
@@ -547,5 +548,12 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
 export function handleTransferOperatorTo(event: TransferOperatorToEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     liquidityPool.operatorAddress = event.params.newOperator.toHexString()
+    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
+    liquidityPool.save()
+}
+
+export function handleOperatorCheckIn(event: OperatorCheckInEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.save()
 }
