@@ -109,7 +109,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     factory.liquidityPools = liquidityPools
     let collateral = event.params.collateral.toHexString()
     let collaterals = factory.collaterals
-    if (!isCollateralAdded(collaterals, collateral)) {
+    if (!isCollateralAdded(collaterals as string[], collateral)) {
         collaterals.push(collateral)
         factory.collaterals = collaterals
     }
