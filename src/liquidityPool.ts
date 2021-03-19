@@ -19,7 +19,7 @@ import {
     transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
     Settle as SettleEvent,
-    TransferOperatorTo as TransferOperatorToEvent,
+    ClaimOperator as ClaimOperatorEvent,
     OperatorCheckIn as OperatorCheckInEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
@@ -545,7 +545,7 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
     }
 }
 
-export function handleTransferOperatorTo(event: TransferOperatorToEvent): void {
+export function handleClaimOperator(event: ClaimOperatorEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     liquidityPool.operatorAddress = event.params.newOperator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP

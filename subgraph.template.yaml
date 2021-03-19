@@ -138,8 +138,8 @@ templates:
           handler: handleTransferExcessInsuranceFundToLP
         - event: Settle(uint256,indexed address,int256)
           handler: handleSettle
-        - event: TransferOperatorTo(indexed address)
-          handler: handleTransferOperatorTo
+        - event: ClaimOperator(indexed address)
+          handler: handleClaimOperator
         - event: OperatorCheckIn(indexed address)
           handler: handleOperatorCheckIn
       file: ./src/liquidityPool.ts
