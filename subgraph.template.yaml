@@ -138,7 +138,7 @@ templates:
           handler: handleTransferExcessInsuranceFundToLP
         - event: Settle(uint256,indexed address,int256)
           handler: handleSettle
-        - evnt: TransferOperatorTo(indexed address)
+        - event: TransferOperatorTo(indexed address)
           handler: handleTransferOperatorTo
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
