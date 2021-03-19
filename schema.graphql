@@ -55,6 +55,7 @@ type LiquidityPool @entity {
     voteAddress: String!
     shareAddress: String!
     operatorAddress: String!
+    operatorExpiration: BigInt!
     collateralDecimals: BigInt!
     vaultFee: BigDecimal!
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
