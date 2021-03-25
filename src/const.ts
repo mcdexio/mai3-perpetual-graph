@@ -11,3 +11,16 @@ export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
 
 // blocknumber for blockHandler
 export const HANDLER_BLOCK = 1008525
+
+// Notice lower case
+export let ETHTokens:string[] = [
+    "0xdea04ead9bce0ba129120c137117504f6dfaf78f",
+    "0x1520d5561dfb209c6df5149cb6146f6b18d7ad2a",
+    "0x726e650f0bdf5bd57b4a3e23f81973d3c225a94c"
+]
+  
+// Notice lower case
+// added ["USDT", "USDC", "DAI"]
+export let USDTokens:string[] = [
+    "0x8b2c4fa78fba24e4cbb4b0ca7b06a29130317093",
+]

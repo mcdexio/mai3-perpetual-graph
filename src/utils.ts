@@ -4,6 +4,7 @@ import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount, VoteAc
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
+import { ETHTokens, USDTokens } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -14,18 +15,7 @@ export let BI_18 = BigInt.fromI32(18)
 export let OPERATOR_EXP = BigInt.fromI32(10*24*60*60)
 
 export const FACTORY = "mcdex"
-// Notice lower case
-export let ETHTokens:string[] = [
-  "0xdea04ead9bce0ba129120c137117504f6dfaf78f",
-  "0x1520d5561dfb209c6df5149cb6146f6b18d7ad2a",
-  "0x726e650f0bdf5bd57b4a3e23f81973d3c225a94c"
-]
 
-// Notice lower case
-// added ["USDT", "USDC", "DAI"]
-export let USDTokens:string[] = [
-  "0x8b2c4fa78fba24e4cbb4b0ca7b06a29130317093",
-]
 
 export enum PerpetualState {
   INVALID, INITIALIZING, NORMAL, EMERGENCY, CLEARED

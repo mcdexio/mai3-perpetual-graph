@@ -6,6 +6,8 @@
     "old_reader_address": "0x1605275a33b2ab2f00dc96e75190b3fe49272401",
     "reader_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
     "eth_oracle": "0x84F9B276de73c6766aB714f095C93ef2aeE0952E",
+    "eth_token": "0x025435acd9a326fa25b4098887b38dd2cedf6422",
+    "usdc_token": "0xd4ac81d9fd2b28363ebd1d88a8364ff3b3577e84",
     "start_block": 23370949,
     "handler_block": 23816007,
     "new_reader_block": 23847386
