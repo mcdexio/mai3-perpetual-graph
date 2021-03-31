@@ -41,7 +41,7 @@ import {
     HANDLER_BLOCK
 } from './const'
 
-import { updateFactoryData } from './factoryData'
+import { updateMcdexTVLData } from './factoryData'
 
 export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
     let factory = Factory.load(FACTORY)
@@ -278,7 +278,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             }
         }
 
-        updateFactoryData(ZERO_BD, totalValueLockedUSD, block.timestamp)
+        updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
         factory.totalValueLockedUSD = totalValueLockedUSD
     }
     /*=============================== hour datas end ==================================*/ 

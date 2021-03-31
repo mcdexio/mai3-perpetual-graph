@@ -24,7 +24,7 @@ import {
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
-import { updateFactoryData, updateMcdexDaodata } from './factoryData'
+import { updateMcdexTradeVolumeData, updateMcdexDaodata } from './factoryData'
 
 import {
     ZERO_BD,
@@ -283,7 +283,7 @@ export function handleTrade(event: TradeEvent): void {
     updateTradeDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
     // update factory trade data
-    updateFactoryData(volumeUSD, ZERO_BD, event.block.timestamp)
+    updateMcdexTradeVolumeData(volumeUSD, event.block.timestamp)
     // update factory vault fee
     updateMcdexDaodata(vaultFeeUSD, event.block.timestamp)
 }
@@ -384,7 +384,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     updateTradeDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
     // update factory trade data
-    updateFactoryData(volumeUSD, ZERO_BD, event.block.timestamp)
+    updateMcdexTradeVolumeData(volumeUSD, event.block.timestamp)
     // update factory vault fee
     updateMcdexDaodata(vaultFeeUSD, event.block.timestamp)
 }
