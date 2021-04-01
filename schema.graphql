@@ -28,6 +28,12 @@ type Factory @entity {
     latestBlock: BigInt!
 }
 
+type HandledBlock @entity {
+    # blockNumber
+    id: ID!
+    timestamp: BigInt!
+}
+
 type User @entity {
     # user address
     id: ID!

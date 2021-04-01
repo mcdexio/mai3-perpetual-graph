@@ -1,6 +1,6 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
+import { Factory, HandledBlock, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
 import { CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -162,6 +162,10 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
+    let handledBlock = new HandledBlock(block.number.toString())
+    handledBlock.timestamp = block.timestamp
+    handledBlock.save()
+    
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
     let hourIndex = timestamp / 3600
