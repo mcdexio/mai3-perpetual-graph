@@ -63,7 +63,8 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         let bucket = new PriceBucket('1')
         bucket.ethPrice = ZERO_BD
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
-        bucket.minTimestamp = event.block.timestamp.toI32()  / 60
+        bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
+        bucket.tenMinTimestamp = event.block.timestamp.toI32()  / 600 * 600
         bucket.save()
     }
     factory.vaultFeeRate = convertToDecimal(event.params.newFeeRate, BI_18)
