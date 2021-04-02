@@ -162,10 +162,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
-    let handledBlock = new HandledBlock(block.number.toString())
-    handledBlock.timestamp = block.timestamp
-    handledBlock.save()
-    
     // update per hour for efficiency
     let timestamp = block.timestamp.toI32()
     let hourIndex = timestamp / 3600
@@ -191,7 +187,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (price > ZERO_BD) {
             bucket.ethPrice = price
             bucket.timestamp = hourStartUnix
-            bucket.save()
         }
         isFirstOfHourlyBucket = true
     } else {
@@ -204,7 +199,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
 
         bucket.minTimestamp = minStartUnix
-        bucket.save()
     } 
 
     let factory = Factory.load(FACTORY)
@@ -212,6 +206,18 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         return
     }
     factory.latestBlock = block.number
+
+    /*=============================== ten min begin =====================================*/
+    let tenMinStartUnix = (timestamp / 600) * 600
+    if (bucket.tenMinTimestamp != tenMinStartUnix) {
+        // save handled block every 10 min
+        let handledBlock = new HandledBlock(block.number.toString())
+        handledBlock.timestamp = block.timestamp
+        handledBlock.save()
+        bucket.tenMinTimestamp= tenMinStartUnix
+    }
+    /*=============================== ten min end =======================================*/
+
 
     /*=============================== hour datas begin ==================================*/ 
     if (isFirstOfHourlyBucket) {
@@ -286,7 +292,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         factory.totalValueLockedUSD = totalValueLockedUSD
     }
     /*=============================== hour datas end ==================================*/ 
-
+    bucket.save()
     factory.save()
 
     /*=============================== price minute datas  ==================================*/ 

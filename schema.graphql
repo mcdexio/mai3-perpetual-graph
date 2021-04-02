@@ -364,6 +364,7 @@ type PriceBucket @entity {
     ethPrice: BigDecimal
     timestamp: Int
     minTimestamp: Int
+    tenMinTimestamp: Int
 }
 
 type AccHourData @entity {
