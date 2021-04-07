@@ -1,48 +1,42 @@
 [
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "liquidityPoolTemplate",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "governorTemplate",
         "type": "address"
       },
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "shareTokenTemplate",
+        "name": "creator",
         "type": "address"
       },
-      {
-        "internalType": "address",
-        "name": "wethToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "symbolService",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "globalVault",
-        "type": "address"
-      },
-      {
-        "internalType": "int256",
-        "name": "globalVaultFeeRate",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "compatibility",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "note",
+        "type": "string"
       }
     ],
     "name": "AddVersion",
@@ -53,24 +47,24 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "liquidityPool",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "governor",
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shareToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -89,9 +83,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "isFastCreationEnabled",
-        "type": "bool"
+        "internalType": "bytes",
+        "name": "initData",
+        "type": "bytes"
       }
     ],
     "name": "CreateLiquidityPool",
@@ -186,6 +180,31 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "vaersionKey",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "governor",
+        "type": "address"
+      }
+    ],
+    "name": "UpgradeLiquidityPool",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -213,7 +232,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "implementation",
+        "name": "liquidityPoolTemplate",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "governorTemplate",
         "type": "address"
       },
       {
@@ -228,7 +252,13 @@
       }
     ],
     "name": "addVersion",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -245,21 +275,26 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "isFastCreationEnabled",
-        "type": "bool"
-      },
-      {
         "internalType": "int256",
         "name": "nonce",
         "type": "int256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "initData",
+        "type": "bytes"
       }
     ],
     "name": "createLiquidityPool",
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "governor",
         "type": "address"
       }
     ],
@@ -269,9 +304,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
       },
       {
         "internalType": "address",
@@ -284,21 +319,26 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "isFastCreationEnabled",
-        "type": "bool"
-      },
-      {
         "internalType": "int256",
         "name": "nonce",
         "type": "int256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "initData",
+        "type": "bytes"
       }
     ],
     "name": "createLiquidityPoolWith",
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "governor",
         "type": "address"
       }
     ],
@@ -326,24 +366,6 @@
         "type": "bool"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "governor",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "share",
-        "type": "address"
-      }
-    ],
-    "name": "debugSetTemplate",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -383,31 +405,21 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "implementation",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "governor",
         "type": "address"
       }
     ],
-    "name": "getDescription",
+    "name": "getAppliedVersionKey",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "creationTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "compatibility",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "note",
-        "type": "string"
+        "internalType": "bytes32",
+        "name": "appliedVersionKey",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -418,9 +430,9 @@
     "name": "getLatestVersion",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "latestVersionKey",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -486,6 +498,19 @@
   },
   {
     "inputs": [],
+    "name": "getTimelock",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getVault",
     "outputs": [
       {
@@ -505,6 +530,35 @@
         "internalType": "int256",
         "name": "",
         "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getVersion",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "liquidityPoolTemplate",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "governorTemplate",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "compatibility",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -537,6 +591,34 @@
       }
     ],
     "name": "grantPrivilege",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wethToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "symbolService",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "globalVault",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "globalVaultFeeRate",
+        "type": "int256"
+      }
+    ],
+    "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -621,21 +703,21 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "targetVersionKey",
+        "type": "bytes32"
       },
       {
-        "internalType": "address",
-        "name": "base",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "baseVersionKey",
+        "type": "bytes32"
       }
     ],
     "name": "isVersionCompatible",
     "outputs": [
       {
         "internalType": "bool",
-        "name": "",
+        "name": "isCompatible",
         "type": "bool"
       }
     ],
@@ -645,16 +727,16 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "versionKey",
+        "type": "bytes32"
       }
     ],
-    "name": "isVersionValid",
+    "name": "isVersionKeyValid",
     "outputs": [
       {
         "internalType": "bool",
-        "name": "",
+        "name": "isValid",
         "type": "bool"
       }
     ],
@@ -706,21 +788,21 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "start",
+        "name": "begin",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "count",
+        "name": "end",
         "type": "uint256"
       }
     ],
     "name": "listAvailableVersions",
     "outputs": [
       {
-        "internalType": "address[]",
-        "name": "result",
-        "type": "address[]"
+        "internalType": "bytes32[]",
+        "name": "versionKeys",
+        "type": "bytes32[]"
       }
     ],
     "stateMutability": "view",
@@ -859,6 +941,42 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "targetVersionKey",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "dataForLiquidityPool",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "dataForGovernor",
+        "type": "bytes"
+      }
+    ],
+    "name": "updateToAndCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "upgradeAdmin",
+    "outputs": [
+      {
+        "internalType": "contract IProxyAdmin",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

@@ -1,6 +1,10 @@
 export const READER_ADDRESS = '{{reader_address}}'
-export const OLD_READER_ADDRESS = '{{old_reader_address}}'
-export const NEW_READER_BLOCK = {{new_reader_block}}
+export const READER_V4_ADDRESS = '{{reader_v4_address}}'
+export const READER_V5_ADDRESS = '{{reader_v5_address}}'
+
+export const READER_V4_BLOCK = {{reader_v4_block}}
+export const READER_v5_BLOCK = {{reader_v5_block}}
+
 
 // oracle address for get price
 export const ETH_ORACLE = '{{eth_oracle}}'
