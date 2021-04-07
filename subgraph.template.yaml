@@ -31,8 +31,10 @@ dataSources:
         - name: ReaderV004
           file: ./abis/ReaderV004.json
       eventHandlers:
-        - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
+        - event: CreateLiquidityPool(bytes32,indexed address,indexed address,indexed address,address,uint256,bytes)
           handler: handleCreateLiquidityPool
+        - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
+          handler: handleCreateLiquidityPool1
         - event: SetVaultFeeRate(int256,int256)
           handler: handleSetVaultFeeRate
       blockHandlers:
@@ -134,7 +136,7 @@ templates:
           handler: handleUpdatePoolMargin
         - event: UpdateUnitAccumulativeFunding(uint256,int256)
           handler: handleUpdateUnitAccumulativeFunding
-        - event: transferExcessInsuranceFundToLP(uint256,int256)
+        - event: transferExcessInsuranceFundToLP(int256)
           handler: handleTransferExcessInsuranceFundToLP
         - event: Settle(uint256,indexed address,int256)
           handler: handleSettle
@@ -176,8 +178,10 @@ templates:
         - name: Governor
           file: ./abis/Governor.json
       eventHandlers:
-        - event: ProposalCreated(uint256,address,string[],bytes[],uint256,uint256,uint256,string)
+        - event: ProposalCreated(uint256,address,address,string[],bytes[],uint256,uint256,uint256,string)
           handler: handleProposalCreated
+        - event: ProposalCreated(uint256,address,string[],bytes[],uint256,uint256,uint256,string)
+          handler: handleProposalCreated1
         - event: ProposalExecuted(uint256)
           handler: handleProposalExecuted
         - event: VoteCast(address,uint256,bool,uint256)
