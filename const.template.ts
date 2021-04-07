@@ -3,7 +3,7 @@ export const READER_V4_ADDRESS = '{{reader_v4_address}}'
 export const READER_V5_ADDRESS = '{{reader_v5_address}}'
 
 export const READER_V4_BLOCK = {{reader_v4_block}}
-export const READER_v5_BLOCK = {{reader_v5_block}}
+export const READER_V5_BLOCK = {{reader_v5_block}}
 
 
 // oracle address for get price
