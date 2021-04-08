@@ -72,6 +72,12 @@
       {
         "indexed": false,
         "internalType": "address",
+        "name": "shareToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "collateral",
         "type": "address"
       },

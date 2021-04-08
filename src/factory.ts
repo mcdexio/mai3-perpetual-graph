@@ -122,7 +122,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 
     let liquidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
     liquidityPool.voteAddress = event.params.governor.toHexString()
-    liquidityPool.shareAddress = event.params.governor.toHexString()
+    liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.factory = factory.id
@@ -140,7 +140,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.perpetualIDs = []
 
     // create share token
-    let shareToken = new ShareToken(event.params.governor.toHexString())
+    let shareToken = new ShareToken(event.params.shareToken.toHexString())
     shareToken.liquidityPool = liquidityPool.id
     shareToken.totalSupply = ZERO_BD
     liquidityPool.shareToken = shareToken.id
@@ -161,7 +161,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 
     // create the tracked contract based on the template
     LiquidityPoolTemplate.create(event.params.liquidityPool)
-    ShareTokenTemplate.create(event.params.governor)
+    ShareTokenTemplate.create(event.params.shareToken)
     GovernorTemplate.create(event.params.governor)
 }
 
