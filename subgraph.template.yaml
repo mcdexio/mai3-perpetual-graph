@@ -139,7 +139,7 @@ templates:
         - name: Oracle
           file: ./abis/Oracle.json
       eventHandlers:
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[10],int256[7])
+        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[7])
           handler: handleCreatePerpetual
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[6])
           handler: handleCreatePerpetualV004
