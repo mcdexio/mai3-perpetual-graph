@@ -118,7 +118,7 @@
         "indexed": false,
         "internalType": "int256[9]",
         "name": "baseParams",
-        "type": "int256[10]"
+        "type": "int256[9]"
       },
       {
         "indexed": false,
