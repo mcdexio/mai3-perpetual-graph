@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: mai-v3-graph
-repository: https://github.com/mcdexio/mai-v3-graph
+description: mai3-perpetual-graph
+repository: https://github.com/mcdexio/mai3-perpetual-graph
 schema:
   file: ./schema.graphql
 dataSources:

@@ -241,7 +241,19 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
-} 
+}
+
+export function updateOpenInterest(oldPosition: BigDecimal, newPosition: BigDecimal): BigDecimal {
+    let deltaPosition = ZERO_BD
+    if (oldPosition > ZERO_BD) {
+        deltaPosition -= oldPosition
+    }
+
+    if (newPosition > ZERO_BD) {
+        deltaPosition += newPosition
+    }
+    return deltaPosition
+}
 
 export function handleTrade(event: TradeEvent): void {
     let factory = Factory.load(FACTORY)
@@ -455,6 +467,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
 
 function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigDecimal,
     transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType ): void {
+    let oldPosition = account.position
     let close = splitCloseAmount(account.position, amount)
     let open = splitOpenAmount(account.position, amount)
     // close position
@@ -529,7 +542,9 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 
         perp.txCount += ONE_BI
     }
-    
+
+    let newPosition = account.position
+    perp.openInterest += updateOpenInterest(oldPosition, newPosition)
     account.save()
 }
 

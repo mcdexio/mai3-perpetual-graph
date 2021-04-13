@@ -104,6 +104,7 @@ type Perpetual @entity {
     txCount: BigInt!
     liqCount: BigInt!
     position: BigDecimal!
+    openInterest: BigDecimal!
     entryPrice: BigDecimal!
     entryUnitAcc: BigDecimal!
 
