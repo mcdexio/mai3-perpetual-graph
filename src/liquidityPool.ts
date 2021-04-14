@@ -277,7 +277,11 @@ export function handleTrade(event: TradeEvent): void {
     newTrade(perp as Perpetual, trader, account, position, price, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     perp.lastPrice = price
+    
+    let oldPosition = perp.position
     perp.position += convertToDecimal(-event.params.position, BI_18)
+    perp.openInterest += updateOpenInterest(oldPosition, perp.position)
+
     perp.entryPrice = price
     perp.entryUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
@@ -362,7 +366,9 @@ export function handleLiquidate(event: LiquidateEvent): void {
         poolHourData.tradePNL += perp.position * (price - perp.entryPrice)
         poolHourData.save()
         // liquidator is AMM
+        let oldPosition = perp.position
         perp.position += convertToDecimal(-event.params.amount, BI_18)
+        perp.openInterest += updateOpenInterest(oldPosition, perp.position)
         perp.entryPrice = price
         perp.entryUnitAcc = perp.unitAccumulativeFunding
         liquidate.type = 0
@@ -377,6 +383,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     
     // trader
     newTrade(perp as Perpetual, trader, account, amount, price, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+
 
     liquidate.save()
 
