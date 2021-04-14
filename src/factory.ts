@@ -395,7 +395,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     factory.save()
 
     /*=============================== price minute datas  ==================================*/ 
-    // update perpetual's trade volume amount in USD and oracle price data
+    // update perpetual's oracle price data
     let perpetuals = factory.perpetuals as string[]
     let oracleMap = new TypedMap<String, boolean>()
     for (let index = 0; index < perpetuals.length; index++) {
@@ -404,19 +404,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         if (perp.state != PerpetualState.NORMAL) {
             continue
         }
-        if (isUSDCollateral(perp.collateralAddress)) {
-            perp.totalVolumeUSD = perp.totalVolume
-        } else if (isETHCollateral(perp.collateralAddress)) {
-            let ethPrice = ZERO_BD
-            if (bucket.ethPrice != ZERO_BD) {
-                ethPrice = bucket.ethPrice as BigDecimal
-            }
-            if (ethPrice > ZERO_BD) {
-                perp.totalVolumeUSD = perp.totalVolume.times(ethPrice)
-            }
-        }
-        perp.save()
-
         // perp price
         if (!oracleMap.isSet(perp.oracleAddress)) {
             oracleMap.set(perp.oracleAddress, true)
