@@ -1,6 +1,6 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, HandledBlock, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
 
 import { CreateLiquidityPool, CreateLiquidityPool1, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -66,7 +66,6 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         bucket.ethPrice = ZERO_BD
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
-        bucket.tenMinTimestamp = event.block.timestamp.toI32()  / 600 * 600
         bucket.save()
     }
     factory.vaultFeeRate = convertToDecimal(event.params.newFeeRate, BI_18)
@@ -105,7 +104,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         bucket.ethPrice = ZERO_BD
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
-        bucket.tenMinTimestamp = event.block.timestamp.toI32()  / 600 * 600
         bucket.save()
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
@@ -198,7 +196,6 @@ export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
         bucket.ethPrice = ZERO_BD
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
-        bucket.tenMinTimestamp = event.block.timestamp.toI32()  / 600 * 600
         bucket.save()
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
@@ -303,18 +300,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         return
     }
     factory.latestBlock = block.number
-
-    /*=============================== ten min begin =====================================*/
-    let tenMinStartUnix = (timestamp / 600) * 600
-    if (bucket.tenMinTimestamp != tenMinStartUnix) {
-        // save handled block every 10 min
-        let handledBlock = new HandledBlock(block.number.toString())
-        handledBlock.timestamp = block.timestamp
-        handledBlock.save()
-        bucket.tenMinTimestamp= tenMinStartUnix
-    }
-    /*=============================== ten min end =======================================*/
-
 
     /*=============================== hour datas begin ==================================*/ 
     if (isFirstOfHourlyBucket) {

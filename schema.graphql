@@ -28,12 +28,6 @@ type Factory @entity {
     latestBlock: BigInt!
 }
 
-type HandledBlock @entity {
-    # blockNumber
-    id: ID!
-    timestamp: BigInt!
-}
-
 type User @entity {
     # user address
     id: ID!
@@ -365,7 +359,6 @@ type PriceBucket @entity {
     ethPrice: BigDecimal
     timestamp: Int
     minTimestamp: Int
-    tenMinTimestamp: Int
 }
 
 type AccHourData @entity {
