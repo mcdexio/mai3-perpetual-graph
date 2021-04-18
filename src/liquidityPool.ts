@@ -136,9 +136,10 @@ export function handleSetEmergencyState(event: SetEmergencyStateEvent): void {
 export function handleSettle(event: SettleEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
-    // update amm position
+    // update amm position and openInterest
     if (event.params.trader.toHexString() == event.address.toHexString()) {
         perp.position = ZERO_BD
+        perp.openInterest = ZERO_BD
         perp.save()
         return
     }
