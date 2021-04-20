@@ -26,6 +26,7 @@ import {
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
 import { updateMcdexTradeVolumeData, updateMcdexDaodata } from './factoryData'
+import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
 import {
     ZERO_BD,
@@ -263,6 +264,13 @@ export function handleTrade(event: TradeEvent): void {
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
+    let contract = OracleContract.bind(Address.fromString(perp.oracleAddress))
+    let callResult = contract.try_priceTWAPLong()
+    let markPrice = ZERO_BD
+    if (!callResult.reverted) {
+        markPrice = convertToDecimal(callResult.value.value0, BI_18)
+    }
+
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
@@ -274,6 +282,9 @@ export function handleTrade(event: TradeEvent): void {
     poolHourData.fee += lpFee
     poolHourData.funding += perp.position * (perp.entryUnitAcc - perp.unitAccumulativeFunding)
     poolHourData.tradePNL += perp.position * (price - perp.entryPrice)
+    if (markPrice != ZERO_BD) {
+        poolHourData.positionPNL += perp.position * (markPrice - perp.entryMarkPrice)
+    }
     poolHourData.save()
     newTrade(perp as Perpetual, trader, account, position, price, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
@@ -284,6 +295,9 @@ export function handleTrade(event: TradeEvent): void {
     perp.openInterest += updateOpenInterest(oldPosition, perp.position)
 
     perp.entryPrice = price
+    if (markPrice != ZERO_BD) {
+        perp.entryMarkPrice = markPrice
+    }
     perp.entryUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
     let volumeUSD = ZERO_BD
@@ -331,6 +345,12 @@ export function handleLiquidate(event: LiquidateEvent): void {
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
+    let contract = OracleContract.bind(Address.fromString(perp.oracleAddress))
+    let callResult = contract.try_priceTWAPLong()
+    let markPrice = ZERO_BD
+    if (!callResult.reverted) {
+        markPrice = convertToDecimal(callResult.value.value0, BI_18)
+    }
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
@@ -365,12 +385,18 @@ export function handleLiquidate(event: LiquidateEvent): void {
         poolHourData.penalty += lpPenalty
         poolHourData.funding += perp.position * (perp.entryUnitAcc - perp.unitAccumulativeFunding)
         poolHourData.tradePNL += perp.position * (price - perp.entryPrice)
+        if (markPrice != ZERO_BD) {
+            poolHourData.positionPNL += perp.position * (markPrice - perp.entryMarkPrice)
+        }
         poolHourData.save()
         // liquidator is AMM
         let oldPosition = perp.position
         perp.position += convertToDecimal(-event.params.amount, BI_18)
         perp.openInterest += updateOpenInterest(oldPosition, perp.position)
         perp.entryPrice = price
+        if (markPrice != ZERO_BD) {
+            perp.entryMarkPrice = markPrice
+        }
         perp.entryUnitAcc = perp.unitAccumulativeFunding
         liquidate.type = 0
     } else {
@@ -456,6 +482,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
             poolHourData.fee = ZERO_BD
             poolHourData.funding = ZERO_BD
             poolHourData.tradePNL = ZERO_BD
+            poolHourData.positionPNL = ZERO_BD
             poolHourData.penalty = ZERO_BD
             poolHourData.excessInsuranceFund = ZERO_BD
         } else {
@@ -466,6 +493,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
             poolHourData.fee = lastPoolHourData.fee
             poolHourData.funding = lastPoolHourData.funding
             poolHourData.tradePNL = lastPoolHourData.tradePNL
+            poolHourData.positionPNL = lastPoolHourData.positionPNL
             poolHourData.penalty = lastPoolHourData.penalty
             poolHourData.excessInsuranceFund = lastPoolHourData.excessInsuranceFund
         }
