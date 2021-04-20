@@ -101,6 +101,7 @@ type Perpetual @entity {
     openInterest: BigDecimal!
     entryPrice: BigDecimal!
     entryUnitAcc: BigDecimal!
+    entryMarkPrice: BigDecimal!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
@@ -284,6 +285,7 @@ type PoolHourData @entity {
     fee: BigDecimal!
     funding: BigDecimal!
     tradePNL: BigDecimal!
+    positionPNL: BigDecimal!
     penalty: BigDecimal!
     excessInsuranceFund: BigDecimal!
     timestamp: Int
