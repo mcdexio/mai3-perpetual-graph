@@ -99,9 +99,6 @@ type Perpetual @entity {
     liqCount: BigInt!
     position: BigDecimal!
     openInterest: BigDecimal!
-    entryPrice: BigDecimal!
-    entryUnitAcc: BigDecimal!
-    entryMarkPrice: BigDecimal!
 
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
@@ -112,7 +109,11 @@ type Perpetual @entity {
     settledAtBlockNumber: BigInt
     isRun: Boolean!
 
+    # pool status
     lastPrice: BigDecimal!
+    lastUnitAcc: BigDecimal!
+    lastMarkPrice: BigDecimal!
+
     unitAccumulativeFunding: BigDecimal!
 }
 
@@ -282,13 +283,14 @@ type PoolHourData @entity {
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
-    fee: BigDecimal!
-    funding: BigDecimal!
-    tradePNL: BigDecimal!
-    positionPNL: BigDecimal!
-    penalty: BigDecimal!
-    excessInsuranceFund: BigDecimal!
     timestamp: Int
+    # lp status
+    lpFee: BigDecimal!
+    lpFunding: BigDecimal!
+    lpTotalPNL: BigDecimal!
+    lpPositionPNL: BigDecimal!
+    lpPenalty: BigDecimal!
+    lpExcessInsuranceFund: BigDecimal!
 }
 
 type PoolDayData @entity {
