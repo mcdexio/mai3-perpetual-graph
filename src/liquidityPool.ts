@@ -286,7 +286,7 @@ export function handleTrade(event: TradeEvent): void {
         poolHourData.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
     }
     poolHourData.save()
-    newTrade(perp as Perpetual, trader, account, position, price, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    newTrade(perp as Perpetual, trader, account, position, price, markPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     let oldPosition = perp.position
     perp.position += convertToDecimal(-event.params.position, BI_18)
@@ -366,6 +366,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.liquidator = event.params.liquidator.toHexString()
     let amount = convertToDecimal(event.params.amount, BI_18)
     liquidate.price = price
+    liquidate.markPrice = markPrice
     liquidate.amount = amount
     let penalty = convertToDecimal(event.params.penalty, BI_18)
     liquidate.penalty = penalty
@@ -403,11 +404,11 @@ export function handleLiquidate(event: LiquidateEvent): void {
         type = TradeType.LIQUIDATEBYTRADER
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, markPrice, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
     }
     
     // trader
-    newTrade(perp as Perpetual, trader, account, amount, price, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+    newTrade(perp as Perpetual, trader, account, amount, price, markPrice, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
 
 
     liquidate.save()
@@ -498,7 +499,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
     return poolHourData as PoolHourData
 }
 
-function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, fee: BigDecimal,
+function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, markPrice: BigDecimal, fee: BigDecimal,
     transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType ): void {
     let oldPosition = account.position
     let close = splitCloseAmount(account.position, amount)
@@ -517,6 +518,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.trader = trader.id
         trade.amount = close
         trade.price = price
+        trade.markPrice = markPrice
         trade.isClose = true
         let pnlPercent = AbsBigDecimal(close.div(account.position))
         let pnl1 = NegBigDecimal(close).times(price).minus(account.entryValue.times(pnlPercent))
@@ -555,6 +557,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.trader = trader.id
         trade.amount = open
         trade.price = price
+        trade.markPrice = markPrice
         trade.isClose = false
         trade.pnl = ZERO_BD
         trade.fee = fee.times(percent)

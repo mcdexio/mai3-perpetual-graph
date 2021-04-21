@@ -175,6 +175,7 @@ type Trade @entity {
     trader: User!
     amount: BigDecimal!
     price: BigDecimal!
+    markPrice: BigDecimal!
     fee: BigDecimal!
     isClose: Boolean!
     pnl: BigDecimal
@@ -193,6 +194,7 @@ type Liquidate @entity {
     liquidator: String!
     amount: BigDecimal!
     price: BigDecimal!
+    markPrice: BigDecimal!
     type: Int!
     penalty: BigDecimal!
     penaltyToLP: BigDecimal!
