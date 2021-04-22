@@ -164,9 +164,6 @@ export function handleDeposit(event: DepositEvent): void {
     let perp = Perpetual.load(id)
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
-    let amount = convertToDecimal(event.params.amount, BI_18)
-    marginAccount.cashBalance += amount
-    marginAccount.save()
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
@@ -176,9 +173,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
     let perp = Perpetual.load(id)
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
-    let amount = convertToDecimal(event.params.amount, BI_18)
-    marginAccount.cashBalance -= amount
-    marginAccount.save()
 }
 
 export function handleAddLiquidity(event: AddLiquidityEvent): void {
@@ -534,8 +528,6 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         // entry value and entry funding
         let position = account.position.plus(close)
         let oldPosition = account.position
-        account.cashBalance -= price.times(close)
-        account.cashBalance += perp.unitAccumulativeFunding.times(position)
         account.entryFunding = account.entryFunding.times(position).div(oldPosition)
         account.entryValue = account.entryValue.times(position).div(oldPosition)
         account.position = position
@@ -570,8 +562,6 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 
         // entry value and entry funding
         let position = account.position.plus(open)
-        account.cashBalance -= price.times(open)
-        account.cashBalance += perp.unitAccumulativeFunding.times(open)
         account.entryFunding = account.entryFunding.plus(perp.unitAccumulativeFunding.times(open))
         account.entryValue = account.entryValue.plus(price.times(open))
         account.position = position

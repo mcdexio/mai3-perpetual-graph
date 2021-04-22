@@ -120,7 +120,6 @@ export function fetchMarginAccount(user: User, perpetual: Perpetual): MarginAcco
     account = new MarginAccount(id)
     account.user = user.id
     account.perpetual = perpetual.id
-    account.cashBalance = ZERO_BD
     account.position = ZERO_BD
     account.entryValue = ZERO_BD
     account.entryFunding = ZERO_BD
