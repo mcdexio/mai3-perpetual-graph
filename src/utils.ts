@@ -92,6 +92,11 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.lastMarkPrice = ZERO_BD
     perp.lastUnitAcc = ZERO_BD
     perp.unitAccumulativeFunding = ZERO_BD
+    perp.lpFee = ZERO_BD
+    perp.lpFunding = ZERO_BD
+    perp.lpTotalPNL = ZERO_BD
+    perp.lpPositionPNL = ZERO_BD
+    perp.lpPenalty = ZERO_BD
 
     if (liquidityPool.isRun) {
       perp.state = PerpetualState.NORMAL
