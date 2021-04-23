@@ -75,6 +75,9 @@ type LiquidityPool @entity {
     createdAtTimestamp: BigInt!
     createdAtBlockNumber: BigInt!
     isRun: Boolean!
+
+    # for amm status
+    lpExcessInsuranceFund: BigDecimal!
 }
 
 type Perpetual @entity {
@@ -109,10 +112,15 @@ type Perpetual @entity {
     settledAtBlockNumber: BigInt
     isRun: Boolean!
 
-    # pool status
+    # for amm status
     lastPrice: BigDecimal!
     lastUnitAcc: BigDecimal!
     lastMarkPrice: BigDecimal!
+    lpFee: BigDecimal!
+    lpFunding: BigDecimal!
+    lpTotalPNL: BigDecimal!
+    lpPositionPNL: BigDecimal!
+    lpPenalty: BigDecimal!
 
     unitAccumulativeFunding: BigDecimal!
 }
@@ -285,13 +293,6 @@ type PoolHourData @entity {
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
     timestamp: Int
-    # lp status
-    lpFee: BigDecimal!
-    lpFunding: BigDecimal!
-    lpTotalPNL: BigDecimal!
-    lpPositionPNL: BigDecimal!
-    lpPenalty: BigDecimal!
-    lpExcessInsuranceFund: BigDecimal!
 }
 
 type PoolDayData @entity {

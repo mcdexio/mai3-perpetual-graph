@@ -130,6 +130,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.vaultFee = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
+    liquidityPool.lpExcessInsuranceFund = ZERO_BD
     liquidityPool.liquidityProviderCount = ZERO_BI
     liquidityPool.createdAtTimestamp = event.block.timestamp
     liquidityPool.createdAtBlockNumber = event.block.number
@@ -222,6 +223,7 @@ export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
     liquidityPool.vaultFee = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
+    liquidityPool.lpExcessInsuranceFund = ZERO_BD
     liquidityPool.liquidityProviderCount = ZERO_BI
     liquidityPool.createdAtTimestamp = event.block.timestamp
     liquidityPool.createdAtBlockNumber = event.block.number

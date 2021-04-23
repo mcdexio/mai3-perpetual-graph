@@ -272,14 +272,12 @@ export function handleTrade(event: TradeEvent): void {
     let position = convertToDecimal(event.params.position, BI_18)
     let fee = convertToDecimal(event.params.fee, BI_18)
     let lpFee = convertToDecimal(event.params.lpFee, BI_18)
-    let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
-    poolHourData.lpFee += lpFee
-    poolHourData.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
-    poolHourData.lpTotalPNL += perp.position * (price - perp.lastPrice)
+    perp.lpFee += lpFee
+    perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
+    perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
     if (markPrice != ZERO_BD) {
-        poolHourData.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
+        perp.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
     }
-    poolHourData.save()
     newTrade(perp as Perpetual, trader, account, position, price, markPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     let oldPosition = perp.position
@@ -374,14 +372,12 @@ export function handleLiquidate(event: LiquidateEvent): void {
     let type = TradeType.LIQUIDATEBYAMM
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
-        let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
-        poolHourData.lpPenalty += lpPenalty
-        poolHourData.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
-        poolHourData.lpTotalPNL += perp.position * (price - perp.lastPrice)
+        perp.lpPenalty += lpPenalty
+        perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
+        perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
         if (markPrice != ZERO_BD) {
-            poolHourData.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
+            perp.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
         }
-        poolHourData.save()
         // liquidator is AMM
         let oldPosition = perp.position
         perp.position += convertToDecimal(-event.params.amount, BI_18)
@@ -447,9 +443,9 @@ export function handleLiquidate(event: LiquidateEvent): void {
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {
-    let poolHourData = getPoolHourData(event.block.timestamp, event.address.toHexString())
-    poolHourData.lpExcessInsuranceFund += convertToDecimal(event.params.amount, BI_18)
-    poolHourData.save()
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    liquidityPool.lpExcessInsuranceFund += convertToDecimal(event.params.amount, BI_18)
+    liquidityPool.save()
 }
 
 export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData {
@@ -471,23 +467,11 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
             poolHourData.poolMargin = ZERO_BD
             poolHourData.poolMarginUSD = ZERO_BD
             poolHourData.netAssetValue = ZERO_BD
-            poolHourData.lpFee = ZERO_BD
-            poolHourData.lpFunding = ZERO_BD
-            poolHourData.lpTotalPNL = ZERO_BD
-            poolHourData.lpPositionPNL = ZERO_BD
-            poolHourData.lpPenalty = ZERO_BD
-            poolHourData.lpExcessInsuranceFund = ZERO_BD
         } else {
             // copy last hour data
             poolHourData.poolMargin = lastPoolHourData.poolMargin
             poolHourData.poolMarginUSD = lastPoolHourData.poolMarginUSD
             poolHourData.netAssetValue = lastPoolHourData.netAssetValue
-            poolHourData.lpFee = lastPoolHourData.lpFee
-            poolHourData.lpFunding = lastPoolHourData.lpFunding
-            poolHourData.lpTotalPNL = lastPoolHourData.lpTotalPNL
-            poolHourData.lpPositionPNL = lastPoolHourData.lpPositionPNL
-            poolHourData.lpPenalty = lastPoolHourData.lpPenalty
-            poolHourData.lpExcessInsuranceFund = lastPoolHourData.lpExcessInsuranceFund
         }
     }
     return poolHourData as PoolHourData
