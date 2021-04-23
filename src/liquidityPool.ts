@@ -371,6 +371,25 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.timestamp = event.block.timestamp
     liquidate.logIndex = event.logIndex
 
+    let volume = AbsBigDecimal(amount).times(price)
+    let volumeUSD = ZERO_BD
+    let vaultFee = factory.vaultFeeRate.times(volume)
+    let vaultFeeUSD = ZERO_BD
+    if (isUSDCollateral(perp.collateralAddress)) {
+        perp.totalVolumeUSD += volume
+        factory.totalVolumeUSD += volume
+        volumeUSD = volume
+        vaultFeeUSD = vaultFee
+    } else if (isETHCollateral(perp.collateralAddress)) {
+        let priceBucket = PriceBucket.load('1')
+        if (priceBucket != null) {
+            let ethPrice = priceBucket.ethPrice as BigDecimal
+            factory.totalVolumeUSD += volume.times(ethPrice)
+            volumeUSD = volume.times(ethPrice)
+            vaultFeeUSD = vaultFee.times(ethPrice)
+        }
+    }
+
     let type = TradeType.LIQUIDATEBYAMM
     // liquidator
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
@@ -391,6 +410,10 @@ export function handleLiquidate(event: LiquidateEvent): void {
             perp.lastMarkPrice = markPrice
         }
         perp.lastUnitAcc = perp.unitAccumulativeFunding
+        // update perpetual trade volume
+        perp.totalVolume += volume
+        perp.totalVolumeUSD += volumeUSD
+
         liquidate.type = 0
     } else {
         // liquidator is user
@@ -404,30 +427,9 @@ export function handleLiquidate(event: LiquidateEvent): void {
     // trader
     newTrade(perp as Perpetual, trader, account, amount, price, markPrice, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
 
-
     liquidate.save()
 
     perp.liqCount += ONE_BI
-    let volume = AbsBigDecimal(amount).times(price)
-    let volumeUSD = ZERO_BD
-    let vaultFee = factory.vaultFeeRate.times(volume)
-    let vaultFeeUSD = ZERO_BD
-    perp.totalVolume += volume
-    if (isUSDCollateral(perp.collateralAddress)) {
-        perp.totalVolumeUSD += volume
-        factory.totalVolumeUSD += volume
-        volumeUSD = volume
-        vaultFeeUSD = vaultFee
-    } else if (isETHCollateral(perp.collateralAddress)) {
-        let priceBucket = PriceBucket.load('1')
-        if (priceBucket != null) {
-            let ethPrice = priceBucket.ethPrice as BigDecimal
-            perp.totalVolumeUSD += volume.times(ethPrice)
-            factory.totalVolumeUSD += volume.times(ethPrice)
-            volumeUSD = volume.times(ethPrice)
-            vaultFeeUSD = vaultFee.times(ethPrice)
-        }
-    }
     perp.save()
     factory.save()
 
