@@ -238,7 +238,7 @@ export function getTokenPrice(token: string): BigDecimal {
     return ZERO_BD
   }
   let oracle = OracleMap.get(token)
-  let contract = OracleContract.bind(Address.fromString(oracle))
+  let contract = OracleContract.bind(Address.fromString(oracle as string))
   let callResult = contract.try_priceTWAPShort()
   if(callResult.reverted){
       log.warning("try_priceTWAPShort reverted. token: {} oracle: {}", [token, oracle as string])

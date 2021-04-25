@@ -54,7 +54,6 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
-        factory.vault = ''
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
@@ -293,7 +292,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         // update liquity pool's liquidity amount in USD
         let liquidityPools = factory.liquidityPools as string[]
         let totalValueLockedUSD = ZERO_BD
-        factory.totalVaultFeeUSD = ZERO_BD
         let collateralMap = new TypedMap<String, boolean>()
         let reader_address = READER_ADDRESS
         if (block.number < BigInt.fromI32(READER_V4_BLOCK)) {
@@ -335,7 +333,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
             let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
             totalValueLockedUSD += balance.times(tokenPrice)
-            factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(tokenPrice)
 
             // mcdex dao asset
             if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
