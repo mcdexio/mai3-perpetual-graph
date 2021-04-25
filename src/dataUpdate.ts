@@ -3,9 +3,8 @@ import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph
 import { Perpetual, LiquidityPool, Trade15MinData, TradeHourData, TradeDayData, TradeSevenDayData, PoolHourData, PoolDayData, ShareToken, PriceBucket} from '../generated/schema'
 
 import {
+    getTokenPrice,
     ZERO_BD,
-    isUSDCollateral,
-    isETHCollateral,
 } from './utils'
 
 import {
@@ -140,16 +139,8 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
         nav = poolMargin.div(shareToken.totalSupply)
     }
     pool.poolMargin = poolMargin
-    if (isUSDCollateral(pool.collateralAddress)) {
-        pool.poolMarginUSD = pool.poolMargin
-    } else if (isETHCollateral(pool.collateralAddress)) {
-        let bucket = PriceBucket.load('1')
-        let ethPrice = ZERO_BD
-        if (bucket != null && bucket.ethPrice != ZERO_BD) {
-            ethPrice = bucket.ethPrice as BigDecimal
-        }
-        pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
-    }
+    let tokenPrice = getTokenPrice(pool.collateralAddress)
+    pool.poolMarginUSD = pool.poolMargin.times(tokenPrice)
     poolHourData.poolMarginUSD = pool.poolMarginUSD
     poolHourData.poolMargin = pool.poolMargin
     poolHourData.netAssetValue = nav
@@ -180,16 +171,8 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
         nav = poolMargin.div(shareToken.totalSupply)
     }
     pool.poolMargin = poolMargin
-    if (isUSDCollateral(pool.collateralAddress)) {
-        pool.poolMarginUSD = pool.poolMargin
-    } else if (isETHCollateral(pool.collateralAddress)) {
-        let bucket = PriceBucket.load('1')
-        let ethPrice = ZERO_BD
-        if (bucket != null && bucket.ethPrice != ZERO_BD) {
-            ethPrice = bucket.ethPrice as BigDecimal
-        }
-        pool.poolMarginUSD = pool.poolMargin.times(ethPrice)
-    }
+    let tokenPrice = getTokenPrice(pool.collateralAddress)
+    pool.poolMarginUSD = pool.poolMargin.times(tokenPrice)
     poolDayData.poolMarginUSD = pool.poolMarginUSD
     poolDayData.netAssetValue = nav
     pool.save()

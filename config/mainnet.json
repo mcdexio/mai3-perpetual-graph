@@ -7,6 +7,7 @@
     "reader_v4_address": "0x7Ef622CaA0516bEC19447625A9dC248ad156f034",
     "reader_v5_address": "0x7Ef622CaA0516bEC19447625A9dC248ad156f034",
     "reader_address": "0x7Ef622CaA0516bEC19447625A9dC248ad156f034",
+    "dao_vault_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
     "eth_oracle": "0xbb05666820137b3b1344fe6802830515c015dd4f",
     "eth_token": "0xfa53fd78b5176b4d772194511cc16c02c7f183f9",
     "usdc_token": "0x8b2c4fa78fba24e4cbb4b0ca7b06a29130317093",

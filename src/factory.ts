@@ -514,7 +514,7 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     priceSevenDayData.save()
 }
 
-function updateDaoBalance(name: string, token: string, balance: BigDecimal) {
+function updateDaoBalance(name: string, token: string, balance: BigDecimal): void {
     let id = token.concat('-').concat(DAO_VAULT_ADDRESS)
     let collateralBalance = CollateralBalance.load(id)
     if (collateralBalance == null) {
