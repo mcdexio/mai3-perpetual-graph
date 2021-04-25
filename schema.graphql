@@ -12,10 +12,8 @@ type Factory @entity {
     totalValueLockedUSD: BigDecimal!
 
     # total vault fee
-    vault: String!
     vaultFeeRate: BigDecimal!
     totalVaultFeeUSD: BigDecimal!
-    daoAssetUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
@@ -37,15 +35,6 @@ type User @entity {
     votes: [Vote!] @derivedFrom(field:"voter")
 }
 
-type Token @entity {
-    # token address
-    id: ID!
-    symbol: String!
-    name: String!
-    decimals: String!
-    totalSupply: BigDecimal!
-}
-
 type LiquidityPool @entity {
     # liquidityPool address
     id: ID!
@@ -57,7 +46,6 @@ type LiquidityPool @entity {
     operatorAddress: String!
     operatorExpiration: BigInt!
     collateralDecimals: BigInt!
-    vaultFee: BigDecimal!
     perpetuals: [Perpetual!]! @derivedFrom(field:"liquidityPool")
     perpetualIDs: [String!]
 
@@ -130,6 +118,15 @@ type ShareToken @entity {
     id: ID!
     liquidityPool: LiquidityPool!
     totalSupply: BigDecimal!
+}
+
+type CollateralBalance @entity {
+    # collateral address + '-' + account address
+    id: ID!
+    collateralName: String!
+    collateralAddress: String!
+    account: String!
+    balance: BigDecimal!
 }
 
 type LiquidityAccount @entity {
@@ -389,13 +386,6 @@ type McdexDayData @entity {
     timestamp: Int!
     totalValueLockedUSD: BigDecimal!
     totalVolumeUSD: BigDecimal!
-}
-
-type McdexDaoHourData @entity {
-    # timeindex
-    id: ID!
-    timestamp: Int!
-    capturedValueUSD: BigDecimal!   
 }
 
 # ====================== Voting ======================

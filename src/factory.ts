@@ -1,6 +1,6 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
 
 import { CreateLiquidityPool, CreateLiquidityPool1, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -23,12 +23,11 @@ import {
     ONE_BI,
     BI_18,
     PerpetualState,
-    isETHCollateral,
     convertToDecimal,
     fetchCollateralSymbol,
     ZERO_BI,
     FACTORY,
-    isUSDCollateral,
+    getTokenPrice,
     isCollateralAdded,
     OPERATOR_EXP,
 } from './utils'
@@ -40,7 +39,8 @@ import {
     READER_ADDRESS,
     READER_V4_BLOCK,
     READER_V5_BLOCK,
-    HANDLER_BLOCK
+    HANDLER_BLOCK,
+    DAO_VAULT_ADDRESS
 } from './const'
 
 import { updateMcdexTVLData } from './factoryData'
@@ -54,7 +54,6 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
-        factory.daoAssetUSD = ZERO_BD
         factory.vault = ''
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
@@ -82,16 +81,10 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
         factory.vaultFeeRate = ZERO_BD
-        factory.daoAssetUSD = ZERO_BD
         let contract = FactoryContract.bind(event.address)
         let result = contract.try_getVaultFeeRate()
         if (!result.reverted) {
             factory.vaultFeeRate = convertToDecimal(result.value, BI_18)
-        }
-        factory.vault = ''
-        let vaultResult = contract.try_getVault()
-        if (!vaultResult.reverted) {
-            factory.vault = vaultResult.value.toHexString()
         }
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
@@ -127,7 +120,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.collateralAddress = collateral
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
-    liquidityPool.vaultFee = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.lpExcessInsuranceFund = ZERO_BD
@@ -175,16 +167,10 @@ export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
         factory.totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
         factory.vaultFeeRate = ZERO_BD
-        factory.daoAssetUSD = ZERO_BD
         let contract = FactoryContract.bind(event.address)
         let result = contract.try_getVaultFeeRate()
         if (!result.reverted) {
             factory.vaultFeeRate = convertToDecimal(result.value, BI_18)
-        }
-        factory.vault = ''
-        let vaultResult = contract.try_getVault()
-        if (!vaultResult.reverted) {
-            factory.vault = vaultResult.value.toHexString()
         }
         factory.txCount = ZERO_BI
         factory.latestBlock = ZERO_BI
@@ -220,7 +206,6 @@ export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
     liquidityPool.collateralAddress = collateral
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
-    liquidityPool.vaultFee = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.lpExcessInsuranceFund = ZERO_BD
@@ -309,7 +294,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPools = factory.liquidityPools as string[]
         let totalValueLockedUSD = ZERO_BD
         factory.totalVaultFeeUSD = ZERO_BD
-        factory.daoAssetUSD = ZERO_BD
         let collateralMap = new TypedMap<String, boolean>()
         let reader_address = READER_ADDRESS
         if (block.number < BigInt.fromI32(READER_V4_BLOCK)) {
@@ -340,6 +324,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
             updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
 
+            // TODO consider using token transfer event to get collateral balance
             // update mcdex totalValueLocked
             let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
             let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
@@ -348,29 +333,19 @@ export function handleSyncPerpData(block: ethereum.Block): void {
                 balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
             }
 
-            if (isUSDCollateral(liquidityPool.collateralAddress)) {
-                totalValueLockedUSD += balance
-                factory.totalVaultFeeUSD += liquidityPool.vaultFee
-            } else if (isETHCollateral(liquidityPool.collateralAddress)) {
-                let ethPrice = bucket.ethPrice as BigDecimal
-                totalValueLockedUSD += balance.times(ethPrice)
-                factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(ethPrice)
-            }
+            let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+            totalValueLockedUSD += balance.times(tokenPrice)
+            factory.totalVaultFeeUSD += liquidityPool.vaultFee.times(tokenPrice)
 
             // mcdex dao asset
             if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
                 collateralMap.set(liquidityPool.collateralAddress, true)
-                let vaultResult = erc20Contract.try_balanceOf(Address.fromString(factory.vault))
+                let vaultResult = erc20Contract.try_balanceOf(Address.fromString(DAO_VAULT_ADDRESS))
                 let vaultBalance = ZERO_BD
                 if (!vaultResult.reverted) {
                     vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
                 }
-                if (isUSDCollateral(liquidityPool.collateralAddress)) {
-                    factory.daoAssetUSD += vaultBalance
-                } else if (isETHCollateral(liquidityPool.collateralAddress)) {
-                    let ethPrice = bucket.ethPrice as BigDecimal
-                    factory.daoAssetUSD += vaultBalance.times(ethPrice)
-                }
+                updateDaoBalance(liquidityPool.collateralName, liquidityPool.collateralAddress, vaultBalance)
             }
         }
 
@@ -537,4 +512,17 @@ function updatePriceData(oracle: String, timestamp: i32): void {
         }
     }
     priceSevenDayData.save()
+}
+
+function updateDaoBalance(name: string, token: string, balance: BigDecimal) {
+    let id = token.concat('-').concat(DAO_VAULT_ADDRESS)
+    let collateralBalance = CollateralBalance.load(id)
+    if (collateralBalance == null) {
+        collateralBalance = new CollateralBalance(id)
+        collateralBalance.collateralName = 
+        collateralBalance.collateralAddress = token
+        collateralBalance.account = DAO_VAULT_ADDRESS
+    }
+    collateralBalance.balance = balance
+    collateralBalance.save()
 }

@@ -4,7 +4,7 @@ import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount, VoteAc
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { ETHTokens, USDTokens } from './const'
+import { USDTokens, OracleMap } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -29,18 +29,9 @@ export enum LiquidityType {
   ADD, REMOVE
 }
 
-export function isUSDCollateral(collateral: string): boolean {
+export function isUSDToken(collateral: string): boolean {
   for (let i = 0; i < USDTokens.length; i++) {
     if (collateral == USDTokens[i]) {
-      return true
-    }
-  }
-  return false
-}
-
-export function isETHCollateral(collateral: string): boolean {
-  for (let i = 0; i < ETHTokens.length; i++) {
-    if (collateral == ETHTokens[i]) {
       return true
     }
   }
@@ -237,4 +228,22 @@ export function fetchOracleUnderlying(address: Address): string {
     underlying = result.value
   }
   return underlying
+}
+
+export function getTokenPrice(token: string): BigDecimal {
+  if (isUSDToken(token)) {
+    return ONE_BD
+  }
+  if (!OracleMap.isSet(token)) {
+    return ZERO_BD
+  }
+  let oracle = OracleMap.get(token)
+  let contract = OracleContract.bind(Address.fromString(oracle))
+  let callResult = contract.try_priceTWAPShort()
+  if(callResult.reverted){
+      log.warning("try_priceTWAPShort reverted. token: {} oracle: {}", [token, oracle as string])
+      return ZERO_BD
+  }
+
+  return convertToDecimal(callResult.value.value0, BI_18)
 }

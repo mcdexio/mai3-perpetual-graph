@@ -1,6 +1,6 @@
 import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { McdexHourData, McdexDayData, McdexDaoHourData} from '../generated/schema'
+import { McdexHourData, McdexDayData } from '../generated/schema'
 import { ZERO_BD } from "./utils"
 
 export function updateMcdexTradeVolumeData(volumeUSD: BigDecimal, blockTimestamp: BigInt):void {
@@ -59,21 +59,4 @@ export function updateMcdexTVLData(valueLockedUSD: BigDecimal, blockTimestamp: B
     }
     mcdexDayData.totalValueLockedUSD = valueLockedUSD
     mcdexDayData.save()
-}
-
-
-export function updateMcdexDaodata(valueUSD: BigDecimal, blockTimestamp: BigInt):void {
-    let timestamp = blockTimestamp.toI32()
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let hourID = BigInt.fromI32(hourIndex).toString()
-    let mcdexDaoHourData = McdexDaoHourData.load(hourID)
-    if (mcdexDaoHourData === null) {
-        mcdexDaoHourData = new McdexDaoHourData(hourID)
-        mcdexDaoHourData.timestamp = hourStartUnix
-        mcdexDaoHourData.capturedValueUSD = valueUSD
-    } else {
-        mcdexDaoHourData.capturedValueUSD += valueUSD
-    }
-    mcdexDaoHourData.save()
 }
