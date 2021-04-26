@@ -516,7 +516,7 @@ function updateDaoBalance(name: string, token: string, balance: BigDecimal): voi
     let collateralBalance = CollateralBalance.load(id)
     if (collateralBalance == null) {
         collateralBalance = new CollateralBalance(id)
-        collateralBalance.collateralName = 
+        collateralBalance.collateralName = name
         collateralBalance.collateralAddress = token
         collateralBalance.account = DAO_VAULT_ADDRESS
     }
