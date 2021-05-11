@@ -1,6 +1,6 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, PriceBucket, OraclePrice, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
 
 import { CreateLiquidityPool, CreateLiquidityPool1, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -383,6 +383,14 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     if (price == ZERO_BD) {
         return
     }
+
+    // save oracle index price
+    let oraclePrice = OraclePrice.load(oracle)
+    if (oraclePrice === null) {
+        oraclePrice = new OraclePrice(oracle)
+    }
+    oraclePrice.price = price
+    oraclePrice.save()
 
     // 15Min
     let minIndex = timestamp / 60

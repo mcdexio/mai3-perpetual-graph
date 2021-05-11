@@ -302,6 +302,12 @@ type PoolDayData @entity {
     timestamp: Int
 }
 
+type OraclePrice @entity {
+    # oracle address
+    id: ID!
+    price: BigDecimal!
+}
+
 type PriceMinData @entity {
     # oracle address + "-" + timeindex
     id: ID!
