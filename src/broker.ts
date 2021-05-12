@@ -13,6 +13,9 @@ import {
 
 export function handleTradeSuccess(event: TradeSuccessEvent): void {
     let liquidityPool = LiquidityPool.load(event.params.order.liquidityPool.toHexString())
+    if (liquidityPool === null) {
+        return
+    }
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.order.perpetualIndex)
     let trader = fetchUser(event.params.order.trader)
     let transactionHash = event.transaction.hash.toHexString()
