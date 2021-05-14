@@ -16,13 +16,18 @@ export const ETH_ORACLE = '{{eth_oracle}}'
 // blocknumber for blockHandler
 export const HANDLER_BLOCK = {{handler_block}}
 
-// !!!!!!!!!!!!!!  Notice Lower Case  !!!!!!!!!!!!!!
-// oracle map (token, oracle)
-export let OracleMap = new TypedMap<string, string>()
-OracleMap.set('{{eth_token}}', '{{eth_oracle}}')
-  
 // Notice lower case in config
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
     "{{usdc_token}}",
+]
+
+// !!!!!!!!!!!!!!  Notice Lower Case  !!!!!!!!!!!!!!
+// TokenList: tokens need to get price
+export let TokenList:string[] = [
+    "{{eth_token}}",
+]
+// OracleList: oracles of each token upper, Notice: index must same with its token
+export let OracleList:string[] = [
+    "{{eth_oracle}}",
 ]

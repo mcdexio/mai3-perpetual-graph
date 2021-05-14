@@ -363,11 +363,17 @@ type PriceSevenDayData @entity {
     timestamp: Int
 }
 
-type PriceBucket @entity {
+type TimeBucket @entity {
     id: ID!
-    ethPrice: BigDecimal
     timestamp: Int
     minTimestamp: Int
+}
+
+type PriceBucket @entity {
+    # token address
+    id: ID!
+    price: BigDecimal!
+    timestamp: Int!
 }
 
 type AccHourData @entity {
