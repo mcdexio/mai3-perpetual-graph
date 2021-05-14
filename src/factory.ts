@@ -1,6 +1,6 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, PriceBucket, OraclePrice, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
+import { Factory, LiquidityPool, Perpetual, TimeBucket, OraclePrice, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
 
 import { CreateLiquidityPool, CreateLiquidityPool1, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -30,10 +30,10 @@ import {
     getTokenPrice,
     isCollateralAdded,
     OPERATOR_EXP,
+    updateTokenPrice,
 } from './utils'
 
 import {
-    ETH_ORACLE,
     READER_V4_ADDRESS,
     READER_V5_ADDRESS,
     READER_ADDRESS,
@@ -59,9 +59,8 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.liquidityPools = []
         factory.perpetuals = []
 
-        // create price bucket for save eth price
-        let bucket = new PriceBucket('1')
-        bucket.ethPrice = ZERO_BD
+        // create bucket for save timestamp
+        let bucket = new TimeBucket('1')
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
         bucket.save()
@@ -91,9 +90,8 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.perpetuals = []
         factory.collaterals = []
 
-        // create price bucket for save eth price
-        let bucket = new PriceBucket('1')
-        bucket.ethPrice = ZERO_BD
+        // create bucket for save timestamp
+        let bucket = new TimeBucket('1')
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
         bucket.save()
@@ -177,9 +175,8 @@ export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
         factory.perpetuals = []
         factory.collaterals = []
 
-        // create price bucket for save eth price
-        let bucket = new PriceBucket('1')
-        bucket.ethPrice = ZERO_BD
+        // create bucket for save timestamp
+        let bucket = new TimeBucket('1')
         bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
         bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
         bucket.save()
@@ -246,28 +243,15 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let timestamp = block.timestamp.toI32()
     let hourIndex = timestamp / 3600
     let hourStartUnix = hourIndex * 3600
-    let bucket = PriceBucket.load('1')
+    let bucket = TimeBucket.load('1')
     if (bucket == null) {
         return 
     }
     let isFirstOfHourlyBucket = false
     if (bucket.timestamp != hourStartUnix) {
-        // update eth price
-        let ethOracle = Address.fromString(ETH_ORACLE)
-        let ethContract = OracleContract.bind(ethOracle)
-        let price = ZERO_BD
-
-        let callResult = ethContract.try_priceTWAPShort()
-        if(callResult.reverted){
-            log.warning("Get try_price reverted at block: {}", [block.number.toString()])
-            return
-        } else {
-            price = convertToDecimal(callResult.value.value0, BI_18)
-        }
-        if (price > ZERO_BD) {
-            bucket.ethPrice = price
-            bucket.timestamp = hourStartUnix
-        }
+        // update token price
+        updateTokenPrice(timestamp)
+        bucket.timestamp = hourStartUnix
         isFirstOfHourlyBucket = true
     } else {
         if (block.number < BigInt.fromI32(HANDLER_BLOCK)) {
@@ -279,7 +263,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         }
 
         bucket.minTimestamp = minStartUnix
-    } 
+    }
+    bucket.save()
 
     let factory = Factory.load(FACTORY)
     if (factory === null) {
@@ -350,7 +335,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         factory.totalValueLockedUSD = totalValueLockedUSD
     }
     /*=============================== hour datas end ==================================*/ 
-    bucket.save()
     factory.save()
 
     /*=============================== price minute datas  ==================================*/ 

@@ -9,11 +9,6 @@ export const DAO_VAULT_ADDRESS = '0x1605275a33b2ab2f00dc96e75190b3fe49272401'
 export const READER_V4_BLOCK = 23847386
 export const READER_V5_BLOCK = 23847386
 
-
-// oracle address for get price
-export const ETH_ORACLE = '0x2dcca2b995651158fe129ddd23d658410cea8254'
-
-
 // blocknumber for blockHandler
 export const HANDLER_BLOCK = 1008525
 
@@ -33,4 +28,13 @@ OracleMap.set('0xfa53fd78b5176b4d772194511cc16c02c7f183f9', '0xbb05666820137b3b1
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
     "0x8b2c4fa78fba24e4cbb4b0ca7b06a29130317093",
+]
+
+// TokenList: tokens need to get price
+export let TokenList:string[] = [
+    "0xfa53fd78b5176b4d772194511cc16c02c7f183f9",
+]
+// OracleList: oracles of each token upper, Notice: index must same with its token
+export let OracleList:string[] = [
+    "0xbb05666820137b3b1344fe6802830515c015dd4f",
 ]

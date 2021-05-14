@@ -1,10 +1,10 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { Perpetual, LiquidityPool, User, MarginAccount, LiquidityAccount, VoteAccount, Governor } from '../generated/schema'
+import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAccount, VoteAccount, Governor } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { USDTokens, OracleMap } from './const'
+import { USDTokens, TokenList, OracleList } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -230,20 +230,49 @@ export function fetchOracleUnderlying(address: Address): string {
   return underlying
 }
 
-export function getTokenPrice(token: string): BigDecimal {
-  if (isUSDToken(token)) {
-    return ONE_BD
-  }
-  if (!OracleMap.isSet(token)) {
-    return ZERO_BD
-  }
-  let oracle = OracleMap.get(token)
-  let contract = OracleContract.bind(Address.fromString(oracle as string))
+function getPriceFromOracle(oracle: string): BigDecimal {
+  let contract = OracleContract.bind(Address.fromString(oracle))
   let callResult = contract.try_priceTWAPShort()
   if(callResult.reverted){
-      log.warning("try_priceTWAPShort reverted. token: {} oracle: {}", [token, oracle as string])
+      log.warning("try_priceTWAPShort reverted. oracle: {}", [oracle])
       return ZERO_BD
   }
 
   return convertToDecimal(callResult.value.value0, BI_18)
+}
+
+export function updateTokenPrice(timestamp: i32): void {
+  // update token price every 10 min
+  let index = timestamp / 600
+  let startUnix = index * 600
+
+  for (let i = 0; i < TokenList.length; i++) {
+      let priceBucket = PriceBucket.load(TokenList[i])
+      if (priceBucket == null) {
+          priceBucket = new PriceBucket(TokenList[i])
+          priceBucket.price = getPriceFromOracle(OracleList[i])
+          priceBucket.timestamp = startUnix
+          priceBucket.save()
+          continue
+      }
+
+      if (priceBucket.timestamp != startUnix) {
+          let price = getPriceFromOracle(OracleList[i])
+          priceBucket.price = price
+          priceBucket.timestamp = startUnix
+          priceBucket.save()
+      }
+  }
+}
+
+export function getTokenPrice(token: string): BigDecimal {
+  if (isUSDToken(token)) {
+    return ONE_BD
+  }
+
+  let priceBucket = PriceBucket.load(token)
+  if (priceBucket == null) {
+    return ZERO_BD
+  }
+  return priceBucket.price
 }
