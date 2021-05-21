@@ -358,25 +358,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
 function updatePriceData(oracle: String, timestamp: i32): void {
     let price = ZERO_BD
-    let contract = OracleContract.bind(Address.fromString(oracle))
-    let callResult = contract.try_priceTWAPShort()
-    if (!callResult.reverted) {
-        price = convertToDecimal(callResult.value.value0, BI_18)
-    }
-
-    if (price == ZERO_BD) {
-        return
-    }
-
-    // save oracle index price
-    let oraclePrice = OraclePrice.load(oracle)
-    if (oraclePrice === null) {
-        oraclePrice = new OraclePrice(oracle)
-    }
-    oraclePrice.price = price
-    oraclePrice.save()
-
-    // 15Min
+    // 1Min
     let minIndex = timestamp / 60
     let minStartUnix = minIndex * 60
     let minPriceID = oracle
@@ -384,6 +366,24 @@ function updatePriceData(oracle: String, timestamp: i32): void {
     .concat(BigInt.fromI32(minIndex).toString())
     let priceMinData = PriceMinData.load(minPriceID)
     if (priceMinData === null) {
+        let contract = OracleContract.bind(Address.fromString(oracle))
+        let callResult = contract.try_priceTWAPShort()
+        if (!callResult.reverted) {
+            price = convertToDecimal(callResult.value.value0, BI_18)
+        }
+    
+        if (price == ZERO_BD) {
+            return
+        }
+    
+        // save oracle index price
+        let oraclePrice = OraclePrice.load(oracle)
+        if (oraclePrice === null) {
+            oraclePrice = new OraclePrice(oracle)
+        }
+        oraclePrice.price = price
+        oraclePrice.save()
+
         priceMinData = new PriceMinData(minPriceID)
         priceMinData.oracle = oracle
         priceMinData.open = price
@@ -391,15 +391,10 @@ function updatePriceData(oracle: String, timestamp: i32): void {
         priceMinData.high = price
         priceMinData.low = price
         priceMinData.timestamp = minStartUnix
+        priceMinData.save()
     } else {
-        priceMinData.close = price
-        if (priceMinData.high < price) {
-            priceMinData.high = price
-        } else if(priceMinData.low > price) {
-            priceMinData.low = price
-        }
+        return
     }
-    priceMinData.save()
 
     // 15Min
     let fifminIndex = timestamp / (60*15)
