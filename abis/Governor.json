@@ -130,61 +130,6 @@
         "internalType": "uint256",
         "name": "id",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "proposer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string[]",
-        "name": "signatures",
-        "type": "string[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes[]",
-        "name": "calldatas",
-        "type": "bytes[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "startBlock",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "endBlock",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "quorumVotes",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
-      }
-    ],
-    "name": "ProposalCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
       }
     ],
     "name": "ProposalExecuted",
@@ -337,19 +282,6 @@
   },
   {
     "inputs": [],
-    "name": "SIGNATURE_PERPETUAL_UPGRADE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "SIGNATURE_PERPETUAL_UPGRADE_AND_CALL",
     "outputs": [
       {
@@ -442,49 +374,6 @@
       }
     ],
     "name": "burn",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "method",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes",
-        "name": "callData",
-        "type": "bytes"
-      },
-      {
-        "internalType": "uint32",
-        "name": "nonce",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint32",
-        "name": "expiration",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint64",
-        "name": "gasLimit",
-        "type": "uint64"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      }
-    ],
-    "name": "callFunction",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -872,7 +761,7 @@
   },
   {
     "inputs": [],
-    "name": "lastTimeRewardApplicable",
+    "name": "lastBlockRewardApplicable",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1093,30 +982,6 @@
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "targetVersionKey",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
-      }
-    ],
-    "name": "proposeToUpgrade",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "proposalId",
         "type": "uint256"
       }
     ],

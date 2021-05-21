@@ -101,55 +101,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "liquidityPool",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "governor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shareToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "collateral",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "collateralDecimals",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isFastCreationEnabled",
-        "type": "bool"
-      }
-    ],
-    "name": "CreateLiquidityPool",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "grantor",
@@ -213,6 +164,44 @@
       }
     ],
     "name": "RevokePrivilege",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousRewardDistributor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newRewardDistributor",
+        "type": "address"
+      }
+    ],
+    "name": "SetRewardDistributor",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousVault",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newVault",
+        "type": "address"
+      }
+    ],
+    "name": "SetVault",
     "type": "event"
   },
   {
@@ -553,19 +542,6 @@
   },
   {
     "inputs": [],
-    "name": "getTimelock",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getVault",
     "outputs": [
       {
@@ -620,19 +596,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getWeth",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -654,11 +617,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wethToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "symbolService",
         "type": "address"
       },
@@ -671,6 +629,11 @@
         "internalType": "int256",
         "name": "globalVaultFeeRate",
         "type": "int256"
+      },
+      {
+        "internalType": "address",
+        "name": "distributor",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -930,6 +893,24 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "liquidityPool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "registerOperatorOfLiquidityPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
@@ -955,19 +936,40 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "rewardDistributor",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "liquidityPool",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "operator",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "setLiquidityPoolOwnership",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newRewardDistributor",
+        "type": "address"
+      }
+    ],
+    "name": "setRewardDistributor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newVault",
+        "type": "address"
+      }
+    ],
+    "name": "setVault",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -999,6 +1001,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "upgradeAdmin",
+    "outputs": [
+      {
+        "internalType": "contract IProxyAdmin",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -1016,22 +1031,9 @@
         "type": "bytes"
       }
     ],
-    "name": "updateToAndCall",
+    "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "upgradeAdmin",
-    "outputs": [
-      {
-        "internalType": "contract IProxyAdmin",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]

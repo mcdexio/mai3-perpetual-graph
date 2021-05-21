@@ -17,8 +17,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Factory
-        - Token
-        - LiquidityPool
       abis:
         - name: Factory
           file: ./abis/Factory.json
@@ -28,41 +26,6 @@ dataSources:
           file: ./abis/ERC20.json
         - name: Reader
           file: ./abis/Reader.json
-        - name: ReaderV004
-          file: ./abis/ReaderV004.json
-      eventHandlers:
-        - event: CreateLiquidityPool(address,address,address,address,address,uint256,bool)
-          handler: handleCreateLiquidityPool1
-        - event: SetVaultFeeRate(int256,int256)
-          handler: handleSetVaultFeeRate
-      blockHandlers:
-        - handler: handleSyncPerpData
-      file: ./src/factory.ts
-
-  - kind: ethereum/contract
-    name: NewFactory
-    network: {{network}}
-    source:
-      address: '{{new_factory_address}}'
-      abi: Factory
-      startBlock: {{new_factory_start_block}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - Factory
-      abis:
-        - name: Factory
-          file: ./abis/Factory.json
-        - name: Oracle
-          file: ./abis/Oracle.json
-        - name: ERC20
-          file: ./abis/ERC20.json
-        - name: Reader
-          file: ./abis/Reader.json
-        - name: ReaderV004
-          file: ./abis/ReaderV004.json
       eventHandlers:
         - event: CreateLiquidityPool(bytes32,indexed address,indexed address,indexed address,address,address,uint256,bytes)
           handler: handleCreateLiquidityPool
@@ -139,12 +102,6 @@ templates:
       eventHandlers:
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[8])
           handler: handleCreatePerpetual
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[7])
-          handler: handleCreatePerpetualV006
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[10],int256[7])
-          handler: handleCreatePerpetualV005
-        - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[6])
-          handler: handleCreatePerpetualV004
         - event: RunLiquidityPool()
           handler: handleRunLiquidityPool
         - event: SetNormalState(uint256)

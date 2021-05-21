@@ -1,13 +1,6 @@
 
-import { TypedMap } from '@graphprotocol/graph-ts'
-
 export const READER_ADDRESS = '{{reader_address}}'
-export const READER_V4_ADDRESS = '{{reader_v4_address}}'
-export const READER_V5_ADDRESS = '{{reader_v5_address}}'
 export const DAO_VAULT_ADDRESS = '{{dao_vault_address}}'
-
-export const READER_V4_BLOCK = {{reader_v4_block}}
-export const READER_V5_BLOCK = {{reader_v5_block}}
 
 
 // oracle address for get price

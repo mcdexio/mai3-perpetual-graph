@@ -4,9 +4,6 @@ import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, Us
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
-    CreatePerpetual1 as CreatePerpetualV006Event,
-    CreatePerpetual2 as CreatePerpetualV004Event,
-    CreatePerpetual3 as CreatePerpetualV005Event,
     RunLiquidityPool as RunLiquidityPoolEvent,
     SetNormalState as SetNormalStateEvent,
     SetEmergencyState as SetEmergencyStateEvent,
@@ -52,60 +49,6 @@ import {
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let factory = Factory.load(liquidityPool.factory)
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
-    perp.oracleAddress = event.params.oracle.toHexString()
-    perp.operatorAddress = event.params.operator.toHexString()
-    perp.underlying = fetchOracleUnderlying(event.params.oracle)
-    perp.createdAtTimestamp = event.block.timestamp
-    perp.createdAtBlockNumber = event.block.number
-    perp.save()
-
-    factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    let perpetuals = factory.perpetuals
-    perpetuals.push(perp.id)
-    factory.perpetuals = perpetuals
-    factory.save()
-}
-
-export function handleCreatePerpetualV004(event: CreatePerpetualV004Event): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let factory = Factory.load(liquidityPool.factory)
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
-    perp.oracleAddress = event.params.oracle.toHexString()
-    perp.operatorAddress = event.params.operator.toHexString()
-    perp.underlying = fetchOracleUnderlying(event.params.oracle)
-    perp.createdAtTimestamp = event.block.timestamp
-    perp.createdAtBlockNumber = event.block.number
-    perp.save()
-
-    factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    let perpetuals = factory.perpetuals
-    perpetuals.push(perp.id)
-    factory.perpetuals = perpetuals
-    factory.save()
-}
-
-export function handleCreatePerpetualV005(event: CreatePerpetualV005Event): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let factory = Factory.load(liquidityPool.factory)
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
-    perp.oracleAddress = event.params.oracle.toHexString()
-    perp.operatorAddress = event.params.operator.toHexString()
-    perp.underlying = fetchOracleUnderlying(event.params.oracle)
-    perp.createdAtTimestamp = event.block.timestamp
-    perp.createdAtBlockNumber = event.block.number
-    perp.save()
-
-    factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    let perpetuals = factory.perpetuals
-    perpetuals.push(perp.id)
-    factory.perpetuals = perpetuals
-    factory.save()
-}
-
-export function handleCreatePerpetualV006(event: CreatePerpetualV006Event): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let factory = Factory.load(liquidityPool.factory)
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
