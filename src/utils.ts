@@ -242,9 +242,9 @@ function getPriceFromOracle(oracle: string): BigDecimal {
 }
 
 export function updateTokenPrice(timestamp: i32): void {
-  // update token price every 10 min
-  let index = timestamp / 600
-  let startUnix = index * 600
+  // update token price every hour
+  let index = timestamp / 3600
+  let startUnix = index * 3600
 
   for (let i = 0; i < TokenList.length; i++) {
       let priceBucket = PriceBucket.load(TokenList[i])
