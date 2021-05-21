@@ -30,25 +30,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "claimer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "amount",
-        "type": "int256"
-      }
-    ],
-    "name": "ClaimFee",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "newOperator",
         "type": "address"
       }
@@ -140,171 +121,6 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "governor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shareToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oracle",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "collateral",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[9]",
-        "name": "baseParams",
-        "type": "int256[9]"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[7]",
-        "name": "riskParams",
-        "type": "int256[7]"
-      }
-    ],
-    "name": "CreatePerpetual",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "governor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shareToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oracle",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "collateral",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[9]",
-        "name": "coreParams",
-        "type": "int256[9]"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[6]",
-        "name": "riskParams",
-        "type": "int256[6]"
-      }
-    ],
-    "name": "CreatePerpetual",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "governor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "shareToken",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "operator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oracle",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "collateral",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[10]",
-        "name": "coreParams",
-        "type": "int256[10]"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256[7]",
-        "name": "riskParams",
-        "type": "int256[7]"
-      }
-    ],
-    "name": "CreatePerpetual",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "perpetualIndex",
-        "type": "uint256"
-      },
-      {
         "indexed": true,
         "internalType": "address",
         "name": "trader",
@@ -331,25 +147,6 @@
       }
     ],
     "name": "DonateInsuranceFund",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "amount",
-        "type": "int256"
-      }
-    ],
-    "name": "IncreaseFee",
     "type": "event"
   },
   {
@@ -493,16 +290,29 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousKeeper",
+        "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newKeeper",
+        "type": "address"
+      }
+    ],
+    "name": "SetKeeper",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
-        "internalType": "int256",
+        "internalType": "int256[2]",
         "name": "value",
-        "type": "int256"
+        "type": "int256[2]"
       }
     ],
     "name": "SetLiquidityPoolParameter",
@@ -519,6 +329,25 @@
       }
     ],
     "name": "SetNormalState",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldOralce",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOracle",
+        "type": "address"
+      }
+    ],
+    "name": "SetOracle",
     "type": "event"
   },
   {
@@ -551,24 +380,43 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
         "indexed": false,
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "minRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
         "indexed": false,
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "maxRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       }
     ],
     "name": "SetPerpetualRiskParameter",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "targetLeverage",
+        "type": "int256"
+      }
+    ],
+    "name": "SetTargetLeverage",
     "type": "event"
   },
   {
@@ -643,6 +491,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
+      }
+    ],
+    "name": "TransferExcessInsuranceFundToLP",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "operator",
@@ -656,6 +517,37 @@
       }
     ],
     "name": "TransferFeeToOperator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "referralRebate",
+        "type": "int256"
+      }
+    ],
+    "name": "TransferFeeToReferrer",
     "type": "event"
   },
   {
@@ -682,9 +574,9 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[8]"
       }
     ],
     "name": "UpdatePerpetualRiskParameter",
@@ -748,19 +640,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "amount",
-        "type": "int256"
-      }
-    ],
-    "name": "transferExcessInsuranceFundToLP",
-    "type": "event"
-  },
-  {
     "inputs": [
       {
         "internalType": "int256",
@@ -770,7 +649,7 @@
     ],
     "name": "addLiquidity",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -837,19 +716,19 @@
         "type": "int256[9]"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "minRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "maxRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       }
     ],
     "name": "createPerpetual",
@@ -877,7 +756,7 @@
     ],
     "name": "deposit",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -890,20 +769,7 @@
     ],
     "name": "donateInsuranceFund",
     "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "int256",
-        "name": "cashToAdd",
-        "type": "int256"
-      }
-    ],
-    "name": "donateLiquidity",
-    "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1061,6 +927,11 @@
         "internalType": "bool",
         "name": "isMarginSafe",
         "type": "bool"
+      },
+      {
+        "internalType": "int256",
+        "name": "targetLeverage",
+        "type": "int256"
       }
     ],
     "stateMutability": "view",
@@ -1087,9 +958,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256[36]",
+        "internalType": "int256[39]",
         "name": "nums",
-        "type": "int256[36]"
+        "type": "int256[39]"
       }
     ],
     "stateMutability": "view",
@@ -1106,7 +977,7 @@
       },
       {
         "internalType": "bool",
-        "name": "isSafe",
+        "name": "isAMMSafe",
         "type": "bool"
       }
     ],
@@ -1373,6 +1244,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "newKeeper",
+        "type": "address"
+      }
+    ],
+    "name": "setKeeper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "int256[2]",
         "name": "params",
         "type": "int256[2]"
@@ -1427,22 +1311,45 @@
         "type": "uint256"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "minRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "maxRiskParamValues",
-        "type": "int256[7]"
+        "type": "int256[8]"
       }
     ],
     "name": "setPerpetualRiskParameter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "targetLeverage",
+        "type": "int256"
+      }
+    ],
+    "name": "setTargetLeverage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1535,9 +1442,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "int256[7]",
+        "internalType": "int256[8]",
         "name": "riskParams",
-        "type": "int256[7]"
+        "type": "int256[8]"
       }
     ],
     "name": "updatePerpetualRiskParameter",
@@ -1567,5 +1474,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
