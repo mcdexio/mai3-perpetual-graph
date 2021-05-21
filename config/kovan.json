@@ -1,15 +1,19 @@
 {
     "network": "kovan",
     "factory_address": "0xF55cF7BbaF548115DCea6DF10c57DF7c7eD88b9b",
+    "new_factory_address": "0x0956a627788199bE312c9a1f2d8cBA70ec30fCb5",
     "symbol_address": "0x0A701c621210859eAbE2F47BE37456BEc2427462",
-    "broker_address": "0x243d3bB879779911a5299592d38e84E54B83fd19",
-    "old_reader_address": "0x1605275a33b2ab2f00dc96e75190b3fe49272401",
-    "reader_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
-    "dao_vault_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
+    "broker_address": "0xE852039e483F6E9aDbb0408a7d970d4cf5Ec879b",
+    "reader_v4_address": "0x1605275a33b2ab2f00dc96e75190b3fe49272401",
+    "reader_v5_address": "0x45b7dCcC99D111450e37cb13F5327c4AbC27E285",
+    "reader_address": "0x9ba69c0ef49AC2735Db933e450C0aaAA7B9E8C53",
     "eth_oracle": "0x84F9B276de73c6766aB714f095C93ef2aeE0952E",
     "eth_token": "0x025435acd9a326fa25b4098887b38dd2cedf6422",
     "usdc_token": "0xd4ac81d9fd2b28363ebd1d88a8364ff3b3577e84",
+    "dao_vault_address": "0x622D6efCACFe096b0d3f678f82Af5B730a7F434c",
     "start_block": 23370949,
-    "handler_block": 23816007,
-    "new_reader_block": 23847386
+    "new_factory_start_block": 24195648,
+    "handler_block": 24806000,
+    "reader_v4_block": 23848799,
+    "reader_v5_block": 24195783
 }

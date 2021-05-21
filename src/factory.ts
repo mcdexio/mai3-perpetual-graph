@@ -29,6 +29,7 @@ import {
     FACTORY,
     getTokenPrice,
     isCollateralAdded,
+    isBlackPool,
     OPERATOR_EXP,
     updateTokenPrice,
 } from './utils'
@@ -70,6 +71,9 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
 }
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
+    if (isBlackPool(event.params.liquidityPool.toHexString())) {
+        return
+    }
     let factory = Factory.load(FACTORY)
     if (factory === null) {
         factory = new Factory(FACTORY)
@@ -155,6 +159,9 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 
 // for old created pools, will be deleted 
 export function handleCreateLiquidityPool1(event: CreateLiquidityPool1): void {
+    if (isBlackPool(event.params.liquidityPool.toHexString())) {
+        return
+    }
     let factory = Factory.load(FACTORY)
     if (factory === null) {
         factory = new Factory(FACTORY)
