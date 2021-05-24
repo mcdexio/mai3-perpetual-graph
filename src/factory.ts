@@ -32,7 +32,6 @@ import {
 
 import {
     READER_ADDRESS,
-    HANDLER_BLOCK,
     DAO_VAULT_ADDRESS
 } from './const'
 
