@@ -1,9 +1,8 @@
 import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, TimeBucket, OraclePrice, PriceMinData, Price15MinData, PriceHourData, PriceDayData, PriceSevenDayData, ShareToken, Governor, CollateralBalance } from '../generated/schema'
+import { Factory, LiquidityPool, ShareToken, Governor, CollateralBalance } from '../generated/schema'
 
 import { CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
-import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { Reader as ReaderContract } from '../generated/Factory/Reader'
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 
@@ -21,7 +20,6 @@ import {
     ZERO_BD,
     ONE_BI,
     BI_18,
-    PerpetualState,
     convertToDecimal,
     fetchCollateralSymbol,
     ZERO_BI,
@@ -53,12 +51,7 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
         factory.perpetuals = []
-
-        // create bucket for save timestamp
-        let bucket = new TimeBucket('1')
-        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
-        bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
-        bucket.save()
+        factory.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
     }
     factory.vaultFeeRate = convertToDecimal(event.params.newFeeRate, BI_18)
     factory.save()
@@ -84,12 +77,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.liquidityPools = []
         factory.perpetuals = []
         factory.collaterals = []
-
-        // create bucket for save timestamp
-        let bucket = new TimeBucket('1')
-        bucket.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
-        bucket.minTimestamp = event.block.timestamp.toI32()  / 60 * 60
-        bucket.save()
+        factory.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
     let liquidityPools = factory.liquidityPools
@@ -149,250 +137,72 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 }
 
 export function handleSyncPerpData(block: ethereum.Block): void {
-    // update per hour for efficiency
-    let timestamp = block.timestamp.toI32()
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let bucket = TimeBucket.load('1')
-    if (bucket == null) {
-        return 
-    }
-    let isFirstOfHourlyBucket = false
-    if (bucket.timestamp != hourStartUnix) {
-        // update token price
-        updateTokenPrice(timestamp)
-        bucket.timestamp = hourStartUnix
-        isFirstOfHourlyBucket = true
-    } else {
-        if (block.number < BigInt.fromI32(HANDLER_BLOCK)) {
-            return
-        }
-        let minStartUnix = (timestamp / 60) * 60
-        if (bucket.minTimestamp == minStartUnix) {
-            return
-        }
-
-        bucket.minTimestamp = minStartUnix
-    }
-    bucket.save()
-
     let factory = Factory.load(FACTORY)
     if (factory === null) {
         return
     }
+
+    // update token price and pool margin every hour
+    let timestamp = block.timestamp.toI32()
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
+    if (factory.timestamp == hourStartUnix) {
+        return
+    } 
+    factory.timestamp = hourStartUnix
     factory.latestBlock = block.number
 
     /*=============================== hour datas begin ==================================*/ 
-    if (isFirstOfHourlyBucket) {
-        // update liquity pool's liquidity amount in USD
-        let liquidityPools = factory.liquidityPools as string[]
-        let totalValueLockedUSD = ZERO_BD
-        let collateralMap = new TypedMap<String, boolean>()
-        let reader_address = READER_ADDRESS
-        for (let index = 0; index < liquidityPools.length; index++) {
-            let poolIndex = liquidityPools[index]
-            let liquidityPool = LiquidityPool.load(poolIndex)
-            // update poolMargin
-            let poolMargin = ZERO_BD
-            
-            let contract = ReaderContract.bind(Address.fromString(reader_address))
-            let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
-            if (!callResult.reverted) {
-                poolMargin = convertToDecimal(callResult.value.value1, BI_18)
-            }
-
-            updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
-            updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
-
-            // TODO consider using token transfer event to get collateral balance
-            // update mcdex totalValueLocked
-            let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
-            let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
-            let balance = ZERO_BD
-            if (!erc20Result.reverted) {
-                balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
-            }
-
-            let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
-            totalValueLockedUSD += balance.times(tokenPrice)
-
-            // mcdex dao asset
-            if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
-                collateralMap.set(liquidityPool.collateralAddress, true)
-                let vaultResult = erc20Contract.try_balanceOf(Address.fromString(DAO_VAULT_ADDRESS))
-                let vaultBalance = ZERO_BD
-                if (!vaultResult.reverted) {
-                    vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
-                }
-                updateDaoBalance(liquidityPool.collateralName, liquidityPool.collateralAddress, vaultBalance)
-            }
+    // update token price
+    updateTokenPrice(timestamp)
+    // update liquity pool's liquidity amount in USD
+    let liquidityPools = factory.liquidityPools as string[]
+    let totalValueLockedUSD = ZERO_BD
+    let collateralMap = new TypedMap<String, boolean>()
+    let reader_address = READER_ADDRESS
+    for (let index = 0; index < liquidityPools.length; index++) {
+        let poolIndex = liquidityPools[index]
+        let liquidityPool = LiquidityPool.load(poolIndex)
+        // update poolMargin
+        let poolMargin = ZERO_BD
+        
+        let contract = ReaderContract.bind(Address.fromString(reader_address))
+        let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
+        if (!callResult.reverted) {
+            poolMargin = convertToDecimal(callResult.value.value1, BI_18)
         }
 
-        updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
-        factory.totalValueLockedUSD = totalValueLockedUSD
+        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+
+        // TODO consider using token transfer event to get collateral balance
+        // update mcdex totalValueLocked
+        let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
+        let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
+        let balance = ZERO_BD
+        if (!erc20Result.reverted) {
+            balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
+        }
+
+        let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+        totalValueLockedUSD += balance.times(tokenPrice)
+
+        // mcdex dao asset
+        if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
+            collateralMap.set(liquidityPool.collateralAddress, true)
+            let vaultResult = erc20Contract.try_balanceOf(Address.fromString(DAO_VAULT_ADDRESS))
+            let vaultBalance = ZERO_BD
+            if (!vaultResult.reverted) {
+                vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
+            }
+            updateDaoBalance(liquidityPool.collateralName, liquidityPool.collateralAddress, vaultBalance)
+        }
     }
+
+    updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
+    factory.totalValueLockedUSD = totalValueLockedUSD
     /*=============================== hour datas end ==================================*/ 
     factory.save()
-
-    /*=============================== price minute datas  ==================================*/ 
-    // update perpetual's oracle price data
-    let perpetuals = factory.perpetuals as string[]
-    let oracleMap = new TypedMap<String, boolean>()
-    for (let index = 0; index < perpetuals.length; index++) {
-        let perpIndex = perpetuals[index]
-        let perp = Perpetual.load(perpIndex)
-        if (perp.state != PerpetualState.NORMAL) {
-            continue
-        }
-        // perp price
-        if (!oracleMap.isSet(perp.oracleAddress)) {
-            oracleMap.set(perp.oracleAddress, true)
-            updatePriceData(perp.oracleAddress, timestamp)
-        }
-    }
-    /*=============================== price minute datas end ==================================*/ 
-}
-
-function updatePriceData(oracle: String, timestamp: i32): void {
-    let price = ZERO_BD
-    // 1Min
-    let minIndex = timestamp / 60
-    let minStartUnix = minIndex * 60
-    let minPriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(minIndex).toString())
-    let priceMinData = PriceMinData.load(minPriceID)
-    if (priceMinData === null) {
-        let contract = OracleContract.bind(Address.fromString(oracle))
-        let callResult = contract.try_priceTWAPShort()
-        if (!callResult.reverted) {
-            price = convertToDecimal(callResult.value.value0, BI_18)
-        }
-    
-        if (price == ZERO_BD) {
-            return
-        }
-    
-        // save oracle index price
-        let oraclePrice = OraclePrice.load(oracle)
-        if (oraclePrice === null) {
-            oraclePrice = new OraclePrice(oracle)
-        }
-        oraclePrice.price = price
-        oraclePrice.save()
-
-        priceMinData = new PriceMinData(minPriceID)
-        priceMinData.oracle = oracle
-        priceMinData.open = price
-        priceMinData.close = price
-        priceMinData.high = price
-        priceMinData.low = price
-        priceMinData.timestamp = minStartUnix
-        priceMinData.save()
-    } else {
-        return
-    }
-
-    // 15Min
-    let fifminIndex = timestamp / (60*15)
-    let fifminStartUnix = fifminIndex * (60*15)
-    let fifminPriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(fifminIndex).toString())
-    let price15MinData = Price15MinData.load(fifminPriceID)
-    if (price15MinData === null) {
-
-        price15MinData = new Price15MinData(fifminPriceID)
-        price15MinData.oracle = oracle
-        price15MinData.open = price
-        price15MinData.close = price
-        price15MinData.high = price
-        price15MinData.low = price
-        price15MinData.timestamp = fifminStartUnix
-    } else {
-        price15MinData.close = price
-        if (price15MinData.high < price) {
-            price15MinData.high = price
-        } else if(price15MinData.low > price) {
-            price15MinData.low = price
-        }
-    }
-    price15MinData.save()
-
-    // hour
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let hourPriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(hourIndex).toString())
-    let priceHourData = PriceHourData.load(hourPriceID)
-    if (priceHourData === null) {
-        priceHourData = new PriceHourData(hourPriceID)
-        priceHourData.oracle = oracle
-        priceHourData.open = price
-        priceHourData.close = price
-        priceHourData.high = price
-        priceHourData.low = price
-        priceHourData.timestamp = hourStartUnix
-    } else {
-        priceHourData.close = price
-        if (priceHourData.high < price) {
-            priceHourData.high = price
-        } else if(priceHourData.low > price) {
-            priceHourData.low = price
-        }
-    }
-    priceHourData.save()
-
-    // day
-    let dayIndex = timestamp / (3600*24)
-    let dayStartUnix = dayIndex * (3600*24)
-    let dayPriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(dayIndex).toString())
-    let priceDayData = PriceDayData.load(dayPriceID)
-    if (priceDayData === null) {
-        priceDayData = new PriceDayData(dayPriceID)
-        priceDayData.oracle = oracle
-        priceDayData.open = price
-        priceDayData.close = price
-        priceDayData.high = price
-        priceDayData.low = price
-        priceDayData.timestamp = dayStartUnix
-    } else {
-        priceDayData.close = price
-        if (priceDayData.high < price) {
-            priceDayData.high = price
-        } else if(priceDayData.low > price) {
-            priceDayData.low = price
-        }
-    }
-    priceDayData.save()
-
-    // seven day
-    let sevenDayIndex = timestamp / (3600*24*7)
-    let sevenDayStartUnix = sevenDayIndex * (3600*24*7)
-    let sevenDayPriceID = oracle
-    .concat('-')
-    .concat(BigInt.fromI32(sevenDayIndex).toString())
-    let priceSevenDayData = PriceSevenDayData.load(sevenDayPriceID)
-    if (priceSevenDayData === null) {
-        priceSevenDayData = new PriceSevenDayData(sevenDayPriceID)
-        priceSevenDayData.oracle = oracle
-        priceSevenDayData.open = price
-        priceSevenDayData.close = price
-        priceSevenDayData.high = price
-        priceSevenDayData.low = price
-        priceSevenDayData.timestamp = sevenDayStartUnix
-    } else {
-        priceSevenDayData.close = price
-        if (priceSevenDayData.high < price) {
-            priceSevenDayData.high = price
-        } else if(priceSevenDayData.low > price) {
-            priceSevenDayData.low = price
-        }
-    }
-    priceSevenDayData.save()
 }
 
 function updateDaoBalance(name: string, token: string, balance: BigDecimal): void {

@@ -23,6 +23,8 @@ type Factory @entity {
     # transactions
     txCount: BigInt!
 
+    timestamp: Int!
+
     latestBlock: BigInt!
 }
 
@@ -300,73 +302,6 @@ type PoolDayData @entity {
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
     timestamp: Int
-}
-
-type OraclePrice @entity {
-    # oracle address
-    id: ID!
-    price: BigDecimal!
-}
-
-type PriceMinData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    timestamp: Int
-}
-
-type Price15MinData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    timestamp: Int
-}
-
-type PriceHourData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    timestamp: Int
-}
-
-type PriceDayData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    timestamp: Int
-}
-
-type PriceSevenDayData @entity {
-    # oracle address + "-" + timeindex
-    id: ID!
-    oracle: String!
-    open: BigDecimal!
-    close: BigDecimal!
-    low: BigDecimal!
-    high: BigDecimal!
-    timestamp: Int
-}
-
-type TimeBucket @entity {
-    id: ID!
-    timestamp: Int
-    minTimestamp: Int
 }
 
 type PriceBucket @entity {
