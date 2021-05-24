@@ -2,10 +2,6 @@
 export const READER_ADDRESS = '0x3563cb8eDEB55f12861a3c194143874b05b1aB9e'
 export const DAO_VAULT_ADDRESS = '0x1605275a33b2ab2f00dc96e75190b3fe49272401'
 
-
-// blocknumber for blockHandler
-export const HANDLER_BLOCK = 1008525
-
 // Notice lower case in config
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens:string[] = [
