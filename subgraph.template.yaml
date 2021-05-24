@@ -128,7 +128,7 @@ templates:
           handler: handleUpdatePoolMargin
         - event: UpdateUnitAccumulativeFunding(uint256,int256)
           handler: handleUpdateUnitAccumulativeFunding
-        - event: transferExcessInsuranceFundToLP(int256)
+        - event: TransferExcessInsuranceFundToLP(int256)
           handler: handleTransferExcessInsuranceFundToLP
         - event: Settle(uint256,indexed address,int256)
           handler: handleSettle
@@ -172,8 +172,6 @@ templates:
       eventHandlers:
         - event: ProposalCreated(uint256,address,address,string[],bytes[],uint256,uint256,uint256,string)
           handler: handleProposalCreated
-        - event: ProposalCreated(uint256,address,string[],bytes[],uint256,uint256,uint256,string)
-          handler: handleProposalCreated1
         - event: ProposalExecuted(uint256)
           handler: handleProposalExecuted
         - event: VoteCast(address,uint256,bool,uint256)

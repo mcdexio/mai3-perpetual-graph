@@ -15,7 +15,7 @@ import {
     Trade as TradeEvent,
     Liquidate as LiquidateEvent,
     UpdatePoolMargin as UpdatePoolMarginEvent,
-    transferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
+    TransferExcessInsuranceFundToLP as TransferExcessInsuranceFundToLPEvent,
     UpdateUnitAccumulativeFunding as UpdateUnitAccumulativeFundingEvent,
     Settle as SettleEvent,
     ClaimOperator as ClaimOperatorEvent,
