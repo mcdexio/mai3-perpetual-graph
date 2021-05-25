@@ -236,7 +236,6 @@ type MatchOrderFailed @entity {
     trader: User!
     amount: BigDecimal!
     type: Int!
-    gas: BigDecimal!
     transactionHash: String!
     blockNumber: BigInt!
     timestamp: BigInt!
