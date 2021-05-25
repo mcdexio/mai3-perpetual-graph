@@ -52,12 +52,11 @@ export function handleTradeFailed(event: TradeFailedEvent): void {
         .concat(event.logIndex.toString())
     )
     order.perpetual = perp.id
-    order.reason = event.params.reason.toHexString()
+    order.reason = event.params.reason
     order.trader = trader.id
     order.orderHash = event.params.orderHash.toHexString()
     order.amount = convertToDecimal(event.params.amount, BI_18)
     order.type = 1
-    order.gas = convertToDecimal(event.params.gasReward, BI_18)
     order.transactionHash = transactionHash
     order.blockNumber = event.block.number
     order.timestamp = event.block.timestamp
