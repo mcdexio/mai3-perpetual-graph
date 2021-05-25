@@ -74,6 +74,8 @@ dataSources:
       eventHandlers:
         - event: TradeSuccess(bytes32,(address,address,address,address,address,int256,int256,int256,int256,uint256,uint64,uint32,uint32,uint32,uint32),int256,uint256)
           handler: handleTradeSuccess
+        - event: TradeFailed(bytes32,(address,address,address,address,address,int256,int256,int256,int256,uint256,uint64,uint32,uint32,uint32,uint32),int256,string)
+          handler: handleTradeFailed
       file: ./src/broker.ts
 templates:
   - kind: ethereum/contract
@@ -136,6 +138,8 @@ templates:
           handler: handleClaimOperator
         - event: OperatorCheckIn(indexed address)
           handler: handleOperatorCheckIn
+        - event: UpdatePrice(uint256,indexed address,int256,uint256,int256,uint256)
+          handler: handleUpdatePrice
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken

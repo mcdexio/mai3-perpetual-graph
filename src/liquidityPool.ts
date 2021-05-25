@@ -20,11 +20,11 @@ import {
     Settle as SettleEvent,
     ClaimOperator as ClaimOperatorEvent,
     OperatorCheckIn as OperatorCheckInEvent,
+    UpdatePrice as UpdatePriceEvent
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
 import { updateMcdexTradeVolumeData } from './factoryData'
-import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 
 import {
     ZERO_BD,
@@ -212,6 +212,16 @@ export function updateOpenInterest(oldPosition: BigDecimal, newPosition: BigDeci
     return deltaPosition
 }
 
+export function handleUpdatePrice(event: UpdatePriceEvent): void {
+    let id = event.address.toHexString()
+        .concat('-')
+        .concat(event.params.perpetualIndex.toString())
+    let perp = Perpetual.load(id)
+    perp.beforeLastMarkPrice = perp.lastMarkPrice
+    perp.lastMarkPrice = convertToDecimal(event.params.markPrice, BI_18)
+    perp.save()
+}
+
 export function handleTrade(event: TradeEvent): void {
     let factory = Factory.load(FACTORY)
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
@@ -219,12 +229,6 @@ export function handleTrade(event: TradeEvent): void {
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
-    let contract = OracleContract.bind(Address.fromString(perp.oracleAddress))
-    let callResult = contract.try_priceTWAPLong()
-    let markPrice = ZERO_BD
-    if (!callResult.reverted) {
-        markPrice = convertToDecimal(callResult.value.value0, BI_18)
-    }
 
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
@@ -236,19 +240,14 @@ export function handleTrade(event: TradeEvent): void {
     perp.lpFee += lpFee
     perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
     perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
-    if (markPrice != ZERO_BD) {
-        perp.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
-    }
-    newTrade(perp as Perpetual, trader, account, position, price, markPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
+    newTrade(perp as Perpetual, trader, account, position, price, perp.lastMarkPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     
     let oldPosition = perp.position
     perp.position += convertToDecimal(-event.params.position, BI_18)
     perp.openInterest += updateOpenInterest(oldPosition, perp.position)
 
     perp.lastPrice = price
-    if (markPrice != ZERO_BD) {
-        perp.lastMarkPrice = markPrice
-    }
     perp.lastUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
     let volumeUSD = ZERO_BD
@@ -282,12 +281,6 @@ export function handleLiquidate(event: LiquidateEvent): void {
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
-    let contract = OracleContract.bind(Address.fromString(perp.oracleAddress))
-    let callResult = contract.try_priceTWAPLong()
-    let markPrice = ZERO_BD
-    if (!callResult.reverted) {
-        markPrice = convertToDecimal(callResult.value.value0, BI_18)
-    }
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
@@ -305,7 +298,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
     liquidate.liquidator = event.params.liquidator.toHexString()
     let amount = convertToDecimal(event.params.amount, BI_18)
     liquidate.price = price
-    liquidate.markPrice = markPrice
+    liquidate.markPrice = perp.lastMarkPrice
     liquidate.amount = amount
     let penalty = convertToDecimal(event.params.penalty, BI_18)
     liquidate.penalty = penalty
@@ -334,17 +327,12 @@ export function handleLiquidate(event: LiquidateEvent): void {
         perp.lpPenalty += lpPenalty
         perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
         perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
-        if (markPrice != ZERO_BD) {
-            perp.lpPositionPNL += perp.position * (markPrice - perp.lastMarkPrice)
-        }
+        perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
         // liquidator is AMM
         let oldPosition = perp.position
         perp.position += convertToDecimal(-event.params.amount, BI_18)
         perp.openInterest += updateOpenInterest(oldPosition, perp.position)
         perp.lastPrice = price
-        if (markPrice != ZERO_BD) {
-            perp.lastMarkPrice = markPrice
-        }
         perp.lastUnitAcc = perp.unitAccumulativeFunding
 
         // update perpetual trade volume
@@ -364,11 +352,11 @@ export function handleLiquidate(event: LiquidateEvent): void {
         type = TradeType.LIQUIDATEBYTRADER
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, markPrice, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, perp.lastMarkPrice, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
     }
     
     // trader
-    newTrade(perp as Perpetual, trader, account, amount, price, markPrice, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+    newTrade(perp as Perpetual, trader, account, amount, price, perp.lastMarkPrice, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
 
     liquidate.save()
 
