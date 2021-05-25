@@ -106,6 +106,7 @@ type Perpetual @entity {
     lastPrice: BigDecimal!
     lastUnitAcc: BigDecimal!
     lastMarkPrice: BigDecimal!
+    beforeLastMarkPrice: BigDecimal!
     lpFee: BigDecimal!
     lpFunding: BigDecimal!
     lpTotalPNL: BigDecimal!
@@ -216,6 +217,22 @@ type MatchOrder @entity {
     id: ID!
     perpetual: Perpetual!
     orderHash: String!
+    trader: User!
+    amount: BigDecimal!
+    type: Int!
+    gas: BigDecimal!
+    transactionHash: String!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    logIndex: BigInt!
+}
+
+type MatchOrderFailed @entity {
+    # transaction hash + "-" + index
+    id: ID!
+    perpetual: Perpetual!
+    orderHash: String!
+    reason: String!
     trader: User!
     amount: BigDecimal!
     type: Int!
