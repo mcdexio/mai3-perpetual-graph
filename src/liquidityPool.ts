@@ -145,6 +145,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += cash
+    account.poolMargin += convertToDecimal(event.params.addedPoolMargin, BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
@@ -176,6 +177,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
     account.collateralAmount += cash
+    account.poolMargin += convertToDecimal(-event.params.removedPoolMargin, BI_18)
     if (account.shareAmount == ZERO_BD) {
         liquidityPool.liquidityProviderCount -= ONE_BI
     }
