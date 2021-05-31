@@ -139,7 +139,8 @@ type LiquidityAccount @entity {
     user: User!
     collateralAmount: BigDecimal!
     shareAmount: BigDecimal!
-    poolMargin: BigDecimal!
+    entryCollateralAmount: BigDecimal!
+    entryPoolMargin: BigDecimal!
 }
 
 type VoteAccount @entity {
