@@ -146,7 +146,6 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
         liquidityPool.liquidityProviderCount += ONE_BI
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
-    account.collateralAmount += cash
     account.entryCollateralAmount += cash
     account.entryPoolMargin += convertToDecimal(event.params.addedPoolMargin, BI_18)
     // shareAmount update on shareToken transfer event
@@ -179,7 +178,6 @@ export function handleAddLiquidityOld(event: AddLiquidityEvent1): void {
         liquidityPool.liquidityProviderCount += ONE_BI
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
-    account.collateralAmount += cash
     account.entryCollateralAmount += cash
     account.entryPoolMargin += cash
     // shareAmount update on shareToken transfer event
@@ -212,7 +210,6 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let cash = convertToDecimal(-event.params.returnedCash, BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
-    account.collateralAmount += cash
     let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
     account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
     account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
@@ -247,7 +244,6 @@ export function handleRemoveLiquidityOld(event: RemoveLiquidityEvent1): void {
     let cash = convertToDecimal(-event.params.returnedCash, BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
-    account.collateralAmount += cash
     let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
     account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
     account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
