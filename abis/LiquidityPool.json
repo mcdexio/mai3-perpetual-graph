@@ -62,6 +62,12 @@
         "internalType": "int256",
         "name": "mintedShare",
         "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "addedPoolMargin",
+        "type": "int256"
       }
     ],
     "name": "AddLiquidity",
@@ -86,12 +92,6 @@
         "indexed": false,
         "internalType": "int256",
         "name": "mintedShare",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "addedPoolMargin",
         "type": "int256"
       }
     ],
@@ -305,6 +305,12 @@
         "internalType": "int256",
         "name": "burnedShare",
         "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "removedPoolMargin",
+        "type": "int256"
       }
     ],
     "name": "RemoveLiquidity",
@@ -329,12 +335,6 @@
         "indexed": false,
         "internalType": "int256",
         "name": "burnedShare",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "removedPoolMargin",
         "type": "int256"
       }
     ],

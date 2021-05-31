@@ -138,7 +138,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
 }
 
-export function handleAddLiquidity(event: AddLiquidityEvent1): void {
+export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
@@ -171,7 +171,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent1): void {
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
 }
-export function handleAddLiquidityOld(event: AddLiquidityEvent): void {
+export function handleAddLiquidityOld(event: AddLiquidityEvent1): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
@@ -205,7 +205,7 @@ export function handleAddLiquidityOld(event: AddLiquidityEvent): void {
     liquidityHistory.save()
 }
 
-export function handleRemoveLiquidity(event: RemoveLiquidityEvent1): void {
+export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
@@ -240,7 +240,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent1): void {
     liquidityHistory.save()
 }
 
-export function handleRemoveLiquidityOld(event: RemoveLiquidityEvent): void {
+export function handleRemoveLiquidityOld(event: RemoveLiquidityEvent1): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
