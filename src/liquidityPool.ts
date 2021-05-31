@@ -147,7 +147,8 @@ export function handleAddLiquidity(event: AddLiquidityEvent1): void {
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += cash
-    account.poolMargin += convertToDecimal(event.params.addedPoolMargin, BI_18)
+    account.entryCollateralAmount += cash
+    account.entryPoolMargin += convertToDecimal(event.params.addedPoolMargin, BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
@@ -179,6 +180,8 @@ export function handleAddLiquidityOld(event: AddLiquidityEvent): void {
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
     account.collateralAmount += cash
+    account.entryCollateralAmount += cash
+    account.entryPoolMargin += cash
     // shareAmount update on shareToken transfer event
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
@@ -210,7 +213,9 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent1): void {
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
     account.collateralAmount += cash
-    account.poolMargin += convertToDecimal(-event.params.removedPoolMargin, BI_18)
+    let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
+    account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
+    account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
     if (account.shareAmount == ZERO_BD) {
         liquidityPool.liquidityProviderCount -= ONE_BI
     }
@@ -243,6 +248,9 @@ export function handleRemoveLiquidityOld(event: RemoveLiquidityEvent): void {
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
     account.collateralAmount += cash
+    let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
+    account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
+    account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
     if (account.shareAmount == ZERO_BD) {
         liquidityPool.liquidityProviderCount -= ONE_BI
     }
