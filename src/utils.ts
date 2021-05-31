@@ -133,7 +133,6 @@ export function fetchLiquidityAccount(user: User, liquidityPool: LiquidityPool):
     account.user = user.id
     account.liquidityPool = liquidityPool.id
     account.shareAmount = ZERO_BD
-    account.collateralAmount = ZERO_BD
     account.entryCollateralAmount = ZERO_BD
     account.entryPoolMargin = ZERO_BD
     account.save()

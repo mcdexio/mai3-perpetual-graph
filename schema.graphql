@@ -137,7 +137,6 @@ type LiquidityAccount @entity {
     id: ID!
     liquidityPool: LiquidityPool!
     user: User!
-    collateralAmount: BigDecimal!
     shareAmount: BigDecimal!
     entryCollateralAmount: BigDecimal!
     entryPoolMargin: BigDecimal!
