@@ -11,9 +11,7 @@ import {
     Deposit as DepositEvent,
     Withdraw as WithdrawEvent,
     AddLiquidity as AddLiquidityEvent,
-    AddLiquidity1 as AddLiquidityEvent1,
     RemoveLiquidity as RemoveLiquidityEvent,
-    RemoveLiquidity1 as RemoveLiquidityEvent1,
     Trade as TradeEvent,
     Liquidate as LiquidateEvent,
     UpdatePoolMargin as UpdatePoolMarginEvent,
@@ -170,74 +168,8 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
 }
-export function handleAddLiquidityOld(event: AddLiquidityEvent1): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let user = fetchUser(event.params.trader)
-    let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
-    if (account.shareAmount == ZERO_BD) {
-        liquidityPool.liquidityProviderCount += ONE_BI
-    }
-    let cash = convertToDecimal(event.params.addedCash, BI_18)
-    account.entryCollateralAmount += cash
-    account.entryPoolMargin += cash
-    // shareAmount update on shareToken transfer event
-    // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
-    account.save()
-    liquidityPool.liquidityHisCount += ONE_BI
-    liquidityPool.save()
-
-    let transactionHash = event.transaction.hash.toHexString()
-    let liquidityHistory = new LiquidityHistory(
-        transactionHash
-        .concat('-')
-        .concat(event.logIndex.toString())
-    )
-    liquidityHistory.liquidityPool = liquidityPool.id
-    liquidityHistory.trader = user.id
-    liquidityHistory.collateral = cash
-    liquidityHistory.type = LiquidityType.ADD
-    liquidityHistory.transactionHash = transactionHash
-    liquidityHistory.blockNumber = event.block.number
-    liquidityHistory.timestamp = event.block.timestamp
-    liquidityHistory.logIndex = event.logIndex
-    liquidityHistory.save()
-}
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let user = fetchUser(event.params.trader)
-    let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
-    let cash = convertToDecimal(-event.params.returnedCash, BI_18)
-    // shareAmount update on shareToken transfer event
-    // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
-    let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
-    account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
-    account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
-    if (account.shareAmount == ZERO_BD) {
-        liquidityPool.liquidityProviderCount -= ONE_BI
-    }
-    account.save()
-    liquidityPool.liquidityHisCount += ONE_BI
-    liquidityPool.save()
-
-    let transactionHash = event.transaction.hash.toHexString()
-    let liquidityHistory = new LiquidityHistory(
-        transactionHash
-        .concat('-')
-        .concat(event.logIndex.toString())
-    )
-    liquidityHistory.liquidityPool = liquidityPool.id
-    liquidityHistory.trader = user.id
-    liquidityHistory.collateral = cash
-    liquidityHistory.type = LiquidityType.REMOVE
-    liquidityHistory.transactionHash = transactionHash
-    liquidityHistory.blockNumber = event.block.number
-    liquidityHistory.timestamp = event.block.timestamp
-    liquidityHistory.logIndex = event.logIndex
-    liquidityHistory.save()
-}
-
-export function handleRemoveLiquidityOld(event: RemoveLiquidityEvent1): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
