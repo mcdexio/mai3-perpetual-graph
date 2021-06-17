@@ -4,6 +4,7 @@ import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, Us
 
 import { 
     CreatePerpetual as CreatePerpetualEvent,
+    SetOracle as SetOracleEvent,
     RunLiquidityPool as RunLiquidityPoolEvent,
     SetNormalState as SetNormalStateEvent,
     SetEmergencyState as SetEmergencyStateEvent,
@@ -83,6 +84,13 @@ export function handleSetNormalState(event: SetNormalStateEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.NORMAL
+    perp.save()
+}
+
+export function handleSetOracle(event: SetOracleEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    perp.oracleAddress = event.params.newOracle.toHexString()
     perp.save()
 }
 
