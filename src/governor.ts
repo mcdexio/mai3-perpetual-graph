@@ -20,6 +20,7 @@ import {
     ZERO_BD,
     fetchVoteAccount,
     ADDRESS_ZERO,
+    ZERO_BI,
 } from './utils'
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
@@ -42,6 +43,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.for = ZERO_BD
     proposal.against = ZERO_BD
     proposal.isExecuted = false
+    proposal.executedBlockNumber = ZERO_BI
     proposal.save()
 
     governor.proposalCount += ONE_BI
@@ -75,6 +77,7 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
         .concat(event.params.id.toString())
     let proposal = Proposal.load(proposalId)
     proposal.isExecuted = true
+    proposal.executedBlockNumber = event.block.number
     proposal.save()
 }
 
