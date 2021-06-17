@@ -106,6 +106,8 @@ templates:
       eventHandlers:
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[8])
           handler: handleCreatePerpetual
+        - event: SetOracle(uint256,indexed address,indexed address)
+          handler: handleSetOracle
         - event: RunLiquidityPool()
           handler: handleRunLiquidityPool
         - event: SetNormalState(uint256)
