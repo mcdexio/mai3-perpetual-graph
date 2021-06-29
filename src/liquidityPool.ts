@@ -91,6 +91,7 @@ export function handleSetOracle(event: SetOracleEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.newOracle.toHexString()
+    perp.underlying = fetchOracleUnderlying(event.params.newOracle)
     perp.save()
 }
 
