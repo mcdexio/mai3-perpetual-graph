@@ -11,35 +11,11 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "oracle",
+        "name": "keeper",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "markPrice",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "markPriceUpdateTime",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "indexPrice",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "indexPriceUpdatetime",
-        "type": "uint256"
       }
     ],
-    "name": "UpdatePrice",
+    "name": "AddAMMKeeper",
     "type": "event"
   },
   {
@@ -71,6 +47,25 @@
       }
     ],
     "name": "AddLiquidity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "AddTraderKeeper",
     "type": "event"
   },
   {
@@ -264,6 +259,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveAMMKeeper",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "trader",
@@ -289,6 +303,25 @@
       }
     ],
     "name": "RemoveLiquidity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveTraderKeeper",
     "type": "event"
   },
   {
@@ -345,25 +378,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousKeeper",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newKeeper",
-        "type": "address"
-      }
-    ],
-    "name": "SetKeeper",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "int256[2]",
         "name": "value",
@@ -398,7 +412,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "oldOralce",
+        "name": "oldOracle",
         "type": "address"
       },
       {
@@ -666,6 +680,49 @@
         "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oracle",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "markPrice",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "markPriceUpdateTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "indexPrice",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "indexPriceUpdateTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatePrice",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
         "indexed": false,
         "internalType": "int256",
         "name": "unitAccumulativeFunding",
@@ -703,12 +760,48 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "addAMMKeeper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "int256",
         "name": "cashToAdd",
         "type": "int256"
       }
     ],
     "name": "addLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "addTraderKeeper",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -829,6 +922,19 @@
       }
     ],
     "name": "donateInsuranceFund",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "cashToAdd",
+        "type": "int256"
+      }
+    ],
+    "name": "donateLiquidity",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1111,6 +1217,11 @@
       },
       {
         "internalType": "address",
+        "name": "liquidator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "trader",
         "type": "address"
       },
@@ -1160,6 +1271,64 @@
       }
     ],
     "name": "listActiveAccounts",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "result",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "listByAMMKeepers",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "result",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "end",
+        "type": "uint256"
+      }
+    ],
+    "name": "listByTraderKeepers",
     "outputs": [
       {
         "internalType": "address[]",
@@ -1236,6 +1405,55 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "amount",
+        "type": "int256"
+      },
+      {
+        "internalType": "address",
+        "name": "referrer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "flags",
+        "type": "uint32"
+      }
+    ],
+    "name": "queryTrade",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "tradePrice",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "totalFee",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "cost",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
         "internalType": "int256",
         "name": "amount",
         "type": "int256"
@@ -1260,6 +1478,24 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "removeAMMKeeper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "int256",
         "name": "shareToRemove",
         "type": "int256"
@@ -1271,6 +1507,24 @@
       }
     ],
     "name": "removeLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "keeper",
+        "type": "address"
+      }
+    ],
+    "name": "removeTraderKeeper",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1298,19 +1552,6 @@
       }
     ],
     "name": "setEmergencyState",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newKeeper",
-        "type": "address"
-      }
-    ],
-    "name": "setKeeper",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

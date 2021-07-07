@@ -114,6 +114,9 @@ type Perpetual @entity {
     lpPenalty: BigDecimal!
 
     unitAccumulativeFunding: BigDecimal!
+
+    # ByAMMKeeper White List
+    byAmmKeepers: [String!]!
 }
 
 type ShareToken @entity {
