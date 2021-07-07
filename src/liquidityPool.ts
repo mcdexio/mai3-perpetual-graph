@@ -21,7 +21,9 @@ import {
     Settle as SettleEvent,
     ClaimOperator as ClaimOperatorEvent,
     OperatorCheckIn as OperatorCheckInEvent,
-    UpdatePrice as UpdatePriceEvent
+    UpdatePrice as UpdatePriceEvent,
+    AddByAMMKeeper as AddByAMMKeeperEvent,
+    RemoveByAMMKeeper as RemoveByAMMKeeperEvent
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -535,4 +537,28 @@ export function handleOperatorCheckIn(event: OperatorCheckInEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.save()
+}
+
+export function handleAddByAMMKeeper(event: AddByAMMKeeperEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let keepers = perp.byAmmKeepers
+    keepers.push(event.params.keeper.toHexString())
+    perp.byAmmKeepers = keepers
+    perp.save()
+}
+
+export function handleRemoveByAMMKeeper(event: RemoveByAMMKeeperEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let removedKeeper = event.params.keeper.toHexString()
+    let keepers: string[] = []
+    for (let index=0; index < perp.byAmmKeepers.length; index++) {
+        let keeper = perp.byAmmKeepers[index]
+        if (keeper != removedKeeper) {
+            keepers.push(keeper)
+        }
+    }
+    perp.byAmmKeepers = keepers
+    perp.save()
 }
