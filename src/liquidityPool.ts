@@ -22,8 +22,8 @@ import {
     ClaimOperator as ClaimOperatorEvent,
     OperatorCheckIn as OperatorCheckInEvent,
     UpdatePrice as UpdatePriceEvent,
-    AddByAMMKeeper as AddByAMMKeeperEvent,
-    RemoveByAMMKeeper as RemoveByAMMKeeperEvent
+    AddAMMKeeper as AddAMMKeeperEvent,
+    RemoveAMMKeeper as RemoveAMMKeeperEvent
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
@@ -539,7 +539,7 @@ export function handleOperatorCheckIn(event: OperatorCheckInEvent): void {
     liquidityPool.save()
 }
 
-export function handleAddByAMMKeeper(event: AddByAMMKeeperEvent): void {
+export function handleAddAMMKeeper(event: AddAMMKeeperEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     let keepers = perp.byAmmKeepers
@@ -548,7 +548,7 @@ export function handleAddByAMMKeeper(event: AddByAMMKeeperEvent): void {
     perp.save()
 }
 
-export function handleRemoveByAMMKeeper(event: RemoveByAMMKeeperEvent): void {
+export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     let removedKeeper = event.params.keeper.toHexString()

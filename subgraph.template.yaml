@@ -142,10 +142,10 @@ templates:
           handler: handleOperatorCheckIn
         - event: UpdatePrice(uint256,indexed address,int256,uint256,int256,uint256)
           handler: handleUpdatePrice
-        - event: AddByAMMKeeper(uint256,indexed address)
-          handler: handleAddByAMMKeeper
-        - event: RemoveByAMMKeeper(uint256,indexed address)
-          handler: handleRemoveByAMMKeeper                
+        - event: AddAMMKeeper(uint256,indexed address)
+          handler: handleAddAMMKeeper
+        - event: RemoveAMMKeeper(uint256,indexed address)
+          handler: handleRemoveAMMKeeper
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken
