@@ -552,9 +552,10 @@ export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     let removedKeeper = event.params.keeper.toHexString()
+    let ammKeepers = perp.byAmmKeepers
     let keepers: string[] = []
-    for (let index=0; index < perp.byAmmKeepers.length; index++) {
-        let keeper = perp.byAmmKeepers[index]
+    for (let index=0; index < ammKeepers.length; index++) {
+        let keeper = ammKeepers[index]
         if (keeper != removedKeeper) {
             keepers.push(keeper)
         }
