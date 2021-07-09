@@ -33,7 +33,6 @@ import {
 import {
     READER_ADDRESS,
     DAO_VAULT_ADDRESS,
-    USDC_TOKEN_ADDRESS
 } from './const'
 
 import { updateMcdexTVLData } from './factoryData'
@@ -98,11 +97,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = collateral
-    if (collateral == USDC_TOKEN_ADDRESS) {
-        liquidityPool.collateralName = 'USDC'
-    } else {
-        liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
-    }
+    liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD

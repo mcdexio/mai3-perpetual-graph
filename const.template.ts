@@ -1,7 +1,6 @@
 
 export const READER_ADDRESS = '{{reader_address}}'
 export const DAO_VAULT_ADDRESS = '{{dao_vault_address}}'
-export const USDC_TOKEN_ADDRESS = '{{usdc_token}}'
 
 
 // Notice lower case in config
