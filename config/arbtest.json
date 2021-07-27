@@ -1,11 +1,11 @@
 {
-    "network": "arbitrum-one",
-    "factory_address": "0x784819cbA91Ed87C296565274fc150EaA11EBC04",
-    "symbol_address": "0x7863913067024e11249Da20B71d453164d4Dea7D",
-    "broker_address": "0x3D782bBa1c2568E33ba5a20a9Ddf3879BBf136c0",
-    "reader_address": "0x3d4B40cA0F98fcCe38aA1704CBDf134496c261E8",
+    "network": "arbitrum-rinkeby",
+    "factory_address": "0x0A1334aCea4E38a746daC7DCf7C3E61F0AB3D834",
+    "symbol_address": "0xA4109D0a36E0e66d64F3B7794C60694Ca6D66E22",
+    "broker_address": "0xC9010d5B798286651dC24A2c49BbAd673Dd4978b",
+    "reader_address": "0x25E74e6D8A414Dff02c9CCC680B49F3708955ECF",
     "eth_oracle": "0xbb05666820137b3b1344fe6802830515c015dd4f",
-    "eth_token": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-    "usdc_token": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-    "start_block": 80722
+    "eth_token": "0xfa53fd78b5176b4d77219326841cc16c02c7f183f9",
+    "usdc_token": "0x09b98f8b2395d076514037ff7d39a091a536206c",
+    "start_block": 786
 }
