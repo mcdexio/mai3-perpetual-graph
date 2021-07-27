@@ -4,7 +4,7 @@
   "scripts": {
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml; mustache config/mainnet.json const.template.ts > src/const.ts",
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml; mustache config/kovan.json const.template.ts > src/const.ts",
-    "prepare:arb": "mustache config/arbtest.json subgraph.template.yaml > subgraph.yaml; mustache config/arbtest.json const.template.ts > src/const.ts",
+    "prepare:arbtest": "mustache config/arbtest.json subgraph.template.yaml > subgraph.yaml; mustache config/arbtest.json const.template.ts > src/const.ts",
     "prepare:arb1": "mustache config/arb1.json subgraph.template.yaml > subgraph.yaml; mustache config/arb1.json const.template.ts > src/const.ts",
     "prepare:op": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml; mustache config/optimism.json const.template.ts > src/const.ts",
     "create": "graph create mcarloai/mcdex3-kovan1 --node https://api.thegraph.com/deploy/",
