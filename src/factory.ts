@@ -1,4 +1,4 @@
-import { TypedMap, BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import { ethereum, log, Address } from "@graphprotocol/graph-ts"
 
 import { Factory, LiquidityPool, ShareToken, Governor, CollateralBalance } from '../generated/schema'
 
@@ -32,7 +32,6 @@ import {
 
 import {
     READER_ADDRESS,
-    DAO_VAULT_ADDRESS,
 } from './const'
 
 import { updateMcdexTVLData } from './factoryData'
@@ -157,7 +156,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     // update liquity pool's liquidity amount in USD
     let liquidityPools = factory.liquidityPools as string[]
     let totalValueLockedUSD = ZERO_BD
-    let collateralMap = new TypedMap<String, boolean>()
     let reader_address = READER_ADDRESS
     for (let index = 0; index < liquidityPools.length; index++) {
         let poolIndex = liquidityPools[index]
@@ -185,17 +183,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
         let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
         totalValueLockedUSD += balance.times(tokenPrice)
-
-        // mcdex dao asset
-        if (!collateralMap.isSet(liquidityPool.collateralAddress)) {
-            collateralMap.set(liquidityPool.collateralAddress, true)
-            let vaultResult = erc20Contract.try_balanceOf(Address.fromString(DAO_VAULT_ADDRESS))
-            let vaultBalance = ZERO_BD
-            if (!vaultResult.reverted) {
-                vaultBalance = convertToDecimal(vaultResult.value, liquidityPool.collateralDecimals)
-            }
-            updateDaoBalance(liquidityPool.collateralName, liquidityPool.collateralAddress, vaultBalance)
-        }
     }
 
     updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
@@ -204,15 +191,3 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     factory.save()
 }
 
-function updateDaoBalance(name: string, token: string, balance: BigDecimal): void {
-    let id = token.concat('-').concat(DAO_VAULT_ADDRESS)
-    let collateralBalance = CollateralBalance.load(id)
-    if (collateralBalance == null) {
-        collateralBalance = new CollateralBalance(id)
-        collateralBalance.collateralName = name
-        collateralBalance.collateralAddress = token
-        collateralBalance.account = DAO_VAULT_ADDRESS
-    }
-    collateralBalance.balance = balance
-    collateralBalance.save()
-}
