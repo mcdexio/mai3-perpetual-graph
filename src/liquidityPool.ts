@@ -498,9 +498,10 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
+    let collateralPrice = getTokenPrice(liquidityPool.collateralAddress)
     // update poolMargin
-    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin)
-    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin)
+    updatePoolHourData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, collateralPrice)
+    updatePoolDayData(liquidityPool as LiquidityPool, event.block.timestamp, poolMargin, collateralPrice)
 }
 
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {

@@ -4,7 +4,7 @@
     "symbol_address": "0xA4109D0a36E0e66d64F3B7794C60694Ca6D66E22",
     "broker_address": "0x637691459e757Aa6826BF32De679AcFf9955bDfA",
     "reader_address": "0x25E74e6D8A414Dff02c9CCC680B49F3708955ECF",
-    "eth_oracle": "0xbb05666820137b3b1344fe6802830515c015dd4f",
+    "eth_oracle": "0xE2Fe1094F33BCb4366B3B3071bd1E927B38aE402",
     "eth_token": "0xb47e6a5f8b33b3f17603c83a0535a9dcd7e32681",
     "usdc_token": "0x09b98f8b2395d076514037ff7d39a091a536206c",
     "start_block": 786
