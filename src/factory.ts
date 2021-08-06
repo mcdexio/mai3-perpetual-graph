@@ -169,8 +169,10 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             poolMargin = convertToDecimal(callResult.value.value1, BI_18)
         }
 
-        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
-        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin)
+        let collateralPrice = getTokenPrice(liquidityPool.collateralAddress)
+
+        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
+        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
 
         // TODO consider using token transfer event to get collateral balance
         // update mcdex totalValueLocked
@@ -181,8 +183,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
             balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
         }
 
-        let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
-        totalValueLockedUSD += balance.times(tokenPrice)
+        totalValueLockedUSD += balance.times(collateralPrice)
     }
 
     updateMcdexTVLData(totalValueLockedUSD, block.timestamp)

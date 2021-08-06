@@ -131,7 +131,7 @@ export function updateTradeSevenDayData(perp: Perpetual, price: BigDecimal, amou
     return tradeSevenDayData as TradeSevenDayData
 }
 
-export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal): PoolHourData {
+export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, price: BigDecimal): PoolHourData {
     let poolHourData = getPoolHourData(timestamp, pool.id)
     let shareToken = ShareToken.load(pool.shareToken)
     let nav = ZERO_BD
@@ -139,8 +139,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
         nav = poolMargin.div(shareToken.totalSupply)
     }
     pool.poolMargin = poolMargin
-    let tokenPrice = getTokenPrice(pool.collateralAddress)
-    pool.poolMarginUSD = pool.poolMargin.times(tokenPrice)
+    pool.poolMarginUSD = pool.poolMargin.times(price)
     poolHourData.poolMarginUSD = pool.poolMarginUSD
     poolHourData.poolMargin = pool.poolMargin
     poolHourData.netAssetValue = nav
@@ -149,7 +148,7 @@ export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolM
     return poolHourData as PoolHourData
 }
 
-export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal): PoolDayData {
+export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, price: BigDecimal): PoolDayData {
     let dayIndex = timestamp.toI32() / (3600*24)
     let dayStartUnix = dayIndex * (3600*24)
     let dayPoolID = pool.id
@@ -171,8 +170,7 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
         nav = poolMargin.div(shareToken.totalSupply)
     }
     pool.poolMargin = poolMargin
-    let tokenPrice = getTokenPrice(pool.collateralAddress)
-    pool.poolMarginUSD = pool.poolMargin.times(tokenPrice)
+    pool.poolMarginUSD = pool.poolMargin.times(price)
     poolDayData.poolMarginUSD = pool.poolMarginUSD
     poolDayData.netAssetValue = nav
     pool.save()
