@@ -231,6 +231,10 @@ export function fetchCollateralSymbol(address: Address): string {
     return "CRV"
   } else if (addressStr == "0xf97f4df75117a78c1a5a0dbb814af92458539fb4") {
     return "LINK"
+  } else if (addressStr == "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42") {
+    return "MCB"
+  } else {
+    return "Unknown"
   }
   let contract = ERC20Contract.bind(address)
   let collateral = ''
@@ -251,6 +255,8 @@ export function fetchOracleUnderlying(address: Address): string {
     return "ETH"
   } else if (addressStr == "0xa9a9b8f657edf88f50ac6840ca6191c44bef7abb") {
     return "BTC"
+  } else {
+    return "Unknown"
   }
   let contract = OracleContract.bind(address)
   let underlying = ''
