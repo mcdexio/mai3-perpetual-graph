@@ -214,6 +214,24 @@ export function splitOpenAmount(amount: BigDecimal, delta: BigDecimal): BigDecim
 }
 
 export function fetchCollateralSymbol(address: Address): string {
+  let addressStr = address.toHexString()
+  if (addressStr == "0x82af49447d8a07e3bd95bd0d56f35241523fbab1") {
+    return "WETH"
+  } else if (addressStr == "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8") {
+    return "USDC"
+  } else if (addressStr == "0xa970af1a584579b618be4d69ad6f73459d112f95") {
+    return "sUSD"
+  } else if (addressStr == "0xcd14c3a2ba27819b352aae73414a26e2b366dc50") {
+    return "USX"
+  } else if (addressStr == "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f") {
+    return "WBTC"
+  } else if (addressStr == "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0") {
+    return "UNI"
+  } else if (addressStr == "0x11cdb42b0eb46d95f990bedd4695a6e3fa034978") {
+    return "CRV"
+  } else if (addressStr == "0xf97f4df75117a78c1a5a0dbb814af92458539fb4") {
+    return "LINK"
+  }
   let contract = ERC20Contract.bind(address)
   let collateral = ''
   let result = contract.try_symbol()
@@ -224,6 +242,16 @@ export function fetchCollateralSymbol(address: Address): string {
 }
 
 export function fetchOracleUnderlying(address: Address): string {
+  let addressStr = address.toHexString()
+  if (addressStr == "0xe61bb61097ca2c676dd4360c1ddd5759b53277fd") {
+    return "BTC"
+  } else if (addressStr == "0x3167a40872c1a3b7ecc38a3c43c67065a288a363") {
+    return "USD"
+  } else if (addressStr == "0x77c073a91b53b35382c7c4cdf4079b7e312d552d") {
+    return "ETH"
+  } else if (addressStr == "0xa9a9b8f657edf88f50ac6840ca6191c44bef7abb") {
+    return "BTC"
+  }
   let contract = OracleContract.bind(address)
   let underlying = ''
   let result = contract.try_underlyingAsset()

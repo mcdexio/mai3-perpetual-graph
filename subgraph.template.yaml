@@ -31,8 +31,8 @@ dataSources:
           handler: handleCreateLiquidityPool
         - event: SetVaultFeeRate(int256,int256)
           handler: handleSetVaultFeeRate
-      blockHandlers:
-        - handler: handleSyncPerpData
+      # blockHandlers:
+      #   - handler: handleSyncPerpData
       file: ./src/factory.ts
 
   - kind: ethereum/contract
