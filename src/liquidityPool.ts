@@ -34,7 +34,8 @@ import {
     OperatorCheckIn as OperatorCheckInEvent,
     UpdatePrice as UpdatePriceEvent,
     AddAMMKeeper as AddAMMKeeperEvent,
-    RemoveAMMKeeper as RemoveAMMKeeperEvent
+    RemoveAMMKeeper as RemoveAMMKeeperEvent,
+    UpdateFundingRate as UpdateFundingRateEvent,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
 import {
@@ -583,4 +584,42 @@ export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
     }
     perp.byAmmKeepers = keepers
     perp.save()
+}
+
+export function handleUpdateFundingRate(event: UpdateFundingRateEvent): void {
+    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let timestamp = event.block.timestamp.toI32()
+    let fundingRate = convertToDecimal(event.params.fundingRate, BI_18)
+    let minIndex = timestamp / 60
+    let minStartUnix = minIndex * 60
+    let minPerpID = perp.id
+        .concat('-')
+        .concat(BigInt.fromI32(minIndex).toString())
+    let fundingRateMinData = FundingRateMinData.load(minPerpID)
+    if (fundingRateMinData === null) {
+        fundingRateMinData = new FundingRateMinData(minPerpID)
+        fundingRateMinData.perpetual = perp.id
+        fundingRateMinData.timestamp = minStartUnix
+        fundingRateMinData.fundingRate = fundingRate
+    } else {
+        fundingRateMinData.fundingRate = fundingRate
+    }
+    fundingRateMinData.save()
+
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
+    let hourPerpID = perp.id
+        .concat('-')
+        .concat(BigInt.fromI32(hourStartUnix).toString())
+    let fundingRateHourData = FundingRateHourData.load(hourPerpID)
+    if (fundingRateHourData === null) {
+        fundingRateHourData = new FundingRateHourData(hourPerpID)
+        fundingRateHourData.perpetual = perp.id
+        fundingRateHourData.timestamp = minStartUnix
+        fundingRateHourData.fundingRate = fundingRate
+    } else {
+        fundingRateHourData.fundingRate = fundingRate
+    }
+    fundingRateHourData.save()
 }
