@@ -354,6 +354,22 @@ type AccHourData @entity {
     timestamp: Int
 }
 
+type FundingRateMinData @entity {
+    # perpetual index + "-" + timeindex
+    id: ID!
+    perpetual: Perpetual!
+    fundingRate: BigDecimal!
+    timestamp: Int!
+}
+
+type FundingRateHourData @entity {
+    # perpetual index + "-" + timeindex
+    id: ID!
+    perpetual: Perpetual!
+    fundingRate: BigDecimal!
+    timestamp: Int!
+}
+
 type McdexHourData @entity {
     # timeindex
     id: ID!
