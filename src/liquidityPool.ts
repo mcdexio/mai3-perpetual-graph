@@ -251,9 +251,12 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
     let perp = Perpetual.load(id)
-    perp.beforeLastMarkPrice = perp.lastMarkPrice
-    perp.lastMarkPrice = convertToDecimal(event.params.markPrice, BI_18)
-    perp.save()
+    let markPrice = convertToDecimal(event.params.markPrice, BI_18)
+    if (perp.lastMarkPrice != markPrice) {
+        perp.beforeLastMarkPrice = perp.lastMarkPrice
+        perp.lastMarkPrice = markPrice
+        perp.save()
+    }
 }
 
 export function handleTrade(event: TradeEvent): void {
