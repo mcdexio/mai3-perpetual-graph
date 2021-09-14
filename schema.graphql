@@ -41,6 +41,7 @@ type LiquidityPool @entity {
     # liquidityPool address
     id: ID!
     factory: Factory!
+    poolName: String
     collateralName: String!
     collateralAddress: String!
     voteAddress: String!

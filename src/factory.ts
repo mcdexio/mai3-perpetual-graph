@@ -31,6 +31,7 @@ import {
 } from './utils'
 
 import {
+    CertifiedPools,
     READER_ADDRESS,
 } from './const'
 
@@ -95,6 +96,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.operatorAddress = event.params.operator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.factory = factory.id
+    liquidityPool.poolName = CertifiedPools.get(liquidityPool.id) as string
     liquidityPool.collateralAddress = collateral
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
