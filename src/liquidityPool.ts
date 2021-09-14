@@ -1,8 +1,19 @@
-import { BigInt, BigDecimal, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import {BigInt, BigDecimal, ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, Perpetual, Trade, AccHourData, PoolHourData, User, MarginAccount, Liquidate, LiquidityHistory } from '../generated/schema'
+import {
+    Factory,
+    LiquidityPool,
+    Perpetual,
+    Trade,
+    AccHourData,
+    PoolHourData,
+    User,
+    MarginAccount,
+    Liquidate,
+    LiquidityHistory
+} from '../generated/schema'
 
-import { 
+import {
     CreatePerpetual as CreatePerpetualEvent,
     SetOracle as SetOracleEvent,
     RunLiquidityPool as RunLiquidityPoolEvent,
@@ -26,8 +37,15 @@ import {
     RemoveAMMKeeper as RemoveAMMKeeperEvent
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 
-import { updateTrade15MinData, updateTradeDayData, updateTradeSevenDayData, updateTradeHourData, updatePoolHourData, updatePoolDayData } from './dataUpdate'
-import { updateMcdexTradeVolumeData } from './factoryData'
+import {
+    updateTrade15MinData,
+    updateTradeDayData,
+    updateTradeSevenDayData,
+    updateTradeHourData,
+    updatePoolHourData,
+    updatePoolDayData
+} from './dataUpdate'
+import {updateMcdexTradeVolumeData} from './factoryData'
 
 import {
     ZERO_BD,
@@ -50,6 +68,7 @@ import {
     FACTORY,
     getTokenPrice
 } from './utils'
+import {CertifiedPools} from "./const";
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
@@ -166,8 +185,8 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let transactionHash = event.transaction.hash.toHexString()
     let liquidityHistory = new LiquidityHistory(
         transactionHash
-        .concat('-')
-        .concat(event.logIndex.toString())
+            .concat('-')
+            .concat(event.logIndex.toString())
     )
     liquidityHistory.liquidityPool = liquidityPool.id
     liquidityHistory.trader = user.id
@@ -200,8 +219,8 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let transactionHash = event.transaction.hash.toHexString()
     let liquidityHistory = new LiquidityHistory(
         transactionHash
-        .concat('-')
-        .concat(event.logIndex.toString())
+            .concat('-')
+            .concat(event.logIndex.toString())
     )
     liquidityHistory.liquidityPool = liquidityPool.id
     liquidityHistory.trader = user.id
@@ -256,7 +275,7 @@ export function handleTrade(event: TradeEvent): void {
     perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
     perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
     newTrade(perp as Perpetual, trader, account, position, price, perp.lastMarkPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
-    
+
     let oldPosition = perp.position
     perp.position += convertToDecimal(-event.params.position, BI_18)
     perp.openInterest += updateOpenInterest(oldPosition, perp.position)
@@ -304,8 +323,8 @@ export function handleLiquidate(event: LiquidateEvent): void {
     // new liquidate
     let liquidate = new Liquidate(
         transactionHash
-        .concat('-')
-        .concat(event.logIndex.toString())
+            .concat('-')
+            .concat(event.logIndex.toString())
     )
     liquidate.perpetual = perp.id
     liquidate.trader = event.params.trader.toHexString()
@@ -368,7 +387,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
         newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, perp.lastMarkPrice, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
     }
-    
+
     // trader
     newTrade(perp as Perpetual, trader, account, amount, price, perp.lastMarkPrice, penalty, transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
 
@@ -385,7 +404,7 @@ export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsur
     liquidityPool.save()
 }
 
-export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData {
+export function getPoolHourData(timestamp: BigInt, poolID: string): PoolHourData {
     let hourIndex = timestamp.toI32() / 3600
     let hourStartUnix = hourIndex * 3600
     let hourPoolID = poolID
@@ -395,6 +414,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
     if (poolHourData === null) {
         poolHourData = new PoolHourData(hourPoolID)
         poolHourData.liquidityPool = poolID
+        poolHourData.poolName = CertifiedPools.get(poolID) as string
         poolHourData.timestamp = hourStartUnix
         let lastHourPoolID = poolID
             .concat('-')
@@ -415,7 +435,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: String): PoolHourData
 }
 
 function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, markPrice: BigDecimal, fee: BigDecimal,
-    transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType ): void {
+                  transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType): void {
     let oldPosition = account.position
     let close = splitCloseAmount(account.position, amount)
     let open = splitOpenAmount(account.position, amount)
@@ -424,10 +444,10 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         let percent = AbsBigDecimal(close) / AbsBigDecimal(amount)
         let trade = new Trade(
             transactionHash
-            .concat('-')
-            .concat(logIndex.toString())
-            .concat('-')
-            .concat('0')
+                .concat('-')
+                .concat(logIndex.toString())
+                .concat('-')
+                .concat('0')
         )
         trade.perpetual = perp.id
         trade.trader = trader.id
@@ -461,10 +481,10 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         let percent = AbsBigDecimal(open) / AbsBigDecimal(amount)
         let trade = new Trade(
             transactionHash
-            .concat('-')
-            .concat(logIndex.toString())
-            .concat('-')
-            .concat('1')
+                .concat('-')
+                .concat(logIndex.toString())
+                .concat('-')
+                .concat('1')
         )
         trade.perpetual = perp.id
         trade.trader = trader.id
@@ -555,7 +575,7 @@ export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
     let removedKeeper = event.params.keeper.toHexString()
     let ammKeepers = perp.byAmmKeepers
     let keepers: string[] = []
-    for (let index=0; index < ammKeepers.length; index++) {
+    for (let index = 0; index < ammKeepers.length; index++) {
         let keeper = ammKeepers[index]
         if (keeper != removedKeeper) {
             keepers.push(keeper)

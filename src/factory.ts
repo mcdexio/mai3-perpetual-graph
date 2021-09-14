@@ -1,16 +1,16 @@
-import { ethereum, log, Address } from "@graphprotocol/graph-ts"
+import {ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import { Factory, LiquidityPool, ShareToken, Governor, CollateralBalance } from '../generated/schema'
+import {Factory, LiquidityPool, ShareToken, Governor, CollateralBalance} from '../generated/schema'
 
-import { CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract } from '../generated/Factory/Factory'
-import { Reader as ReaderContract } from '../generated/Factory/Reader'
-import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
-
-
-import { updatePoolHourData, updatePoolDayData } from './dataUpdate'
+import {CreateLiquidityPool, SetVaultFeeRate, Factory as FactoryContract} from '../generated/Factory/Factory'
+import {Reader as ReaderContract} from '../generated/Factory/Reader'
+import {ERC20 as ERC20Contract} from '../generated/Factory/ERC20'
 
 
-import { 
+import {updatePoolHourData, updatePoolDayData, updateLiquidityMiningDayData} from './dataUpdate'
+
+
+import {
     LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
     Governor as GovernorTemplate
@@ -34,7 +34,7 @@ import {
     READER_ADDRESS,
 } from './const'
 
-import { updateMcdexTVLData } from './factoryData'
+import {updateMcdexTVLData} from './factoryData'
 
 export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
     let factory = Factory.load(FACTORY)
@@ -49,7 +49,7 @@ export function handleSetVaultFeeRate(event: SetVaultFeeRate): void {
         factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
         factory.perpetuals = []
-        factory.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
+        factory.timestamp = event.block.timestamp.toI32() / 3600 * 3600
     }
     factory.vaultFeeRate = convertToDecimal(event.params.newFeeRate, BI_18)
     factory.save()
@@ -75,7 +75,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.liquidityPools = []
         factory.perpetuals = []
         factory.collaterals = []
-        factory.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
+        factory.timestamp = event.block.timestamp.toI32() / 3600 * 3600
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
     let liquidityPools = factory.liquidityPools
@@ -120,9 +120,11 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     governor.totalVotes = ZERO_BD
     governor.totalReward = ZERO_BD
     governor.rewardRate = ZERO_BD
+    governor.preRewardRate = ZERO_BD
+    governor.changeRewardBlock = ZERO_BI
     governor.periodFinish = ZERO_BI
     governor.proposalCount = ZERO_BI
-    liquidityPool.governor = governor.id 
+    liquidityPool.governor = governor.id
 
     shareToken.save()
     governor.save()
@@ -146,11 +148,11 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     let hourStartUnix = hourIndex * 3600
     if (factory.timestamp == hourStartUnix) {
         return
-    } 
+    }
     factory.timestamp = hourStartUnix
     factory.latestBlock = block.number
 
-    /*=============================== hour datas begin ==================================*/ 
+    /*=============================== hour datas begin ==================================*/
     // update token price
     updateTokenPrice(timestamp)
     // update liquity pool's liquidity amount in USD
@@ -162,7 +164,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
         let liquidityPool = LiquidityPool.load(poolIndex)
         // update poolMargin
         let poolMargin = ZERO_BD
-        
+
         let contract = ReaderContract.bind(Address.fromString(reader_address))
         let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
         if (!callResult.reverted) {
@@ -173,6 +175,8 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
         updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
         updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
+
+        updateLiquidityMiningDayData(liquidityPool as LiquidityPool, block.timestamp, block.number)
 
         // TODO consider using token transfer event to get collateral balance
         // update mcdex totalValueLocked
@@ -188,7 +192,7 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
     updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
     factory.totalValueLockedUSD = totalValueLockedUSD
-    /*=============================== hour datas end ==================================*/ 
+    /*=============================== hour datas end ==================================*/
     factory.save()
 }
 
