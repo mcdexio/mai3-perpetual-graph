@@ -161,10 +161,23 @@ type Governor @entity {
     totalVotes: BigDecimal!
     totalReward: BigDecimal!
     rewardRate: BigDecimal!
+    preRewardRate: BigDecimal!
+    changeRewardBlock: BigInt!
     proposalCount: BigInt!
     periodFinish: BigInt!
     proposals: [Proposal!]! @derivedFrom(field: "governor")
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
+}
+
+type LiquidityMiningDayData @entity{
+    id: ID!
+    pool: String!
+    poolName: String
+    lastUpdateBlock: BigInt!
+    timestamp: Int!
+    token: String!
+    minedAmount: BigDecimal!
+    minedValueUSD: BigDecimal!
 }
 
 type LiquidityHistory @entity {
@@ -308,6 +321,7 @@ type PoolHourData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
+    poolName: String
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
@@ -318,6 +332,7 @@ type PoolDayData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
+    poolName: String
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!

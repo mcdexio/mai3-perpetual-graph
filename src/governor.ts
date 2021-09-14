@@ -1,8 +1,8 @@
-import { BigInt, ethereum, log, Address } from "@graphprotocol/graph-ts"
+import {BigInt, ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import { Governor, Proposal, Vote } from '../generated/schema'
+import {Governor, Proposal, Vote} from '../generated/schema'
 
-import { 
+import {
     ProposalCreated as ProposalCreatedEvent,
     ProposalExecuted as ProposalExecutedEvent,
     VoteCast as VoteCastEvent,
@@ -49,7 +49,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     governor.proposalCount += ONE_BI
     governor.save()
 }
-  
+
 export function handleVote(event: VoteCastEvent): void {
     let user = fetchUser(event.params.account)
     let proposalId = event.address.toHexString()
@@ -120,7 +120,9 @@ export function handleRewardAdded(event: RewardAddedEvent): void {
 export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
     let governor = Governor.load(event.address.toHexString())
     governor.rewardRate = convertToDecimal(event.params.currentRate, BI_18)
+    governor.preRewardRate = convertToDecimal(event.params.previousRate, BI_18)
     governor.periodFinish = event.params.periodFinish
+    governor.changeRewardBlock = event.block.number
     governor.save()
 }
 
