@@ -15,7 +15,7 @@ import {
 } from '../generated/schema'
 
 import {
-    getTokenPrice,
+    getTokenPrice, REWARD_TOKEN,
     ZERO_BD,
 } from './utils'
 
@@ -207,7 +207,7 @@ export function updateLiquidityMiningDayData(pool: LiquidityPool, timestamp: Big
         liquidityMiningDayData.poolName = CertifiedPools.get(pool.id) as string
         liquidityMiningDayData.lastUpdateBlock = blockNumber
         liquidityMiningDayData.timestamp = dayStartUnix
-        liquidityMiningDayData.token = "MCB"
+        liquidityMiningDayData.token = REWARD_TOKEN
         liquidityMiningDayData.minedAmount = ZERO_BD
         liquidityMiningDayData.minedValueUSD = ZERO_BD
         liquidityMiningDayData.save()
