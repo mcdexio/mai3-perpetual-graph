@@ -92,9 +92,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
 
     let liquidityPool = new LiquidityPool(pool_id)
     if (pool_id == DAO_POOL) {
-        liquidityPool.name = "USDC Pool"
-    } else {
-        liquidityPool.name = "Unknown Pool"
+        liquidityPool.poolName = "USDC Pool"
     }
     liquidityPool.voteAddress = event.params.governor.toHexString()
     liquidityPool.shareAddress = event.params.shareToken.toHexString()

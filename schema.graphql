@@ -40,7 +40,7 @@ type User @entity {
 type LiquidityPool @entity {
     # liquidityPool address
     id: ID!
-    name: String!
+    poolName: String
     factory: Factory!
     collateralName: String!
     collateralAddress: String!
