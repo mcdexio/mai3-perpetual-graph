@@ -158,16 +158,18 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
     /*=============================== hour datas begin ==================================*/
     let liquidityPool = LiquidityPool.load(DAO_POOL)
-    let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
-    let erc20Result = erc20Contract.try_balanceOf(Address.fromString(DAO_POOL))
-    let balance = ZERO_BD
-    if (!erc20Result.reverted) {
-        balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
+    if (liquidityPool != null) {
+        let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
+        let erc20Result = erc20Contract.try_balanceOf(Address.fromString(DAO_POOL))
+        let balance = ZERO_BD
+        if (!erc20Result.reverted) {
+            balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
+        }
+        let totalValueLockedUSD = balance
+    
+        updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
+        factory.totalValueLockedUSD = totalValueLockedUSD
     }
-    let totalValueLockedUSD = balance
-
-    updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
-    factory.totalValueLockedUSD = totalValueLockedUSD
     /*=============================== hour datas end ==================================*/ 
     factory.save()
 }
