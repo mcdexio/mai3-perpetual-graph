@@ -31,7 +31,7 @@ import {
 } from './utils'
 
 import {
-    READER_ADDRESS,
+    DAO_POOL,
 } from './const'
 
 import { updateMcdexTVLData } from './factoryData'
@@ -77,9 +77,10 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.collaterals = []
         factory.timestamp = event.block.timestamp.toI32()  / 3600 * 3600
     }
+    let pool_id = event.params.liquidityPool.toHexString()
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
     let liquidityPools = factory.liquidityPools
-    liquidityPools.push(event.params.liquidityPool.toHexString())
+    liquidityPools.push(pool_id)
     factory.liquidityPools = liquidityPools
     let collateral = event.params.collateral.toHexString()
     let collaterals = factory.collaterals
@@ -89,7 +90,12 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     }
     factory.save()
 
-    let liquidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
+    let liquidityPool = new LiquidityPool(pool_id)
+    if (pool_id == DAO_POOL) {
+        liquidityPool.name = "USDC Pool"
+    } else {
+        liquidityPool.name = "Unknown Pool"
+    }
     liquidityPool.voteAddress = event.params.governor.toHexString()
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
@@ -150,41 +156,15 @@ export function handleSyncPerpData(block: ethereum.Block): void {
     factory.timestamp = hourStartUnix
     factory.latestBlock = block.number
 
-    /*=============================== hour datas begin ==================================*/ 
-    // update token price
-    updateTokenPrice(timestamp)
-    // update liquity pool's liquidity amount in USD
-    let liquidityPools = factory.liquidityPools as string[]
-    let totalValueLockedUSD = ZERO_BD
-    let reader_address = READER_ADDRESS
-    for (let index = 0; index < liquidityPools.length; index++) {
-        let poolIndex = liquidityPools[index]
-        let liquidityPool = LiquidityPool.load(poolIndex)
-        // update poolMargin
-        let poolMargin = ZERO_BD
-        
-        let contract = ReaderContract.bind(Address.fromString(reader_address))
-        let callResult = contract.try_getPoolMargin(Address.fromString(poolIndex))
-        if (!callResult.reverted) {
-            poolMargin = convertToDecimal(callResult.value.value1, BI_18)
-        }
-
-        let collateralPrice = getTokenPrice(liquidityPool.collateralAddress)
-
-        updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
-        updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
-
-        // TODO consider using token transfer event to get collateral balance
-        // update mcdex totalValueLocked
-        let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
-        let erc20Result = erc20Contract.try_balanceOf(Address.fromString(poolIndex))
-        let balance = ZERO_BD
-        if (!erc20Result.reverted) {
-            balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
-        }
-
-        totalValueLockedUSD += balance.times(collateralPrice)
+    /*=============================== hour datas begin ==================================*/
+    let liquidityPool = LiquidityPool.load(DAO_POOL)
+    let erc20Contract = ERC20Contract.bind(Address.fromString(liquidityPool.collateralAddress))
+    let erc20Result = erc20Contract.try_balanceOf(Address.fromString(DAO_POOL))
+    let balance = ZERO_BD
+    if (!erc20Result.reverted) {
+        balance = convertToDecimal(erc20Result.value, liquidityPool.collateralDecimals)
     }
+    let totalValueLockedUSD = balance
 
     updateMcdexTVLData(totalValueLockedUSD, block.timestamp)
     factory.totalValueLockedUSD = totalValueLockedUSD

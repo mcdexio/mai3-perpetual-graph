@@ -40,6 +40,7 @@ type User @entity {
 type LiquidityPool @entity {
     # liquidityPool address
     id: ID!
+    name: String!
     factory: Factory!
     collateralName: String!
     collateralAddress: String!
@@ -73,6 +74,7 @@ type LiquidityPool @entity {
 type Perpetual @entity {
     # liquidity pool address + '-' +perpetual index
     id: ID!
+    name: String!
     index: BigInt!
     factory: Factory!
     symbol: String!

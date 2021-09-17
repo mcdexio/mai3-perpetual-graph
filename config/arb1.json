@@ -1,11 +1,12 @@
 {
     "network": "arbitrum-one",
-    "factory_address": "0x9a691eD8a4482799E9419A17B77b6643cB782E20",
-    "symbol_address": "0x20911345975ef55e31634a62666729d84aeE3aaB",
+    "factory_address": "0xA017B813652b93a0aF2887913EFCBB4ab250CE65",
+    "symbol_address": "0x2842c57C2736BB459BdAc97bAA22596e71f05811",
     "broker_address": "0xf985cA33B8b787599DE77E4Ccf2d0Ecbf27d87d9",
     "reader_address": "0x708C17D0901B76cc5CF8F67e1a2E198077FD8641",
     "eth_oracle": "0x77C073a91B53B35382C7C4cdF4079b7E312d552d",
     "eth_token": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
     "usdc_token": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+    "dao_pool": "0xab324146c49b23658e5b3930e641bdbdf089cbac",
     "start_block": 219883
 }
