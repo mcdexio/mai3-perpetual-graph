@@ -16,7 +16,7 @@ import {
 export function handleTransfer(event: TransferEvent): void {
     let collateralEntity = Collateral.load(event.address.toHexString()) as Collateral
     let from = event.params.from.toHexString()
-    let to = event.params.toHexString()
+    let to = event.params.to.toHexString()
     let value = convertToDecimal(event.params.value, collateralEntity.decimals)
     let liquidityPools = collateralEntity.liquidityPools
     if (isLiquidityPool(liquidityPools as string[], from)) {
@@ -28,6 +28,7 @@ export function handleTransfer(event: TransferEvent): void {
         if (isUSDToken(event.address.toHexString())) {
             let factory = Factory.load(FACTORY) as Factory
             factory.totalValueLockedUSD -= value
+            factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
 
@@ -44,6 +45,7 @@ export function handleTransfer(event: TransferEvent): void {
         if (isUSDToken(event.address.toHexString())) {
             let factory = Factory.load(FACTORY) as Factory
             factory.totalValueLockedUSD += value
+            factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
         // TODO other token which is not usd
