@@ -193,3 +193,21 @@ templates:
         - event: RewardPaid(indexed address,uint256)
           handler: handleRewardPaid
       file: ./src/governor.ts
+  - kind: ethereum/contract
+    name: Colllateral
+    network: {{network}}
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityAccount
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/colllateral.ts
