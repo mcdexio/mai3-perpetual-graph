@@ -145,7 +145,7 @@ export function updateTradeSevenDayData(perp: Perpetual, price: BigDecimal, amou
 
 export function updatePoolHourData(pool: LiquidityPool, timestamp: BigInt, poolMargin: BigDecimal, price: BigDecimal): PoolHourData {
     let poolHourData = getPoolHourData(timestamp, pool.id)
-    let shareToken = ShareToken.load(pool.shareToken)
+    let shareToken = ShareToken.load(pool.shareToken) as ShareToken
     let nav = ZERO_BD
     if (shareToken.totalSupply != ZERO_BD) {
         nav = poolMargin.div(shareToken.totalSupply)
@@ -177,7 +177,7 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
         poolDayData.timestamp = dayStartUnix
     }
 
-    let shareToken = ShareToken.load(pool.shareToken)
+    let shareToken = ShareToken.load(pool.shareToken) as ShareToken
     let nav = ZERO_BD
     if (shareToken.totalSupply != ZERO_BD) {
         nav = poolMargin.div(shareToken.totalSupply)
