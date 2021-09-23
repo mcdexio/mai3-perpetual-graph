@@ -32,10 +32,13 @@ export function handleTransfer(event: TransferEvent): void {
     let deltaEntryPoolMargin = ZERO_BD
     if (from.id != ADDRESS_ZERO) {
         let fromAccount = fetchLiquidityAccount(from, liquidityPool as LiquidityPool)
-        deltaEntryCollateralAmount = fromAccount.entryCollateralAmount.times(value).div(fromAccount.shareAmount)
-        deltaEntryPoolMargin = fromAccount.entryPoolMargin.times(value).div(fromAccount.shareAmount)
-        fromAccount.entryCollateralAmount -= deltaEntryCollateralAmount
-        fromAccount.entryPoolMargin -= deltaEntryPoolMargin
+        if (to.id != ADDRESS_ZERO) {
+            deltaEntryCollateralAmount = fromAccount.entryCollateralAmount.times(value).div(fromAccount.shareAmount)
+            deltaEntryPoolMargin = fromAccount.entryPoolMargin.times(value).div(fromAccount.shareAmount)
+            fromAccount.entryCollateralAmount -= deltaEntryCollateralAmount
+            fromAccount.entryPoolMargin -= deltaEntryPoolMargin
+        }
+
         fromAccount.shareAmount -= value
         fromAccount.save()
     }
@@ -43,8 +46,10 @@ export function handleTransfer(event: TransferEvent): void {
     if (to.id != ADDRESS_ZERO) {
         let toAccount = fetchLiquidityAccount(to, liquidityPool as LiquidityPool)
         toAccount.shareAmount += value
-        toAccount.entryCollateralAmount += deltaEntryCollateralAmount
-        toAccount.entryPoolMargin += deltaEntryPoolMargin
+        if (from.id != ADDRESS_ZERO) {
+            toAccount.entryCollateralAmount += deltaEntryCollateralAmount
+            toAccount.entryPoolMargin += deltaEntryPoolMargin
+        }
         toAccount.save()
     }
 
