@@ -14,6 +14,7 @@ import {
 } from '../generated/schema'
 
 import {
+    getPoolName,
     getTokenPrice,
     ZERO_BD,
 } from './utils'
@@ -21,7 +22,6 @@ import {
 import {
     getPoolHourData
 } from './liquidityPool'
-import {CertifiedPools, TokenList} from "./const";
 
 export function updateTrade15MinData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): Trade15MinData {
     let timestamp = blockTimestamp.toI32()
@@ -170,7 +170,7 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
     if (poolDayData === null) {
         poolDayData = new PoolDayData(dayPoolID)
         poolDayData.liquidityPool = pool.id
-        poolDayData.poolName = CertifiedPools.get(pool.id) as string
+        poolDayData.poolName = getPoolName(pool.id)
         poolDayData.poolMargin = poolMargin
         poolDayData.poolMarginUSD = ZERO_BD
         poolDayData.netAssetValue = ZERO_BD
