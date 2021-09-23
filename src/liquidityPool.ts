@@ -75,7 +75,7 @@ import {CertifiedPools} from "./const";
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let factory = Factory.load(liquidityPool.factory)
+    let factory = Factory.load(liquidityPool.factory) as Factory
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
@@ -85,14 +85,14 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     perp.save()
 
     factory.perpetualCount = factory.perpetualCount.plus(ONE_BI)
-    let perpetuals = factory.perpetuals
+    let perpetuals = factory.perpetuals as string[]
     perpetuals.push(perp.id)
     factory.perpetuals = perpetuals
     factory.save()
 }
 
 export function handleRunLiquidityPool(event: RunLiquidityPoolEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     liquidityPool.isRun = true
     let perpIDs = liquidityPool.perpetualIDs as string[]
     for (let index = 0; index < perpIDs.length; index++) {
@@ -105,14 +105,14 @@ export function handleRunLiquidityPool(event: RunLiquidityPoolEvent): void {
 }
 
 export function handleSetNormalState(event: SetNormalStateEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.NORMAL
     perp.save()
 }
 
 export function handleSetOracle(event: SetOracleEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.newOracle.toHexString()
     perp.underlying = fetchOracleUnderlying(event.params.newOracle)
@@ -120,7 +120,7 @@ export function handleSetOracle(event: SetOracleEvent): void {
 }
 
 export function handleSetEmergencyState(event: SetEmergencyStateEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.EMERGENCY
     perp.settledAtTimestamp = event.block.timestamp
@@ -129,7 +129,7 @@ export function handleSetEmergencyState(event: SetEmergencyStateEvent): void {
 }
 
 export function handleSettle(event: SettleEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     // update amm position and openInterest
     if (event.params.trader.toHexString() == event.address.toHexString()) {
@@ -145,7 +145,7 @@ export function handleSettle(event: SettleEvent): void {
 }
 
 export function handleSetClearedState(event: SetClearedStateEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.state = PerpetualState.CLEARED
     perp.save()
@@ -164,13 +164,13 @@ export function handleWithdraw(event: WithdrawEvent): void {
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
-    let perp = Perpetual.load(id)
+    let perp = Perpetual.load(id) as Perpetual
     let user = fetchUser(event.params.trader)
     let marginAccount = fetchMarginAccount(user, perp as Perpetual)
 }
 
 export function handleAddLiquidity(event: AddLiquidityEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
     if (account.shareAmount == ZERO_BD) {
@@ -203,9 +203,9 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let user = fetchUser(event.params.trader)
-    let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
+    let account = fetchLiquidityAccount(user, liquidityPool)
     let cash = convertToDecimal(-event.params.returnedCash, BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
@@ -252,7 +252,7 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
-    let perp = Perpetual.load(id)
+    let perp = Perpetual.load(id) as Perpetual
     let markPrice = convertToDecimal(event.params.markPrice, BI_18)
     if (perp.lastMarkPrice != markPrice) {
         perp.beforeLastMarkPrice = perp.lastMarkPrice
@@ -262,12 +262,12 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
 }
 
 export function handleTrade(event: TradeEvent): void {
-    let factory = Factory.load(FACTORY)
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let factory = Factory.load(FACTORY) as Factory
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
-    let perp = Perpetual.load(id)
+    let perp = Perpetual.load(id) as Perpetual
 
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
@@ -310,12 +310,12 @@ export function handleTrade(event: TradeEvent): void {
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
-    let factory = Factory.load(FACTORY)
+    let factory = Factory.load(FACTORY) as Factory
     let liquidityPool = LiquidityPool.load(event.address.toHexString())
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
-    let perp = Perpetual.load(id)
+    let perp = Perpetual.load(id) as Perpetual
     let trader = fetchUser(event.params.trader)
     let account = fetchMarginAccount(trader, perp as Perpetual)
     let transactionHash = event.transaction.hash.toHexString()
@@ -397,7 +397,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     liquidityPool.lpExcessInsuranceFund += convertToDecimal(event.params.amount, BI_18)
     liquidityPool.save()
 }

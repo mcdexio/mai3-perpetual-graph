@@ -37,7 +37,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
     let collateral = event.params.collateral.toHexString()
-    let collaterals = factory.collaterals
+    let collaterals = factory.collaterals as string[]
     if (!isCollateralAdded(collaterals as string[], collateral)) {
         collaterals.push(collateral)
         factory.collaterals = collaterals
@@ -100,7 +100,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         collateralEntity.totalBalance = ZERO_BD
         CollateralTemplate.create(event.params.collateral)
     }
-    let liquidityPools = collateralEntity.liquidityPools
+    let liquidityPools = collateralEntity.liquidityPools as string[]
     liquidityPools.push(event.params.liquidityPool.toHexString())
     collateralEntity.liquidityPools = liquidityPools
     collateralEntity.save()
