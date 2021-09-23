@@ -6,6 +6,7 @@
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml; mustache config/kovan.json const.template.ts > src/const.ts",
     "prepare:arbtest": "mustache config/arbtest.json subgraph.template.yaml > subgraph.yaml; mustache config/arbtest.json const.template.ts > src/const.ts",
     "prepare:arb1": "mustache config/arb1.json subgraph.template.yaml > subgraph.yaml; mustache config/arb1.json const.template.ts > src/const.ts",
+    "prepare:bsc": "mustache config/bsc.json subgraph.template.yaml > subgraph.yaml; mustache config/bsc.json const.template.ts > src/const.ts",
     "prepare:op": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml; mustache config/optimism.json const.template.ts > src/const.ts",
     "create": "graph create mcarloai/mcdex3-kovan1 --node https://api.thegraph.com/deploy/",
     "create-local": "graph create mcarloai/mai3-graph --node http://10.30.206.10:8020",
