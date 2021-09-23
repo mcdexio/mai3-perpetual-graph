@@ -4,9 +4,11 @@ export const READER_ADDRESS = '{{reader_address}}'
 
 
 // Notice lower case in config
-// added ["USDT", "USDC", "DAI"]
+// added ["USDT", "BUSD", "USDT"]
 export let USDTokens: string[] = [
     "{{usdc_token}}",
+    "{{busd_token}}",
+    "{{usdt_token}}",
 ]
 
 // !!!!!!!!!!!!!!  Notice Lower Case  !!!!!!!!!!!!!!

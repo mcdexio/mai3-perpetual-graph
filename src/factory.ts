@@ -1,6 +1,6 @@
 import {ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import {Factory, LiquidityPool, ShareToken, Governor} from '../generated/schema'
+import {Factory, LiquidityPool, ShareToken, Governor, Collateral} from '../generated/schema'
 
 import {CreateLiquidityPool} from '../generated/Factory/Factory'
 
@@ -8,7 +8,8 @@ import {CreateLiquidityPool} from '../generated/Factory/Factory'
 import {
     LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
-    Governor as GovernorTemplate
+    Governor as GovernorTemplate,
+    Collateral as CollateralTemplate
 } from '../generated/templates'
 
 import {
@@ -30,16 +31,12 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.txCount = ZERO_BI
-        factory.latestBlock = ZERO_BI
         factory.liquidityPools = []
         factory.perpetuals = []
         factory.collaterals = []
         factory.timestamp = event.block.timestamp.toI32() / 3600 * 3600
     }
     factory.liquidityPoolCount = factory.liquidityPoolCount.plus(ONE_BI)
-    let liquidityPools = factory.liquidityPools
-    liquidityPools.push(event.params.liquidityPool.toHexString())
-    factory.liquidityPools = liquidityPools
     let collateral = event.params.collateral.toHexString()
     let collaterals = factory.collaterals
     if (!isCollateralAdded(collaterals as string[], collateral)) {
@@ -48,13 +45,14 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     }
     factory.save()
 
+    let collateralAddress = event.params.collateral.toHexString()
     let liquidityPool = new LiquidityPool(event.params.liquidityPool.toHexString())
     liquidityPool.voteAddress = event.params.governor.toHexString()
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.factory = factory.id
-    liquidityPool.collateralAddress = collateral
+    liquidityPool.collateralAddress = collateralAddress
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
     liquidityPool.poolMargin = ZERO_BD
@@ -93,4 +91,18 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     LiquidityPoolTemplate.create(event.params.liquidityPool)
     ShareTokenTemplate.create(event.params.shareToken)
     GovernorTemplate.create(event.params.governor)
+
+    // use collateral transfer to get tvl
+    let collateralEntity = Collateral.load(collateralAddress)
+    if (collateralEntity === null) {
+        collateralEntity = new Collateral(collateralAddress)
+        collateralEntity.decimals = event.params.collateralDecimals
+        collateralEntity.liquidityPools = []
+        collateralEntity.totalBalance = ZERO_BD
+        CollateralTemplate.create(event.params.collateral)
+    }
+    let liquidityPools = collateralEntity.liquidityPools
+    liquidityPools.push(event.params.liquidityPool.toHexString())
+    collateralEntity.liquidityPools = liquidityPools
+    collateralEntity.save()
 }

@@ -8,13 +8,11 @@ type Factory @entity {
     # total volume
     totalVolumeUSD: BigDecimal!
 
-    # total liquidity
+    # total pool margin(liquidity + insurance + trader's margin)
     totalValueLockedUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
-    liquidityPools: [String!]
-    collaterals: [String!]
 
     # transactions
     txCount: BigInt!
@@ -38,6 +36,7 @@ type LiquidityPool @entity {
     id: ID!
     factory: Factory!
     collateralName: String!
+    collateralAmount: BigDecimal!
     collateralAddress: String!
     voteAddress: String!
     shareAddress: String!
@@ -53,6 +52,7 @@ type LiquidityPool @entity {
     # liquidity
     liquidityHisCount: BigInt!
     liquidityAccounts: [LiquidityAccount!]! @derivedFrom(field:"liquidityPool")
+    # total pool margin(liquidity + insurance + trader's margin)
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     liquidityProviderCount: BigInt!
@@ -122,13 +122,12 @@ type ShareToken @entity {
     totalSupply: BigDecimal!
 }
 
-type CollateralBalance @entity {
-    # collateral address + '-' + account address
+type Collateral @entity {
+    # collateral address
     id: ID!
-    collateralName: String!
-    collateralAddress: String!
-    account: String!
-    balance: BigDecimal!
+    decimals: BigInt!
+    liquidityPools: [String!]
+    totalBalance: BigDecimal!
 }
 
 type LiquidityAccount @entity {

@@ -1,0 +1,13 @@
+{
+    "network": "bsc",
+    "factory_address": "0xfB4cD1bf5C5919A29fb894c8ddC4A69A36f5Ec87",
+    "symbol_address": "0x39f632208bb924f5c4c6253b042Cd056eca3710D",
+    "broker_address": "0xbCCF6C081d9aa6E8B85602C04e66c5405D9be4A7",
+    "reader_address": "0x93a9182883C1019e1dBEbB5d40C140e7680cd151",
+    "eth_oracle": "0x77C073a91B53B35382C7C4cdF4079b7E312d552d",
+    "eth_token": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+    "usdc_token": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+    "busd_token": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+    "usdt_token": "0x55d398326f99059ff775485246999027b3197955",
+    "start_block": 11137817
+}

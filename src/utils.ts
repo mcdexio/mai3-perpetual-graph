@@ -47,6 +47,15 @@ export function isCollateralAdded(collaterals: string[], collateral: string): bo
   return false
 }
 
+export function isLiquidityPool(pools: string[], address: string): boolean {
+  for (let i = 0; i < pools.length; i++) {
+    if (address == pools[i]) {
+      return true
+    }
+  }
+  return false
+}
+
 export function fetchUser(address: Address): User {
   let user = User.load(address.toHexString())
   if (user === null) {
