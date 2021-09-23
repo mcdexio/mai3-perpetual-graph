@@ -10,7 +10,6 @@ import {
     PoolHourData,
     PoolDayData,
     ShareToken,
-    LiquidityMiningDayData,
     Governor
 } from '../generated/schema'
 
@@ -191,70 +190,4 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
     pool.save()
     poolDayData.save()
     return poolDayData as PoolDayData
-}
-
-
-export function updateLiquidityMiningDayData(pool: LiquidityPool, timestamp: BigInt, blockNumber: BigInt): void {
-    let dayIndex = timestamp.toI32() / (3600 * 24)
-    let dayStartUnix = dayIndex * (3600 * 24)
-    let dayLiquidityMiningID = pool.id
-        .concat('-')
-        .concat(BigInt.fromI32(dayIndex).toString())
-    let liquidityMiningDayData = LiquidityMiningDayData.load(dayLiquidityMiningID)
-    if (liquidityMiningDayData === null) {
-        liquidityMiningDayData = new LiquidityMiningDayData(dayLiquidityMiningID)
-        liquidityMiningDayData.pool = pool.id
-        liquidityMiningDayData.poolName = CertifiedPools.get(pool.id) as string
-        liquidityMiningDayData.lastUpdateBlock = blockNumber
-        liquidityMiningDayData.timestamp = dayStartUnix
-        liquidityMiningDayData.token = "MCB"
-        liquidityMiningDayData.minedAmount = ZERO_BD
-        liquidityMiningDayData.minedValueUSD = ZERO_BD
-        liquidityMiningDayData.save()
-
-        let lastDayLiquidityMiningID = pool.id
-            .concat('-')
-            .concat(BigInt.fromI32(dayIndex - 1).toString())
-        let lastLiquidityMiningDayData = LiquidityMiningDayData.load(lastDayLiquidityMiningID)
-        if (lastLiquidityMiningDayData != null) {
-            updateLMDayDataIfNotNull(pool, lastLiquidityMiningDayData!, blockNumber)
-        }
-    } else {
-        updateLMDayDataIfNotNull(pool, liquidityMiningDayData!, blockNumber)
-    }
-}
-
-
-export function updateLMDayDataIfNotNull(pool: LiquidityPool, liquidityMiningDayData: LiquidityMiningDayData, blockNumber: BigInt): void {
-    let governor = Governor.load(pool.governor)
-    let hourReward = ZERO_BD
-    let mcbPrice = getTokenPrice(TokenList[1])
-
-    if (governor.periodFinish > liquidityMiningDayData.lastUpdateBlock && governor.periodFinish <= blockNumber) {
-        if (governor.changeRewardBlock > liquidityMiningDayData.lastUpdateBlock &&
-            governor.changeRewardBlock <= governor.periodFinish) {
-            let hourReward1 = (governor.changeRewardBlock.minus(liquidityMiningDayData.lastUpdateBlock)).toBigDecimal().times(governor.preRewardRate)
-            let hourReward2 = (governor.periodFinish.minus(governor.changeRewardBlock)).toBigDecimal().times(governor.rewardRate)
-            hourReward = hourReward1.plus(hourReward2)
-        } else if (governor.changeRewardBlock > governor.periodFinish &&
-            governor.changeRewardBlock < blockNumber) {
-            hourReward = (governor.periodFinish.minus(liquidityMiningDayData.lastUpdateBlock)).toBigDecimal().times(governor.preRewardRate)
-        } else {
-            hourReward = (governor.periodFinish.minus(liquidityMiningDayData.lastUpdateBlock)).toBigDecimal().times(governor.rewardRate)
-        }
-    } else if (governor.periodFinish > blockNumber) {
-        if (governor.changeRewardBlock > liquidityMiningDayData.lastUpdateBlock &&
-            governor.changeRewardBlock < blockNumber) {
-            let hourReward1 = (governor.changeRewardBlock.minus(liquidityMiningDayData.lastUpdateBlock)).toBigDecimal().times(governor.preRewardRate)
-            let hourReward2 = (blockNumber.minus(governor.changeRewardBlock)).toBigDecimal().times(governor.rewardRate)
-            hourReward = hourReward1.plus(hourReward2)
-        } else {
-            hourReward = (blockNumber.minus(liquidityMiningDayData.lastUpdateBlock)).toBigDecimal().times(governor.rewardRate)
-        }
-    }
-    liquidityMiningDayData.minedAmount = liquidityMiningDayData.minedAmount.plus(hourReward)
-    liquidityMiningDayData.minedValueUSD = liquidityMiningDayData.minedValueUSD.plus(hourReward.times(mcbPrice))
-
-    liquidityMiningDayData.lastUpdateBlock = blockNumber
-    liquidityMiningDayData.save()
 }

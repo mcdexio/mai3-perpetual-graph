@@ -169,17 +169,6 @@ type Governor @entity {
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
 }
 
-type LiquidityMiningDayData @entity{
-    id: ID!
-    pool: String!
-    poolName: String
-    lastUpdateBlock: BigInt!
-    timestamp: Int!
-    token: String!
-    minedAmount: BigDecimal!
-    minedValueUSD: BigDecimal!
-}
-
 type LiquidityHistory @entity {
     # trasaction hash + "-" + index
     id: ID!

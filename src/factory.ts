@@ -7,7 +7,7 @@ import {Reader as ReaderContract} from '../generated/Factory/Reader'
 import {ERC20 as ERC20Contract} from '../generated/Factory/ERC20'
 
 
-import {updatePoolHourData, updatePoolDayData, updateLiquidityMiningDayData} from './dataUpdate'
+import {updatePoolHourData, updatePoolDayData} from './dataUpdate'
 
 
 import {
@@ -175,8 +175,6 @@ export function handleSyncPerpData(block: ethereum.Block): void {
 
         updatePoolHourData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
         updatePoolDayData(liquidityPool as LiquidityPool, block.timestamp, poolMargin, collateralPrice)
-
-        updateLiquidityMiningDayData(liquidityPool as LiquidityPool, block.timestamp, block.number)
 
         // TODO consider using token transfer event to get collateral balance
         // update mcdex totalValueLocked
