@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{start_block}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Factory
@@ -40,7 +40,7 @@ dataSources:
       startBlock: {{start_block}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Perpetual
@@ -60,7 +60,7 @@ dataSources:
       startBlock: {{start_block}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - MatchOrder
@@ -81,7 +81,7 @@ templates:
       abi: LiquidityPool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - User
@@ -152,7 +152,7 @@ templates:
       abi: ShareToken
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - LiquidityAccount
@@ -170,7 +170,7 @@ templates:
       abi: Governor
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - LiquidityPosition
@@ -194,20 +194,20 @@ templates:
           handler: handleRewardPaid
       file: ./src/governor.ts
   - kind: ethereum/contract
-    name: Colllateral
+    name: Collateral
     network: {{network}}
     source:
       abi: ERC20
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - LiquidityAccount
+        - Collateral
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ./src/colllateral.ts
+      file: ./src/collateral.ts
