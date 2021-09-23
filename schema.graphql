@@ -13,6 +13,7 @@ type Factory @entity {
 
     # perpetuals for block handler
     perpetuals: [String!]
+    collaterals: [String!]
 
     # transactions
     txCount: BigInt!
