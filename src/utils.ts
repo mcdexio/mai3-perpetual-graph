@@ -4,7 +4,7 @@ import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAc
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { USDTokens, TokenList, OracleList } from './const'
+import { USDTokens, TokenList, OracleList, CertifiedPools } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -287,4 +287,12 @@ export function getTokenPrice(token: string): BigDecimal {
     return ZERO_BD
   }
   return priceBucket.price
+}
+
+export function getPoolName(pool: string): string {
+  if (CertifiedPools.isSet(pool)) {
+    return CertifiedPools.get(pool) as string
+  }
+
+  return ""
 }

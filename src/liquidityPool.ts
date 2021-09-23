@@ -69,9 +69,9 @@ import {
     AbsBigDecimal,
     NegBigDecimal,
     FACTORY,
-    getTokenPrice
+    getTokenPrice,
+    getPoolName
 } from './utils'
-import {CertifiedPools} from "./const";
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
@@ -412,7 +412,7 @@ export function getPoolHourData(timestamp: BigInt, poolID: string): PoolHourData
     if (poolHourData === null) {
         poolHourData = new PoolHourData(hourPoolID)
         poolHourData.liquidityPool = poolID
-        poolHourData.poolName = CertifiedPools.get(poolID) as string
+        poolHourData.poolName = getPoolName(poolID)
         poolHourData.timestamp = hourStartUnix
         let lastHourPoolID = poolID
             .concat('-')
