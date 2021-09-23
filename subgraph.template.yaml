@@ -29,10 +29,6 @@ dataSources:
       eventHandlers:
         - event: CreateLiquidityPool(bytes32,indexed address,indexed address,indexed address,address,address,uint256,bytes)
           handler: handleCreateLiquidityPool
-        - event: SetVaultFeeRate(int256,int256)
-          handler: handleSetVaultFeeRate
-      blockHandlers:
-        - handler: handleSyncPerpData
       file: ./src/factory.ts
 
   - kind: ethereum/contract

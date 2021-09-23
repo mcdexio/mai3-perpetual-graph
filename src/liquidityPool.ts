@@ -10,7 +10,9 @@ import {
     User,
     MarginAccount,
     Liquidate,
-    LiquidityHistory
+    LiquidityHistory,
+    FundingRateMinData,
+    FundingRateHourData
 } from '../generated/schema'
 
 import {
@@ -288,8 +290,6 @@ export function handleTrade(event: TradeEvent): void {
     perp.lastUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
     let volumeUSD = ZERO_BD
-    let vaultFee = factory.vaultFeeRate.times(volume)
-    let vaultFeeUSD = ZERO_BD
     perp.totalVolume += volume
     perp.totalFee += fee
     // to USD
@@ -297,8 +297,6 @@ export function handleTrade(event: TradeEvent): void {
     volumeUSD = volume.times(tokenPrice)
     perp.totalVolumeUSD += volumeUSD
     factory.totalVolumeUSD += volumeUSD
-    vaultFeeUSD = vaultFee.times(tokenPrice)
-    factory.totalVaultFeeUSD += vaultFeeUSD
     perp.save()
     factory.save()
 
@@ -348,13 +346,9 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
     let volume = AbsBigDecimal(amount).times(price)
     let volumeUSD = ZERO_BD
-    let vaultFee = factory.vaultFeeRate.times(volume)
-    let vaultFeeUSD = ZERO_BD
     // to USD
     let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
     volumeUSD = volume.times(tokenPrice)
-    vaultFeeUSD = vaultFee.times(tokenPrice)
-    factory.totalVaultFeeUSD += vaultFeeUSD
 
     let type = TradeType.LIQUIDATEBYAMM
     // liquidator

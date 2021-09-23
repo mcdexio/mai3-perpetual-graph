@@ -11,10 +11,6 @@ type Factory @entity {
     # total liquidity
     totalValueLockedUSD: BigDecimal!
 
-    # total vault fee
-    vaultFeeRate: BigDecimal!
-    totalVaultFeeUSD: BigDecimal!
-
     # perpetuals for block handler
     perpetuals: [String!]
     liquidityPools: [String!]
