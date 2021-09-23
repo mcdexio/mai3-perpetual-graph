@@ -31,7 +31,6 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.totalVolumeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.txCount = ZERO_BI
-        factory.liquidityPools = []
         factory.perpetuals = []
         factory.collaterals = []
         factory.timestamp = event.block.timestamp.toI32() / 3600 * 3600
