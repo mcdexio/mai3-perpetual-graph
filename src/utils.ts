@@ -112,7 +112,7 @@ export function fetchPerpetual(liquidityPool: LiquidityPool, perpetualIndex: Big
     perp.save()
 
     // update pool perpetualIDs
-    let perpetualIDs = liquidityPool.perpetualIDs
+    let perpetualIDs = liquidityPool.perpetualIDs as string[]
     perpetualIDs.push(id)
     liquidityPool.perpetualIDs = perpetualIDs
     liquidityPool.save()

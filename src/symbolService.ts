@@ -10,8 +10,8 @@ import {
 } from './utils'
 
 export function handleAllocateSymbol(event: AllocateSymbolEvent): void {
-    let liquidityPool = LiquidityPool.load(event.params.liquidityPool.toHexString())
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let liquidityPool = LiquidityPool.load(event.params.liquidityPool.toHexString()) as LiquidityPool
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     let symbol = event.params.symbol.toString()
     let symbolLen = symbol.length
     if (symbolLen < 5) {

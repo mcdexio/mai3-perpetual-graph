@@ -14,8 +14,8 @@ import {
 } from './utils'
 
 export function handleTransfer(event: TransferEvent): void {
-    let contract = ShareToken.load(event.address.toHexString())
-    let liquidityPool = LiquidityPool.load(contract.liquidityPool)
+    let contract = ShareToken.load(event.address.toHexString()) as ShareToken
+    let liquidityPool = LiquidityPool.load(contract.liquidityPool) as LiquidityPool
     let from = fetchUser(event.params.from)
     let to = fetchUser(event.params.to)
 
@@ -31,7 +31,7 @@ export function handleTransfer(event: TransferEvent): void {
     let deltaEntryCollateralAmount = ZERO_BD
     let deltaEntryPoolMargin = ZERO_BD
     if (from.id != ADDRESS_ZERO) {
-        let fromAccount = fetchLiquidityAccount(from, liquidityPool as LiquidityPool)
+        let fromAccount = fetchLiquidityAccount(from, liquidityPool)
         if (to.id != ADDRESS_ZERO) {
             deltaEntryCollateralAmount = fromAccount.entryCollateralAmount.times(value).div(fromAccount.shareAmount)
             deltaEntryPoolMargin = fromAccount.entryPoolMargin.times(value).div(fromAccount.shareAmount)
@@ -44,7 +44,7 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     if (to.id != ADDRESS_ZERO) {
-        let toAccount = fetchLiquidityAccount(to, liquidityPool as LiquidityPool)
+        let toAccount = fetchLiquidityAccount(to, liquidityPool)
         toAccount.shareAmount += value
         if (from.id != ADDRESS_ZERO) {
             toAccount.entryCollateralAmount += deltaEntryCollateralAmount

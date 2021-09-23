@@ -74,7 +74,7 @@ import {
 import {CertifiedPools} from "./const";
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let factory = Factory.load(liquidityPool.factory) as Factory
     let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
     perp.oracleAddress = event.params.oracle.toHexString()
@@ -97,7 +97,7 @@ export function handleRunLiquidityPool(event: RunLiquidityPoolEvent): void {
     let perpIDs = liquidityPool.perpetualIDs as string[]
     for (let index = 0; index < perpIDs.length; index++) {
         let id = perpIDs[index]
-        let perp = Perpetual.load(id)
+        let perp = Perpetual.load(id) as Perpetual
         perp.isRun = true
         perp.save()
     }
@@ -311,7 +311,7 @@ export function handleTrade(event: TradeEvent): void {
 
 export function handleLiquidate(event: LiquidateEvent): void {
     let factory = Factory.load(FACTORY) as Factory
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let id = event.address.toHexString()
         .concat('-')
         .concat(event.params.perpetualIndex.toString())
@@ -514,7 +514,7 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
 }
 
 export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let poolMargin = convertToDecimal(event.params.poolMargin, BI_18)
     let collateralPrice = getTokenPrice(liquidityPool.collateralAddress)
     // update poolMargin
@@ -523,8 +523,8 @@ export function handleUpdatePoolMargin(event: UpdatePoolMarginEvent): void {
 }
 
 export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativeFundingEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     let acc = convertToDecimal(event.params.unitAccumulativeFunding, BI_18)
     perp.unitAccumulativeFunding = acc
     perp.save()
@@ -546,21 +546,21 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
 }
 
 export function handleClaimOperator(event: ClaimOperatorEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     liquidityPool.operatorAddress = event.params.newOperator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.save()
 }
 
 export function handleOperatorCheckIn(event: OperatorCheckInEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
     liquidityPool.save()
 }
 
 export function handleAddAMMKeeper(event: AddAMMKeeperEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     let keepers = perp.byAmmKeepers
     keepers.push(event.params.keeper.toHexString())
     perp.byAmmKeepers = keepers
@@ -568,8 +568,8 @@ export function handleAddAMMKeeper(event: AddAMMKeeperEvent): void {
 }
 
 export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     let removedKeeper = event.params.keeper.toHexString()
     let ammKeepers = perp.byAmmKeepers
     let keepers: string[] = []
@@ -584,8 +584,8 @@ export function handleRemoveAMMKeeper(event: RemoveAMMKeeperEvent): void {
 }
 
 export function handleUpdateFundingRate(event: UpdateFundingRateEvent): void {
-    let liquidityPool = LiquidityPool.load(event.address.toHexString())
-    let perp = fetchPerpetual(liquidityPool as LiquidityPool, event.params.perpetualIndex)
+    let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
+    let perp = fetchPerpetual(liquidityPool, event.params.perpetualIndex)
     let timestamp = event.block.timestamp.toI32()
     let fundingRate = convertToDecimal(event.params.fundingRate, BI_18)
     let minIndex = timestamp / 60
