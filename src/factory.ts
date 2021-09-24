@@ -20,6 +20,7 @@ import {
     FACTORY,
     isCollateralAdded,
     OPERATOR_EXP,
+    getPoolName,
 } from './utils'
 
 export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
@@ -50,6 +51,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
     liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
+    liquidityPool.poolName = getPoolName(liquidityPool.id)
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = collateralAddress
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
