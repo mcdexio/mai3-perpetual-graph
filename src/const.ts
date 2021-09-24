@@ -2,7 +2,6 @@ import {TypedMap} from '@graphprotocol/graph-ts'
 
 export const READER_ADDRESS = '0x708C17D0901B76cc5CF8F67e1a2E198077FD8641'
 
-
 // Notice lower case in config
 // added ["USDT", "USDC", "DAI"]
 export let USDTokens: string[] = [

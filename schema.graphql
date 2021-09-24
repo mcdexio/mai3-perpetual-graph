@@ -35,6 +35,7 @@ type User @entity {
 type LiquidityPool @entity {
     # liquidityPool address
     id: ID!
+    poolName: String!
     factory: Factory!
     collateralName: String!
     collateralAmount: BigDecimal!
@@ -70,6 +71,7 @@ type LiquidityPool @entity {
 type Perpetual @entity {
     # liquidity pool address + '-' +perpetual index
     id: ID!
+    name: String!
     index: BigInt!
     factory: Factory!
     symbol: String!
@@ -306,7 +308,6 @@ type PoolHourData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
-    poolName: String
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!
@@ -317,7 +318,6 @@ type PoolDayData @entity {
     # pool address + "-" + timeindex
     id: ID!
     liquidityPool: String!
-    poolName: String
     poolMargin: BigDecimal!
     poolMarginUSD: BigDecimal!
     netAssetValue: BigDecimal!

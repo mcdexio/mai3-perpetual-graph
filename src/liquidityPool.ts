@@ -70,7 +70,6 @@ import {
     NegBigDecimal,
     FACTORY,
     getTokenPrice,
-    getPoolName
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
@@ -80,6 +79,7 @@ export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
     perp.oracleAddress = event.params.oracle.toHexString()
     perp.operatorAddress = event.params.operator.toHexString()
     perp.underlying = fetchOracleUnderlying(event.params.oracle)
+    perp.name = perp.underlying.concat('-').concat(perp.collateralName)
     perp.createdAtTimestamp = event.block.timestamp
     perp.createdAtBlockNumber = event.block.number
     perp.save()
@@ -412,7 +412,6 @@ export function getPoolHourData(timestamp: BigInt, poolID: string): PoolHourData
     if (poolHourData === null) {
         poolHourData = new PoolHourData(hourPoolID)
         poolHourData.liquidityPool = poolID
-        poolHourData.poolName = getPoolName(poolID)
         poolHourData.timestamp = hourStartUnix
         let lastHourPoolID = poolID
             .concat('-')

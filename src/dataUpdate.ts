@@ -10,12 +10,9 @@ import {
     PoolHourData,
     PoolDayData,
     ShareToken,
-    Governor
 } from '../generated/schema'
 
 import {
-    getPoolName,
-    getTokenPrice,
     ZERO_BD,
 } from './utils'
 
@@ -170,7 +167,6 @@ export function updatePoolDayData(pool: LiquidityPool, timestamp: BigInt, poolMa
     if (poolDayData === null) {
         poolDayData = new PoolDayData(dayPoolID)
         poolDayData.liquidityPool = pool.id
-        poolDayData.poolName = getPoolName(pool.id)
         poolDayData.poolMargin = poolMargin
         poolDayData.poolMarginUSD = ZERO_BD
         poolDayData.netAssetValue = ZERO_BD
