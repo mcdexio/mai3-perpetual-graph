@@ -10,6 +10,8 @@ export let USDTokens: string[] = [
     "{{usdt_token}}",
 ]
 
+export let ValueCaptureAddress = "{{value_capture_address}}"
+
 export const ETH_ADDRESS = '{{eth_token}}'
 export const BTC_ADDRESS = '{{btc_token}}'
 export const ETH_PERPETUAL = '{{eth_perpetual}}'

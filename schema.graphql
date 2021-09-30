@@ -4,14 +4,15 @@ type Factory @entity {
 
     perpetualCount: BigInt!
     liquidityPoolCount: BigInt!
+    vaultAddress: String!
 
     # total volume
     totalVolumeUSD: BigDecimal!
 
     # total pool margin(liquidity + insurance + trader's margin)
     totalValueLockedUSD: BigDecimal!
-    totalFeeUSD: BigDecimal!
-    totalLpFeeUSD: BigDecimal!
+    totalSupplySideRevenueUSD: BigDecimal!
+    totalProtocolRevenueUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
