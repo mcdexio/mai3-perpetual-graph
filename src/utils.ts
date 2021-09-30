@@ -3,8 +3,7 @@ import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAccount, VoteAccount, Governor } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
-import { Oracle as OracleContract } from '../generated/Factory/Oracle'
-import { USDTokens, TokenList, OracleList, CertifiedPools } from './const'
+import { USDTokens, CertifiedPools, ETH_ADDRESS, BTC_ADDRESS } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
@@ -242,39 +241,24 @@ export function fetchOracleUnderlying(address: Address): string {
   return underlying
 }
 
-function getPriceFromOracle(oracle: string): BigDecimal {
-  let contract = OracleContract.bind(Address.fromString(oracle))
-  let callResult = contract.try_priceTWAPShort()
-  if(callResult.reverted){
-      log.warning("try_priceTWAPShort reverted. oracle: {}", [oracle])
-      return ZERO_BD
+export function setETHPrice(price: BigDecimal, timestamp: BigInt) {
+  let priceBucket = PriceBucket.load(ETH_ADDRESS)
+  if (priceBucket == null) {
+    priceBucket = new PriceBucket(ETH_ADDRESS)
   }
-
-  return convertToDecimal(callResult.value.value0, BI_18)
+  priceBucket.price = price
+  priceBucket.timestamp = timestamp.toI32()
+  priceBucket.save()
 }
 
-export function updateTokenPrice(timestamp: i32): void {
-  // update token price every hour
-  let index = timestamp / 3600
-  let startUnix = index * 3600
-
-  for (let i = 0; i < TokenList.length; i++) {
-      let priceBucket = PriceBucket.load(TokenList[i])
-      if (priceBucket == null) {
-          priceBucket = new PriceBucket(TokenList[i])
-          priceBucket.price = getPriceFromOracle(OracleList[i])
-          priceBucket.timestamp = startUnix
-          priceBucket.save()
-          continue
-      }
-
-      if (priceBucket.timestamp != startUnix) {
-          let price = getPriceFromOracle(OracleList[i])
-          priceBucket.price = price
-          priceBucket.timestamp = startUnix
-          priceBucket.save()
-      }
+export function setBTCPrice(price: BigDecimal, timestamp: BigInt) {
+  let priceBucket = PriceBucket.load(BTC_ADDRESS)
+  if (priceBucket == null) {
+    priceBucket = new PriceBucket(BTC_ADDRESS)
   }
+  priceBucket.price = price
+  priceBucket.timestamp = timestamp.toI32()
+  priceBucket.save()
 }
 
 export function getTokenPrice(token: string): BigDecimal {
