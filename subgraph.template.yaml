@@ -97,6 +97,8 @@ templates:
       abis:
         - name: LiquidityPool
           file: ./abis/LiquidityPool.json
+        - name: Oracle
+          file: ./abis/Oracle.json
       eventHandlers:
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[8])
           handler: handleCreatePerpetual
