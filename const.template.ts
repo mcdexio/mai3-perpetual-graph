@@ -10,15 +10,10 @@ export let USDTokens: string[] = [
     "{{usdt_token}}",
 ]
 
-// !!!!!!!!!!!!!!  Notice Lower Case  !!!!!!!!!!!!!!
-// TokenList: tokens need to get price
-export let TokenList: string[] = [
-    "{{eth_token}}","{{mcb_token}}"
-]
-// OracleList: oracles of each token upper, Notice: index must same with its token
-export let OracleList: string[] = [
-    "{{eth_oracle}}","{{mcb_oracle}}"
-]
+export const ETH_ADDRESS = '{{eth_token}}'
+export const BTC_ADDRESS = '{{btc_token}}'
+export const ETH_PERPETUAL = '{{eth_perpetual}}'
+export const BTC_PERPETUAL = '{{btc_perpetual}}'
 
 // certified pool address to name
 export let CertifiedPools = new TypedMap<string, string>();

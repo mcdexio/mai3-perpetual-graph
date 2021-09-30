@@ -30,6 +30,8 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
         factory.liquidityPoolCount = ZERO_BI
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
+        factory.totalFeeUSD = ZERO_BD
+        factory.totalLpFeeUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.txCount = ZERO_BI
         factory.perpetuals = []
@@ -56,6 +58,8 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.collateralAddress = collateralAddress
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
+    liquidityPool.collateralAmount = ZERO_BD
+    liquidityPool.collateralUSD = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
     liquidityPool.poolMarginUSD = ZERO_BD
     liquidityPool.lpExcessInsuranceFund = ZERO_BD

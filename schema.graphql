@@ -10,6 +10,8 @@ type Factory @entity {
 
     # total pool margin(liquidity + insurance + trader's margin)
     totalValueLockedUSD: BigDecimal!
+    totalFeeUSD: BigDecimal!
+    totalLpFeeUSD: BigDecimal!
 
     # perpetuals for block handler
     perpetuals: [String!]
@@ -39,6 +41,7 @@ type LiquidityPool @entity {
     factory: Factory!
     collateralName: String!
     collateralAmount: BigDecimal!
+    collateralUSD: BigDecimal!
     collateralAddress: String!
     voteAddress: String!
     shareAddress: String!

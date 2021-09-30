@@ -9,12 +9,14 @@ import { updateMcdexTVLData } from './factoryData'
 import {
     convertToDecimal,
     FACTORY,
+    getTokenPrice,
     isLiquidityPool,
-    isUSDToken,
+    ZERO_BD,
 } from './utils'
 
 export function handleTransfer(event: TransferEvent): void {
-    let collateralEntity = Collateral.load(event.address.toHexString()) as Collateral
+    let token = event.address.toHexString()
+    let collateralEntity = Collateral.load(token) as Collateral
     let from = event.params.from.toHexString()
     let to = event.params.to.toHexString()
     let value = convertToDecimal(event.params.value, collateralEntity.decimals)
@@ -23,31 +25,37 @@ export function handleTransfer(event: TransferEvent): void {
         collateralEntity.totalBalance -= value
         let pool = LiquidityPool.load(from) as LiquidityPool
         pool.collateralAmount -= value
-        pool.save()
         collateralEntity.save()
-        if (isUSDToken(event.address.toHexString())) {
+
+        let token_price = getTokenPrice(token)
+        if (token_price > ZERO_BD) {
             let factory = Factory.load(FACTORY) as Factory
-            factory.totalValueLockedUSD -= value
+            let oldCollateralUSD = pool.collateralUSD
+            pool.collateralUSD = pool.collateralAmount.times(token_price)
+            factory.totalValueLockedUSD -= oldCollateralUSD
+            factory.totalValueLockedUSD += pool.collateralUSD
             factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
-
-        // TODO other token which is not usd
+        pool.save()
     }
 
     if (isLiquidityPool(liquidityPools as string[], to)) {
         collateralEntity.totalBalance += value
         let pool = LiquidityPool.load(to) as LiquidityPool
         pool.collateralAmount += value
-        pool.save()
         collateralEntity.save()
 
-        if (isUSDToken(event.address.toHexString())) {
+        let token_price = getTokenPrice(token)
+        if (token_price > ZERO_BD) {
             let factory = Factory.load(FACTORY) as Factory
-            factory.totalValueLockedUSD += value
+            let oldCollateralUSD = pool.collateralUSD
+            pool.collateralUSD = pool.collateralAmount.times(token_price)
+            factory.totalValueLockedUSD -= oldCollateralUSD
+            factory.totalValueLockedUSD += pool.collateralUSD
             factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
-        // TODO other token which is not usd
+        pool.save()
     }
 }
