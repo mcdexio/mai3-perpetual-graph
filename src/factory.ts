@@ -2,7 +2,7 @@ import {ethereum, log, Address} from "@graphprotocol/graph-ts"
 
 import {Factory, LiquidityPool, ShareToken, Governor, Collateral} from '../generated/schema'
 
-import {CreateLiquidityPool} from '../generated/Factory/Factory'
+import {CreateLiquidityPool, SetVault} from '../generated/Factory/Factory'
 
 
 import {
@@ -22,16 +22,37 @@ import {
     OPERATOR_EXP,
     getPoolName,
 } from './utils'
+import { ValueCaptureAddress } from "./const"
 
-export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
+export function handleSetVault(event: SetVault): void {
     let factory = Factory.load(FACTORY)
     if (factory === null) {
         factory = new Factory(FACTORY)
         factory.liquidityPoolCount = ZERO_BI
         factory.perpetualCount = ZERO_BI
         factory.totalVolumeUSD = ZERO_BD
-        factory.totalFeeUSD = ZERO_BD
-        factory.totalLpFeeUSD = ZERO_BD
+        factory.totalSupplySideRevenueUSD = ZERO_BD
+        factory.totalProtocolRevenueUSD = ZERO_BD
+        factory.totalValueLockedUSD = ZERO_BD
+        factory.txCount = ZERO_BI
+        factory.perpetuals = []
+        factory.collaterals = []
+        factory.timestamp = event.block.timestamp.toI32() / 3600 * 3600
+    }
+    factory.vaultAddress = event.params.newVault.toHexString()
+    factory.save()
+}
+
+export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
+    let factory = Factory.load(FACTORY)
+    if (factory === null) {
+        factory = new Factory(FACTORY)
+        factory.vaultAddress = ValueCaptureAddress
+        factory.liquidityPoolCount = ZERO_BI
+        factory.perpetualCount = ZERO_BI
+        factory.totalVolumeUSD = ZERO_BD
+        factory.totalSupplySideRevenueUSD = ZERO_BD
+        factory.totalProtocolRevenueUSD = ZERO_BD
         factory.totalValueLockedUSD = ZERO_BD
         factory.txCount = ZERO_BI
         factory.perpetuals = []

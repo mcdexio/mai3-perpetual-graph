@@ -307,8 +307,7 @@ export function handleTrade(event: TradeEvent): void {
     volumeUSD = volume.times(tokenPrice)
     perp.totalVolumeUSD += volumeUSD
     factory.totalVolumeUSD += volumeUSD
-    factory.totalFeeUSD += fee.times(tokenPrice)
-    factory.totalLpFeeUSD += lpFee.times(tokenPrice)
+    factory.totalSupplySideRevenueUSD += lpFee.times(tokenPrice)
     perp.save()
     factory.save()
 
@@ -381,8 +380,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         // update perpetual trade volume
         perp.totalVolume += volume
         perp.totalVolumeUSD += volumeUSD
-        factory.totalFeeUSD += penalty.times(tokenPrice)
-        factory.totalLpFeeUSD += lpPenalty.times(tokenPrice)
+        factory.totalSupplySideRevenueUSD += lpPenalty.times(tokenPrice)
         factory.totalVolumeUSD += volumeUSD
         // update trade data
         updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
