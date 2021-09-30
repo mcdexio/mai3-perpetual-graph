@@ -3,6 +3,7 @@ import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAccount, VoteAccount, Governor } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
+import { Oracle as OracleContract } from '../generated/Factory/Oracle'
 import { USDTokens, CertifiedPools, ETH_ADDRESS, BTC_ADDRESS } from './const'
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -241,7 +242,7 @@ export function fetchOracleUnderlying(address: Address): string {
   return underlying
 }
 
-export function setETHPrice(price: BigDecimal, timestamp: BigInt) {
+export function setETHPrice(price: BigDecimal, timestamp: BigInt): void {
   let priceBucket = PriceBucket.load(ETH_ADDRESS)
   if (priceBucket == null) {
     priceBucket = new PriceBucket(ETH_ADDRESS)
@@ -251,7 +252,7 @@ export function setETHPrice(price: BigDecimal, timestamp: BigInt) {
   priceBucket.save()
 }
 
-export function setBTCPrice(price: BigDecimal, timestamp: BigInt) {
+export function setBTCPrice(price: BigDecimal, timestamp: BigInt): void {
   let priceBucket = PriceBucket.load(BTC_ADDRESS)
   if (priceBucket == null) {
     priceBucket = new PriceBucket(BTC_ADDRESS)
