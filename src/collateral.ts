@@ -3,7 +3,6 @@ import {
 } from '../generated/Factory/ERC20'
 
 import {Factory, LiquidityPool, Collateral} from '../generated/schema'
-import { CertifiedPools } from './const'
 import { updateMcdexTVLData } from './factoryData'
 
 
@@ -36,7 +35,7 @@ export function handleTransfer(event: TransferEvent): void {
             factory.totalValueLockedUSD -= oldCollateralUSD
             factory.totalValueLockedUSD += pool.collateralUSD
             // capture protocol revenue
-            if ((to == factory.vaultAddress) || (to == pool.operatorAddress && CertifiedPools.isSet(from))) {
+            if (to == factory.vaultAddress) {
                 factory.totalProtocolRevenueUSD += value.times(token_price)
             }
             factory.save()

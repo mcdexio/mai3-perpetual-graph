@@ -38,8 +38,9 @@ import {
     AddAMMKeeper as AddAMMKeeperEvent,
     RemoveAMMKeeper as RemoveAMMKeeperEvent,
     UpdateFundingRate as UpdateFundingRateEvent,
+    TransferFeeToOperator,
 } from '../generated/templates/LiquidityPool/LiquidityPool'
-import { BTC_PERPETUAL, ETH_PERPETUAL } from "./const"
+import { BTC_PERPETUAL, CertifiedPools, ETH_PERPETUAL } from "./const"
 
 import {
     updateTrade15MinData,
@@ -268,6 +269,21 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
         setETHPrice(markPrice, event.params.markPriceUpdateTime)
     } else if (id == BTC_PERPETUAL) {
         setBTCPrice(markPrice, event.params.markPriceUpdateTime)
+    }
+}
+
+export function handleTransferFeeToOperator(event: TransferFeeToOperator): void {
+    let id = event.address.toHexString()
+    if (CertifiedPools.isSet(id)) {
+        let liquidityPool = LiquidityPool.load(id) as LiquidityPool
+        let token_price = getTokenPrice(liquidityPool.collateralAddress)
+        if (token_price > ZERO_BD) {
+            let factory = Factory.load(FACTORY) as Factory
+            // add dao pool operatorFee to protocol revenue
+            let operatorFee = convertToDecimal(event.params.operatorFee, BI_18)
+            factory.totalProtocolRevenueUSD += operatorFee.times(token_price)
+            factory.save()
+        }
     }
 }
 

@@ -146,6 +146,8 @@ templates:
           handler: handleRemoveAMMKeeper
         - event: UpdateFundingRate(uint256,int256)
           handler: handleUpdateFundingRate
+        - event: TransferFeeToOperator(indexed address,int256)
+          handler: handleTransferFeeToOperator
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken
