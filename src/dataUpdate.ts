@@ -23,30 +23,30 @@ import {
 
 export function updateOpenInterestDayData(perp: Perpetual, blockTimestamp: BigInt): PerpetualOpenInterestDayData {
     let timestamp = blockTimestamp.toI32()
-    let hourIndex = timestamp / 3600
-    let hourStartUnix = hourIndex * 3600
-    let hourPerpID = perp.id
+    let dayIndex = timestamp / (3600 * 24)
+    let dayStartUnix = dayIndex * (3600 * 24)
+    let dayPerpID = perp.id
         .concat('-')
-        .concat(BigInt.fromI32(hourIndex).toString())
-    let hourData = PerpetualOpenInterestDayData.load(hourPerpID)
-    if (hourData === null) {
-        hourData = new PerpetualOpenInterestDayData(hourPerpID)
-        hourData.perpetual = perp.id
-        hourData.timestamp = hourStartUnix
-        hourData.open = perp.openInterest
-        hourData.low = perp.openInterest
-        hourData.high = perp.openInterest
-        hourData.close = perp.openInterest
+        .concat(BigInt.fromI32(dayIndex).toString())
+    let dayData = PerpetualOpenInterestDayData.load(dayPerpID)
+    if (dayData === null) {
+        dayData = new PerpetualOpenInterestDayData(dayPerpID)
+        dayData.perpetual = perp.id
+        dayData.timestamp = dayStartUnix
+        dayData.open = perp.openInterest
+        dayData.low = perp.openInterest
+        dayData.high = perp.openInterest
+        dayData.close = perp.openInterest
     } else {
-        hourData.close = perp.openInterest
-        if (hourData.high < perp.openInterest) {
-            hourData.high = perp.openInterest
-        } else if (hourData.low > perp.openInterest) {
-            hourData.low = perp.openInterest
+        dayData.close = perp.openInterest
+        if (dayData.high < perp.openInterest) {
+            dayData.high = perp.openInterest
+        } else if (dayData.low > perp.openInterest) {
+            dayData.low = perp.openInterest
         }
     }
-    hourData.save()
-    return hourData as PerpetualOpenInterestDayData
+    dayData.save()
+    return dayData as PerpetualOpenInterestDayData
 }
 
 export function updateTrade15MinData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): Trade15MinData {
