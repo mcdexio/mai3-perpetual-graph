@@ -48,7 +48,8 @@ import {
     updateTradeSevenDayData,
     updateTradeHourData,
     updatePoolHourData,
-    updatePoolDayData
+    updatePoolDayData,
+    updateOpenInterestDayData
 } from './dataUpdate'
 import {updateMcdexTradeVolumeData} from './factoryData'
 
@@ -334,6 +335,7 @@ export function handleTrade(event: TradeEvent): void {
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
     // update factory trade data
     updateMcdexTradeVolumeData(volumeUSD, event.block.timestamp)
+    updateOpenInterestDayData(perp as Perpetual, event.block.timestamp)
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
@@ -403,6 +405,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         updateTradeHourData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
         updateTradeDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
         updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
+        updateOpenInterestDayData(perp as Perpetual, event.block.timestamp)
         // update factory trade data
         updateMcdexTradeVolumeData(volumeUSD, event.block.timestamp)
     } else {

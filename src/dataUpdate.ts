@@ -10,6 +10,7 @@ import {
     PoolHourData,
     PoolDayData,
     ShareToken,
+    PerpetualOpenInterestDayData,
 } from '../generated/schema'
 
 import {
@@ -19,6 +20,34 @@ import {
 import {
     getPoolHourData
 } from './liquidityPool'
+
+export function updateOpenInterestDayData(perp: Perpetual, blockTimestamp: BigInt): PerpetualOpenInterestDayData {
+    let timestamp = blockTimestamp.toI32()
+    let hourIndex = timestamp / 3600
+    let hourStartUnix = hourIndex * 3600
+    let hourPerpID = perp.id
+        .concat('-')
+        .concat(BigInt.fromI32(hourIndex).toString())
+    let hourData = PerpetualOpenInterestDayData.load(hourPerpID)
+    if (hourData === null) {
+        hourData = new PerpetualOpenInterestDayData(hourPerpID)
+        hourData.perpetual = perp.id
+        hourData.timestamp = hourStartUnix
+        hourData.open = perp.openInterest
+        hourData.low = perp.openInterest
+        hourData.high = perp.openInterest
+        hourData.close = perp.openInterest
+    } else {
+        hourData.close = perp.openInterest
+        if (hourData.high < perp.openInterest) {
+            hourData.high = perp.openInterest
+        } else if (hourData.low > perp.openInterest) {
+            hourData.low = perp.openInterest
+        }
+    }
+    hourData.save()
+    return hourData as PerpetualOpenInterestDayData
+}
 
 export function updateTrade15MinData(perp: Perpetual, price: BigDecimal, amount: BigDecimal, blockTimestamp: BigInt): Trade15MinData {
     let timestamp = blockTimestamp.toI32()

@@ -328,6 +328,17 @@ type PoolDayData @entity {
     timestamp: Int
 }
 
+type PerpetualOpenInterestDayData @entity {
+    # perpetual id + "-" + timeindex
+    id: ID!
+    perpetual: Perpetual!
+    timestamp: Int!
+    open: BigDecimal!
+    close: BigDecimal!
+    low: BigDecimal!
+    high: BigDecimal! 
+}
+
 type PriceBucket @entity {
     # token address
     id: ID!
