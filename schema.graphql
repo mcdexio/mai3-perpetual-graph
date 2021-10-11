@@ -94,6 +94,7 @@ type Perpetual @entity {
     txCount: BigInt!
     liqCount: BigInt!
     position: BigDecimal!
+    entryValue: BigDecimal!
     openInterest: BigDecimal!
 
     createdAtTimestamp: BigInt!

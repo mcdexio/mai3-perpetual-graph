@@ -308,6 +308,7 @@ export function handleTrade(event: TradeEvent): void {
     perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
     perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
     newTrade(perp as Perpetual, trader, account, position, price, perp.lastMarkPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
+    computeAmmEntryValue(perp as Perpetual, position.neg(), price)
 
     let oldPosition = perp.position
     perp.position += convertToDecimal(-event.params.position, BI_18)
@@ -396,6 +397,8 @@ export function handleLiquidate(event: LiquidateEvent): void {
         perp.lastUnitAcc = perp.unitAccumulativeFunding
 
         // update perpetual trade volume
+        computeAmmEntryValue(perp as Perpetual, amount.neg(), price)
+
         perp.totalVolume += volume
         perp.totalVolumeUSD += volumeUSD
         factory.totalSupplySideRevenueUSD += lpPenalty.times(tokenPrice)
@@ -460,6 +463,20 @@ export function getPoolHourData(timestamp: BigInt, poolID: string): PoolHourData
         }
     }
     return poolHourData as PoolHourData
+}
+
+function computeAmmEntryValue(perp: Perpetual, amount: BigDecimal, price: BigDecimal): void {
+    let oldPosition = perp.position
+    let close = splitCloseAmount(perp.position, amount)
+    let open = splitOpenAmount(perp.position, amount)
+    if (close != ZERO_BD) {
+        let position = perp.position.plus(close)
+        perp.entryValue = perp.entryValue.times(position).div(oldPosition)
+    }
+
+    if (open != ZERO_BD) {
+        perp.entryValue = perp.entryValue.plus(price.times(open))
+    }
 }
 
 function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, markPrice: BigDecimal, fee: BigDecimal,
