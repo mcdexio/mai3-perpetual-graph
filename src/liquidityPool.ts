@@ -391,13 +391,13 @@ export function handleLiquidate(event: LiquidateEvent): void {
         perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
         // liquidator is AMM
         let oldPosition = perp.position
+        // update perpetual trade volume
         computeAmmEntryValue(perp as Perpetual, amount.neg(), price)
         perp.position += convertToDecimal(-event.params.amount, BI_18)
         perp.openInterest += updateOpenInterest(oldPosition, perp.position)
         perp.lastPrice = price
         perp.lastUnitAcc = perp.unitAccumulativeFunding
 
-        // update perpetual trade volume
 
         perp.totalVolume += volume
         perp.totalVolumeUSD += volumeUSD
