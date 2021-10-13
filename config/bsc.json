@@ -11,6 +11,7 @@
     "usdc_token": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
     "busd_token": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
     "usdt_token": "0x55d398326f99059ff775485246999027b3197955",
+    "usx_token": "0xb5102cee1528ce2c760893034a4603663495fd72",
     "value_capture_address": "0xb6c33bd07a83ff6a328c246a3cccf6180d278ba4",
     "start_block": 11137817,
     "certified_usdc_pool": "0xdb282bbace4e375ff2901b84aceb33016d0d663d",
