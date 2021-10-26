@@ -9,6 +9,7 @@ export let USDTokens: string[] = [
     "{{busd_token}}",
     "{{usdt_token}}",
     "{{usx_token}}",
+    "{{usdo_token}}",
 ]
 
 export let ValueCaptureAddress = "{{value_capture_address}}"
