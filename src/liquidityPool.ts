@@ -70,7 +70,6 @@ import {
     fetchPerpetual,
     fetchOracleUnderlying,
     AbsBigDecimal,
-    NegBigDecimal,
     FACTORY,
     getTokenPrice,
     setETHPrice,
@@ -179,15 +178,15 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool as LiquidityPool)
     if (account.shareAmount == ZERO_BD) {
-        liquidityPool.liquidityProviderCount += ONE_BI
+        liquidityPool.liquidityProviderCount = liquidityPool.liquidityProviderCount.plus(ONE_BI)
     }
     let cash = convertToDecimal(event.params.addedCash, BI_18)
-    account.entryCollateralAmount += cash
-    account.entryPoolMargin += convertToDecimal(event.params.addedPoolMargin, BI_18)
+    account.entryCollateralAmount = account.entryCollateralAmount.plus(cash)
+    account.entryPoolMargin = account.entryPoolMargin.plus(convertToDecimal(event.params.addedPoolMargin, BI_18))
     // shareAmount update on shareToken transfer event
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
-    liquidityPool.liquidityHisCount += ONE_BI
+    liquidityPool.liquidityHisCount = liquidityPool.liquidityHisCount.plus(ONE_BI)
     liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
@@ -211,17 +210,17 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     let user = fetchUser(event.params.trader)
     let account = fetchLiquidityAccount(user, liquidityPool)
-    let cash = convertToDecimal(-event.params.returnedCash, BI_18)
+    let cash = convertToDecimal(event.params.returnedCash.neg(), BI_18)
     // shareAmount update on shareToken transfer event
     // account.shareAmount -= convertToDecimal(event.params.burnedShare, BI_18)
-    let oldShareAmount = account.shareAmount + convertToDecimal(event.params.burnedShare, BI_18)
+    let oldShareAmount = account.shareAmount.plus(convertToDecimal(event.params.burnedShare, BI_18))
     account.entryCollateralAmount = account.entryCollateralAmount.times(account.shareAmount).div(oldShareAmount)
     account.entryPoolMargin = account.entryPoolMargin.times(account.shareAmount).div(oldShareAmount)
     if (account.shareAmount == ZERO_BD) {
-        liquidityPool.liquidityProviderCount -= ONE_BI
+        liquidityPool.liquidityProviderCount = liquidityPool.liquidityProviderCount.minus(ONE_BI)
     }
     account.save()
-    liquidityPool.liquidityHisCount += ONE_BI
+    liquidityPool.liquidityHisCount = liquidityPool.liquidityHisCount.plus(ONE_BI)
     liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
@@ -244,11 +243,11 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
 export function updateOpenInterest(oldPosition: BigDecimal, newPosition: BigDecimal): BigDecimal {
     let deltaPosition = ZERO_BD
     if (oldPosition > ZERO_BD) {
-        deltaPosition -= oldPosition
+        deltaPosition = deltaPosition.minus(oldPosition)
     }
 
     if (newPosition > ZERO_BD) {
-        deltaPosition += newPosition
+        deltaPosition = deltaPosition.plus(newPosition)
     }
     return deltaPosition
 }
@@ -282,7 +281,7 @@ export function handleTransferFeeToOperator(event: TransferFeeToOperator): void 
             let factory = Factory.load(FACTORY) as Factory
             // add dao pool operatorFee to protocol revenue
             let operatorFee = convertToDecimal(event.params.operatorFee, BI_18)
-            factory.totalProtocolRevenueUSD += operatorFee.times(token_price)
+            factory.totalProtocolRevenueUSD = factory.totalProtocolRevenueUSD.plus(operatorFee.times(token_price))
             factory.save()
         }
     }
@@ -303,29 +302,29 @@ export function handleTrade(event: TradeEvent): void {
     let position = convertToDecimal(event.params.position, BI_18)
     let fee = convertToDecimal(event.params.fee, BI_18)
     let lpFee = convertToDecimal(event.params.lpFee, BI_18)
-    perp.lpFee += lpFee
-    perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
-    perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
-    perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
+    perp.lpFee = perp.lpFee.plus(lpFee)
+    perp.lpFunding = perp.lpFunding.plus(perp.position.times(perp.lastUnitAcc.minus(perp.unitAccumulativeFunding)))
+    perp.lpTotalPNL = perp.lpTotalPNL.plus(perp.position.times(price.minus(perp.lastPrice)))
+    perp.lpPositionPNL = perp.lpPositionPNL.plus(perp.position.times(perp.lastMarkPrice.minus(perp.beforeLastMarkPrice)))
     newTrade(perp as Perpetual, trader, account, position, price, perp.lastMarkPrice, fee, transactionHash, event.logIndex, event.block.number, event.block.timestamp, TradeType.NORMAL)
     computeAmmEntryValue(perp as Perpetual, position.neg(), price)
 
     let oldPosition = perp.position
-    perp.position += convertToDecimal(-event.params.position, BI_18)
-    perp.openInterest += updateOpenInterest(oldPosition, perp.position)
+    perp.position = perp.position.plus(position.neg())
+    perp.openInterest = perp.openInterest.plus(updateOpenInterest(oldPosition, perp.position))
 
     perp.lastPrice = price
     perp.lastUnitAcc = perp.unitAccumulativeFunding
     let volume = AbsBigDecimal(position).times(price)
     let volumeUSD = ZERO_BD
-    perp.totalVolume += volume
-    perp.totalFee += fee
+    perp.totalVolume = perp.totalVolume.plus(volume)
+    perp.totalFee = perp.totalFee.plus(fee)
     // to USD
     let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
     volumeUSD = volume.times(tokenPrice)
-    perp.totalVolumeUSD += volumeUSD
-    factory.totalVolumeUSD += volumeUSD
-    factory.totalSupplySideRevenueUSD += lpFee.times(tokenPrice)
+    perp.totalVolumeUSD = perp.totalVolumeUSD.plus(volumeUSD)
+    factory.totalVolumeUSD = factory.totalVolumeUSD.plus(volumeUSD)
+    factory.totalSupplySideRevenueUSD = factory.totalSupplySideRevenueUSD.plus(lpFee.times(tokenPrice))
     perp.save()
     factory.save()
 
@@ -385,24 +384,24 @@ export function handleLiquidate(event: LiquidateEvent): void {
     if (event.params.liquidator.toHexString() == event.address.toHexString()) {
         // liquidator is AMM
         liquidate.type = 0
-        perp.lpPenalty += lpPenalty
-        perp.lpFunding += perp.position * (perp.lastUnitAcc - perp.unitAccumulativeFunding)
-        perp.lpTotalPNL += perp.position * (price - perp.lastPrice)
-        perp.lpPositionPNL += perp.position * (perp.lastMarkPrice - perp.beforeLastMarkPrice)
+        perp.lpPenalty = perp.lpPenalty.plus(lpPenalty)
+        perp.lpFunding = perp.lpFunding.plus(perp.position.times(perp.lastUnitAcc.minus(perp.unitAccumulativeFunding)))
+        perp.lpTotalPNL = perp.lpTotalPNL.plus(perp.position.times(price.minus(perp.lastPrice)))
+        perp.lpPositionPNL = perp.lpPositionPNL.plus(perp.position.times(perp.lastMarkPrice.minus(perp.beforeLastMarkPrice)))
         // liquidator is AMM
         let oldPosition = perp.position
         // notice: call computeAmmEntryValue before position change
         computeAmmEntryValue(perp as Perpetual, amount.neg(), price)
-        perp.position += convertToDecimal(-event.params.amount, BI_18)
-        perp.openInterest += updateOpenInterest(oldPosition, perp.position)
+        perp.position = perp.position.plus(amount.neg())
+        perp.openInterest = perp.openInterest.plus(updateOpenInterest(oldPosition, perp.position))
         perp.lastPrice = price
         perp.lastUnitAcc = perp.unitAccumulativeFunding
         
         // update perpetual trade volume
-        perp.totalVolume += volume
-        perp.totalVolumeUSD += volumeUSD
-        factory.totalSupplySideRevenueUSD += lpPenalty.times(tokenPrice)
-        factory.totalVolumeUSD += volumeUSD
+        perp.totalVolume = perp.totalVolume.plus(volume)
+        perp.totalVolumeUSD = perp.totalVolumeUSD.plus(volumeUSD)
+        factory.totalVolumeUSD = factory.totalVolumeUSD.plus(volumeUSD)
+        factory.totalSupplySideRevenueUSD = factory.totalSupplySideRevenueUSD.plus(lpPenalty.times(tokenPrice))
         // update trade data
         updateTrade15MinData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
         updateTradeHourData(perp as Perpetual, price, AbsBigDecimal(amount), event.block.timestamp)
@@ -417,7 +416,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
         type = TradeType.LIQUIDATEBYTRADER
         let liquidator = fetchUser(event.params.liquidator)
         let liquidatorAccount = fetchMarginAccount(liquidator, perp as Perpetual)
-        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, perp.lastMarkPrice, NegBigDecimal(penalty), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
+        newTrade(perp as Perpetual, liquidator, liquidatorAccount, amount, price, perp.lastMarkPrice, penalty.neg(), transactionHash, event.logIndex, event.block.number, event.block.timestamp, type)
     }
 
     // trader
@@ -425,14 +424,14 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
     liquidate.save()
 
-    perp.liqCount += ONE_BI
+    perp.liqCount = perp.liqCount.plus(ONE_BI)
     perp.save()
     factory.save()
 }
 
 export function handleTransferExcessInsuranceFundToLP(event: TransferExcessInsuranceFundToLPEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
-    liquidityPool.lpExcessInsuranceFund += convertToDecimal(event.params.amount, BI_18)
+    liquidityPool.lpExcessInsuranceFund = liquidityPool.lpExcessInsuranceFund.plus(convertToDecimal(event.params.amount, BI_18))
     liquidityPool.save()
 }
 
@@ -480,13 +479,13 @@ function computeAmmEntryValue(perp: Perpetual, amount: BigDecimal, price: BigDec
 }
 
 function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount: BigDecimal, price: BigDecimal, markPrice: BigDecimal, fee: BigDecimal,
-                  transactionHash: String, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType): void {
+                  transactionHash: string, logIndex: BigInt, blockNumber: BigInt, timestamp: BigInt, type: TradeType): void {
     let oldPosition = account.position
     let close = splitCloseAmount(account.position, amount)
     let open = splitOpenAmount(account.position, amount)
     // close position
     if (close != ZERO_BD) {
-        let percent = AbsBigDecimal(close) / AbsBigDecimal(amount)
+        let percent = AbsBigDecimal(close.div(amount))
         let trade = new Trade(
             transactionHash
                 .concat('-')
@@ -501,9 +500,9 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         trade.markPrice = markPrice
         trade.isClose = true
         let pnlPercent = AbsBigDecimal(close.div(account.position))
-        let pnl1 = NegBigDecimal(close).times(price).minus(account.entryValue.times(pnlPercent))
-        let fundingPnl = account.entryFunding.times(pnlPercent).minus(NegBigDecimal(close).times(perp.unitAccumulativeFunding))
-        trade.pnl = pnl1 + fundingPnl
+        let pnl1 = close.neg().times(price).minus(account.entryValue.times(pnlPercent))
+        let fundingPnl = account.entryFunding.times(pnlPercent).minus(close.neg().times(perp.unitAccumulativeFunding))
+        trade.pnl = pnl1.plus(fundingPnl)
         trade.fee = fee.times(percent)
         trade.type = type
         trade.transactionHash = transactionHash
@@ -518,12 +517,12 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         account.entryValue = account.entryValue.times(position).div(oldPosition)
         account.position = position
 
-        perp.txCount += ONE_BI
+        perp.txCount = perp.txCount.plus(ONE_BI)
     }
 
     // open position
     if (open != ZERO_BD) {
-        let percent = AbsBigDecimal(open) / AbsBigDecimal(amount)
+        let percent = AbsBigDecimal(open.div(amount))
         let trade = new Trade(
             transactionHash
                 .concat('-')
@@ -552,11 +551,11 @@ function newTrade(perp: Perpetual, trader: User, account: MarginAccount, amount:
         account.entryValue = account.entryValue.plus(price.times(open))
         account.position = position
 
-        perp.txCount += ONE_BI
+        perp.txCount = perp.txCount.plus(ONE_BI)
     }
 
     let newPosition = account.position
-    perp.openInterest += updateOpenInterest(oldPosition, newPosition)
+    perp.openInterest = perp.openInterest.plus(updateOpenInterest(oldPosition, newPosition))
     account.save()
 }
 
@@ -595,13 +594,13 @@ export function handleUpdateUnitAccumulativeFunding(event: UpdateUnitAccumulativ
 export function handleClaimOperator(event: ClaimOperatorEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
     liquidityPool.operatorAddress = event.params.newOperator.toHexString()
-    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
+    liquidityPool.operatorExpiration = event.block.timestamp.plus(OPERATOR_EXP)
     liquidityPool.save()
 }
 
 export function handleOperatorCheckIn(event: OperatorCheckInEvent): void {
     let liquidityPool = LiquidityPool.load(event.address.toHexString()) as LiquidityPool
-    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
+    liquidityPool.operatorExpiration = event.block.timestamp.plus(OPERATOR_EXP)
     liquidityPool.save()
 }
 

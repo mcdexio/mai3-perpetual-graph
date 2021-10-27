@@ -184,11 +184,7 @@ export function AbsBigDecimal(x: BigDecimal): BigDecimal {
   if (x >= ZERO_BD) {
     return x
   }
-  return -x
-}
-
-export function NegBigDecimal(x: BigDecimal): BigDecimal {
-  return -x
+  return x.neg()
 }
 
 export function hasSameSign(x: BigDecimal, y: BigDecimal): boolean {
@@ -210,7 +206,7 @@ export function splitCloseAmount(amount: BigDecimal, delta: BigDecimal): BigDeci
   } else if (AbsBigDecimal(amount) >= AbsBigDecimal(delta)) {
     return delta
   } else {
-    return -amount
+    return amount.neg()
   }
 }
 export function splitOpenAmount(amount: BigDecimal, delta: BigDecimal): BigDecimal {
@@ -219,7 +215,7 @@ export function splitOpenAmount(amount: BigDecimal, delta: BigDecimal): BigDecim
   } else if (AbsBigDecimal(amount) >= AbsBigDecimal(delta)) {
     return ZERO_BD
   } else {
-    return amount+delta
+    return amount.plus(delta)
   }
 }
 

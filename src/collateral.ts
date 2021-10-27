@@ -22,9 +22,9 @@ export function handleTransfer(event: TransferEvent): void {
     let value = convertToDecimal(event.params.value, collateralEntity.decimals)
     let liquidityPools = collateralEntity.liquidityPools
     if (isLiquidityPool(liquidityPools as string[], from)) {
-        collateralEntity.totalBalance -= value
+        collateralEntity.totalBalance = collateralEntity.totalBalance.minus(value)
         let pool = LiquidityPool.load(from) as LiquidityPool
-        pool.collateralAmount -= value
+        pool.collateralAmount = pool.collateralAmount.minus(value)
         collateralEntity.save()
 
         let token_price = getTokenPrice(token)
@@ -32,11 +32,11 @@ export function handleTransfer(event: TransferEvent): void {
             let factory = Factory.load(FACTORY) as Factory
             let oldCollateralUSD = pool.collateralUSD
             pool.collateralUSD = pool.collateralAmount.times(token_price)
-            factory.totalValueLockedUSD -= oldCollateralUSD
-            factory.totalValueLockedUSD += pool.collateralUSD
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(pool.collateralUSD)
             // capture protocol revenue
             if (to == factory.vaultAddress) {
-                factory.totalProtocolRevenueUSD += value.times(token_price)
+                factory.totalProtocolRevenueUSD = factory.totalProtocolRevenueUSD.plus(value.times(token_price))
             }
             factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
@@ -45,9 +45,9 @@ export function handleTransfer(event: TransferEvent): void {
     }
 
     if (isLiquidityPool(liquidityPools as string[], to)) {
-        collateralEntity.totalBalance += value
+        collateralEntity.totalBalance = collateralEntity.totalBalance.plus(value)
         let pool = LiquidityPool.load(to) as LiquidityPool
-        pool.collateralAmount += value
+        pool.collateralAmount = pool.collateralAmount.plus(value)
         collateralEntity.save()
 
         let token_price = getTokenPrice(token)
@@ -55,8 +55,8 @@ export function handleTransfer(event: TransferEvent): void {
             let factory = Factory.load(FACTORY) as Factory
             let oldCollateralUSD = pool.collateralUSD
             pool.collateralUSD = pool.collateralAmount.times(token_price)
-            factory.totalValueLockedUSD -= oldCollateralUSD
-            factory.totalValueLockedUSD += pool.collateralUSD
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(pool.collateralUSD)
             factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }

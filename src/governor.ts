@@ -46,7 +46,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
     proposal.executedBlockNumber = ZERO_BI
     proposal.save()
 
-    governor.proposalCount += ONE_BI
+    governor.proposalCount = governor.proposalCount.plus(ONE_BI)
     governor.save()
 }
 
@@ -63,9 +63,9 @@ export function handleVote(event: VoteCastEvent): void {
     vote.support = event.params.support
     vote.votes = convertToDecimal(event.params.votes, BI_18)
     if (vote.support) {
-        proposal.for += vote.votes
+        proposal.for = proposal.for.plus(vote.votes)
     } else {
-        proposal.against += vote.votes
+        proposal.against = proposal.against.plus(vote.votes)
     }
     proposal.save()
     vote.save()
@@ -88,22 +88,23 @@ export function handleTransfer(event: TransferEvent): void {
 
     let value = convertToDecimal(event.params.value, BI_18)
     if (from.id == ADDRESS_ZERO) {
-        governor.totalVotes += value
+        governor.totalVotes = governor.totalVotes.plus(value)
     }
 
     if (to.id == ADDRESS_ZERO) {
-        governor.totalVotes -= value
+        governor.totalVotes = governor.totalVotes.minus(value)
     }
 
     if (from.id != ADDRESS_ZERO) {
         let fromAccount = fetchVoteAccount(from, governor)
-        fromAccount.votes -= value
+        fromAccount.votes = fromAccount.votes.minus(value)
+
         fromAccount.save()
     }
 
     if (to.id != ADDRESS_ZERO) {
         let toAccount = fetchVoteAccount(to, governor)
-        toAccount.votes += value
+        toAccount.votes = toAccount.votes.plus(value)
         toAccount.save()
     }
 
@@ -112,7 +113,7 @@ export function handleTransfer(event: TransferEvent): void {
 
 export function handleRewardAdded(event: RewardAddedEvent): void {
     let governor = Governor.load(event.address.toHexString()) as Governor
-    governor.totalReward += convertToDecimal(event.params.reward, BI_18)
+    governor.totalReward = governor.totalReward.plus(convertToDecimal(event.params.reward, BI_18))
     governor.periodFinish = event.params.periodFinish
     governor.save()
 }
@@ -130,6 +131,6 @@ export function handleRewardPaid(event: RewardPaidEvent): void {
     let governor = Governor.load(event.address.toHexString()) as Governor
     let user = fetchUser(event.params.user)
     let account = fetchVoteAccount(user, governor)
-    account.reward += convertToDecimal(event.params.reward, BI_18)
+    account.reward = account.reward.plus(convertToDecimal(event.params.reward, BI_18))
     account.save()
 }

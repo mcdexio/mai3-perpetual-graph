@@ -15,7 +15,7 @@ export function updateMcdexTradeVolumeData(volumeUSD: BigDecimal, blockTimestamp
         mcdexHourData.totalVolumeUSD = volumeUSD
         mcdexHourData.totalValueLockedUSD = ZERO_BD
     } else {
-        mcdexHourData.totalVolumeUSD += volumeUSD
+        mcdexHourData.totalVolumeUSD = mcdexHourData.totalVolumeUSD.plus(volumeUSD)
     }
     mcdexHourData.save()
 
@@ -29,7 +29,7 @@ export function updateMcdexTradeVolumeData(volumeUSD: BigDecimal, blockTimestamp
         mcdexDayData.totalVolumeUSD = volumeUSD
         mcdexDayData.totalValueLockedUSD = ZERO_BD
     } else {
-        mcdexDayData.totalVolumeUSD += volumeUSD
+        mcdexDayData.totalVolumeUSD = mcdexDayData.totalVolumeUSD.plus(volumeUSD)
     }
     mcdexDayData.save()
 }

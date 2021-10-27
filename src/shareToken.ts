@@ -21,11 +21,11 @@ export function handleTransfer(event: TransferEvent): void {
 
     let value = convertToDecimal(event.params.value, BI_18)
     if (from.id == ADDRESS_ZERO) {
-        contract.totalSupply += value
+        contract.totalSupply = contract.totalSupply.plus(value)
     }
 
     if (to.id == ADDRESS_ZERO) {
-        contract.totalSupply -= value
+        contract.totalSupply = contract.totalSupply.minus(value)
     }
 
     let deltaEntryCollateralAmount = ZERO_BD
@@ -35,20 +35,20 @@ export function handleTransfer(event: TransferEvent): void {
         if (to.id != ADDRESS_ZERO) {
             deltaEntryCollateralAmount = fromAccount.entryCollateralAmount.times(value).div(fromAccount.shareAmount)
             deltaEntryPoolMargin = fromAccount.entryPoolMargin.times(value).div(fromAccount.shareAmount)
-            fromAccount.entryCollateralAmount -= deltaEntryCollateralAmount
-            fromAccount.entryPoolMargin -= deltaEntryPoolMargin
+            fromAccount.entryCollateralAmount = fromAccount.entryCollateralAmount.minus(deltaEntryCollateralAmount)
+            fromAccount.entryPoolMargin = fromAccount.entryPoolMargin.minus(deltaEntryPoolMargin)
         }
 
-        fromAccount.shareAmount -= value
+        fromAccount.shareAmount = fromAccount.shareAmount.minus(value)
         fromAccount.save()
     }
 
     if (to.id != ADDRESS_ZERO) {
         let toAccount = fetchLiquidityAccount(to, liquidityPool)
-        toAccount.shareAmount += value
+        toAccount.shareAmount = toAccount.shareAmount.plus(value)
         if (from.id != ADDRESS_ZERO) {
-            toAccount.entryCollateralAmount += deltaEntryCollateralAmount
-            toAccount.entryPoolMargin += deltaEntryPoolMargin
+            toAccount.entryCollateralAmount = toAccount.entryCollateralAmount.plus(deltaEntryCollateralAmount)
+            toAccount.entryPoolMargin = toAccount.entryPoolMargin.plus(deltaEntryPoolMargin)
         }
         toAccount.save()
     }

@@ -73,7 +73,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.voteAddress = event.params.governor.toHexString()
     liquidityPool.shareAddress = event.params.shareToken.toHexString()
     liquidityPool.operatorAddress = event.params.operator.toHexString()
-    liquidityPool.operatorExpiration = event.block.timestamp + OPERATOR_EXP
+    liquidityPool.operatorExpiration = event.block.timestamp.plus(OPERATOR_EXP)
     liquidityPool.poolName = getPoolName(liquidityPool.id)
     liquidityPool.factory = factory.id
     liquidityPool.collateralAddress = collateralAddress
