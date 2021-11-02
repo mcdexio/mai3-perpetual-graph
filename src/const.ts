@@ -3,13 +3,14 @@ import {TypedMap} from '@graphprotocol/graph-ts'
 export const READER_ADDRESS = '0x93a9182883C1019e1dBEbB5d40C140e7680cd151'
 
 // Notice lower case in config
-// added ["USDT", "BUSD", "USDT", "USX"]
+// added ["USDT", "BUSD", "USDT", "USX", "USDO", "MIM"]
 export let USDTokens: string[] = [
     "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
     "0xe9e7cea3dedca5984780bafc599bd69add087d56",
     "0x55d398326f99059ff775485246999027b3197955",
     "0xb5102cee1528ce2c760893034a4603663495fd72",
     "0x5801d0e1c7d977d78e4890880b8e579eb4943276",
+    "0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba",
 ]
 
 export let ValueCaptureAddress = "0xb6c33bd07a83ff6a328c246a3cccf6180d278ba4"
