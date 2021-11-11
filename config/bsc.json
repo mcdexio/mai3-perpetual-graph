@@ -14,7 +14,5 @@
     "usx_token": "0xb5102cee1528ce2c760893034a4603663495fd72",
     "usdo_token": "0x5801d0e1c7d977d78e4890880b8e579eb4943276",
     "mim_token": "0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba",
-    "start_block": 11137817,
-    "certified_usdc_pool": "0xdb282bbace4e375ff2901b84aceb33016d0d663d",
-    "certified_usdc_pool_name": "BUSD Pool"
+    "start_block": 11137817
 }

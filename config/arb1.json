@@ -9,7 +9,5 @@
   "btc_perpetual": "0xab324146c49b23658e5b3930e641bdbdf089cbac-1",
   "btc_token": "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
   "usdc_token": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-  "start_block": 219883,
-  "certified_usdc_pool": "0xab324146c49b23658e5b3930e641bdbdf089cbac",
-  "certified_usdc_pool_name": "USDC Pool"
+  "start_block": 219883
 }

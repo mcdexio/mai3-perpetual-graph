@@ -42,7 +42,7 @@ import {
     TransferFeeToOperator1,
     TransferFeeToVault
 } from '../generated/templates/LiquidityPool/LiquidityPool'
-import { BTC_PERPETUAL, CertifiedPools, ETH_PERPETUAL } from "./const"
+import { BTC_PERPETUAL, DaoPools, ETH_PERPETUAL } from "./const"
 
 import {
     updateTrade15MinData,
@@ -308,7 +308,7 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
 export function handleTransferFeeToOperator1(event: TransferFeeToOperator1): void {
     // for old transfer event, transferToVault event not exists, get vaultFee by operator fee 
     let id = event.address.toHexString()
-    if (CertifiedPools.isSet(id)) {
+    if (DaoPools.isSet(id)) {
         let liquidityPool = LiquidityPool.load(id) as LiquidityPool
         let token_price = getTokenPrice(liquidityPool.collateralAddress)
         if (token_price > ZERO_BD) {
@@ -324,7 +324,7 @@ export function handleTransferFeeToOperator1(event: TransferFeeToOperator1): voi
 
 export function handleTransferFeeToOperator(event: TransferFeeToOperator): void {
     let id = event.address.toHexString()
-    if (CertifiedPools.isSet(id)) {
+    if (DaoPools.isSet(id)) {
         let liquidityPool = LiquidityPool.load(id) as LiquidityPool
         let token_price = getTokenPrice(liquidityPool.collateralAddress)
         if (token_price > ZERO_BD) {
