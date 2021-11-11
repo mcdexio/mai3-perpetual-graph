@@ -1,6 +1,6 @@
 import {ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import {Factory, LiquidityPool, ShareToken, Governor, Collateral} from '../generated/schema'
+import {Factory, LiquidityPool, ShareToken, Governor} from '../generated/schema'
 
 import {CreateLiquidityPool, SetVault} from '../generated/Factory/Factory'
 
@@ -9,7 +9,6 @@ import {
     LiquidityPool as LiquidityPoolTemplate,
     ShareToken as ShareTokenTemplate,
     Governor as GovernorTemplate,
-    Collateral as CollateralTemplate
 } from '../generated/templates'
 
 import {
@@ -79,6 +78,7 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     liquidityPool.collateralAddress = collateralAddress
     liquidityPool.collateralName = fetchCollateralSymbol(event.params.collateral)
     liquidityPool.collateralDecimals = event.params.collateralDecimals
+    liquidityPool.collateralUpdateTimestamp = ZERO_BI
     liquidityPool.collateralAmount = ZERO_BD
     liquidityPool.collateralUSD = ZERO_BD
     liquidityPool.poolMargin = ZERO_BD
@@ -117,18 +117,4 @@ export function handleCreateLiquidityPool(event: CreateLiquidityPool): void {
     LiquidityPoolTemplate.create(event.params.liquidityPool)
     ShareTokenTemplate.create(event.params.shareToken)
     GovernorTemplate.create(event.params.governor)
-
-    // use collateral transfer to get tvl
-    let collateralEntity = Collateral.load(collateralAddress)
-    if (collateralEntity === null) {
-        collateralEntity = new Collateral(collateralAddress)
-        collateralEntity.decimals = event.params.collateralDecimals
-        collateralEntity.liquidityPools = []
-        collateralEntity.totalBalance = ZERO_BD
-        CollateralTemplate.create(event.params.collateral)
-    }
-    let liquidityPools = collateralEntity.liquidityPools as string[]
-    liquidityPools.push(event.params.liquidityPool.toHexString())
-    collateralEntity.liquidityPools = liquidityPools
-    collateralEntity.save()
 }

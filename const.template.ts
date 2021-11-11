@@ -1,6 +1,7 @@
 import {TypedMap} from '@graphprotocol/graph-ts'
 
 export const READER_ADDRESS = '{{reader_address}}'
+export const NETWORK = '{{network}}'
 
 // Notice lower case in config
 // added ["USDT", "BUSD", "USDT", "USX"]

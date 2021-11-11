@@ -42,6 +42,7 @@ type LiquidityPool @entity {
     factory: Factory!
     collateralName: String!
     collateralAmount: BigDecimal!
+    collateralUpdateTimestamp: BigInt!
     collateralUSD: BigDecimal!
     collateralAddress: String!
     voteAddress: String!
@@ -128,14 +129,6 @@ type ShareToken @entity {
     id: ID!
     liquidityPool: LiquidityPool!
     totalSupply: BigDecimal!
-}
-
-type Collateral @entity {
-    # collateral address
-    id: ID!
-    decimals: BigInt!
-    liquidityPools: [String!]
-    totalBalance: BigDecimal!
 }
 
 type LiquidityAccount @entity {

@@ -147,7 +147,11 @@ templates:
         - event: UpdateFundingRate(uint256,int256)
           handler: handleUpdateFundingRate
         - event: TransferFeeToOperator(indexed address,int256)
+          handler: handleTransferFeeToOperator1
+        - event: TransferFeeToOperator(uint256,indexed address,indexed address,int256)
           handler: handleTransferFeeToOperator
+        - event: TransferFeeToVault(uint256,indexed address,indexed address,int256)
+          handler: handleTransferFeeToVault
       file: ./src/liquidityPool.ts
   - kind: ethereum/contract
     name: ShareToken
@@ -197,21 +201,3 @@ templates:
         - event: RewardPaid(indexed address,uint256)
           handler: handleRewardPaid
       file: ./src/governor.ts
-  - kind: ethereum/contract
-    name: Collateral
-    network: {{network}}
-    source:
-      abi: ERC20
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Collateral
-      abis:
-        - name: ERC20
-          file: ./abis/ERC20.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ./src/collateral.ts

@@ -39,6 +39,8 @@ import {
     RemoveAMMKeeper as RemoveAMMKeeperEvent,
     UpdateFundingRate as UpdateFundingRateEvent,
     TransferFeeToOperator,
+    TransferFeeToOperator1,
+    TransferFeeToVault
 } from '../generated/templates/LiquidityPool/LiquidityPool'
 import { BTC_PERPETUAL, CertifiedPools, ETH_PERPETUAL } from "./const"
 
@@ -51,7 +53,7 @@ import {
     updatePoolDayData,
     updateOpenInterestDayData
 } from './dataUpdate'
-import {updateMcdexTradeVolumeData} from './factoryData'
+import {updateMcdexTradeVolumeData, updateMcdexTVLData} from './factoryData'
 
 import {
     ZERO_BD,
@@ -74,6 +76,7 @@ import {
     getTokenPrice,
     setETHPrice,
     setBTCPrice,
+    getCollateralBalance,
 } from './utils'
 
 export function handleCreatePerpetual(event: CreatePerpetualEvent): void {
@@ -187,7 +190,6 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     // account.shareAmount += convertToDecimal(event.params.mintedShare, BI_18)
     account.save()
     liquidityPool.liquidityHisCount = liquidityPool.liquidityHisCount.plus(ONE_BI)
-    liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
     let liquidityHistory = new LiquidityHistory(
@@ -204,6 +206,22 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
+
+    // update tvl
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+        let factory = Factory.load(FACTORY) as Factory
+        let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+        let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
+        liquidityPool.collateralAmount = balance
+        if (tokenPrice > ZERO_BD) {
+            let oldCollateralUSD = liquidityPool.collateralUSD
+            liquidityPool.collateralUSD = liquidityPool.collateralAmount.times(tokenPrice)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(liquidityPool.collateralUSD)
+            updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
+        }
+    }
+    liquidityPool.save()
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
@@ -221,7 +239,6 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     }
     account.save()
     liquidityPool.liquidityHisCount = liquidityPool.liquidityHisCount.plus(ONE_BI)
-    liquidityPool.save()
 
     let transactionHash = event.transaction.hash.toHexString()
     let liquidityHistory = new LiquidityHistory(
@@ -238,6 +255,22 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     liquidityHistory.timestamp = event.block.timestamp
     liquidityHistory.logIndex = event.logIndex
     liquidityHistory.save()
+
+    // update tvl
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+        let factory = Factory.load(FACTORY) as Factory
+        let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+        let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
+        liquidityPool.collateralAmount = balance
+        if (tokenPrice > ZERO_BD) {
+            let oldCollateralUSD = liquidityPool.collateralUSD
+            liquidityPool.collateralUSD = liquidityPool.collateralAmount.times(tokenPrice)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(liquidityPool.collateralUSD)
+            updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
+        }
+    }
+    liquidityPool.save()
 }
 
 export function updateOpenInterest(oldPosition: BigDecimal, newPosition: BigDecimal): BigDecimal {
@@ -272,6 +305,23 @@ export function handleUpdatePrice(event: UpdatePriceEvent): void {
     }
 }
 
+export function handleTransferFeeToOperator1(event: TransferFeeToOperator1): void {
+    // for old transfer event, transferToVault event not exists, get vaultFee by operator fee 
+    let id = event.address.toHexString()
+    if (CertifiedPools.isSet(id)) {
+        let liquidityPool = LiquidityPool.load(id) as LiquidityPool
+        let token_price = getTokenPrice(liquidityPool.collateralAddress)
+        if (token_price > ZERO_BD) {
+            let factory = Factory.load(FACTORY) as Factory
+            // add dao pool operatorFee to protocol revenue
+            let operatorFee = convertToDecimal(event.params.operatorFee, BI_18)
+            let vaultFee = operatorFee.times(BigDecimal.fromString('0.6'))
+            factory.totalProtocolRevenueUSD = factory.totalProtocolRevenueUSD.plus(operatorFee.times(token_price)).plus(vaultFee.times(token_price))
+            factory.save()
+        }
+    }
+}
+
 export function handleTransferFeeToOperator(event: TransferFeeToOperator): void {
     let id = event.address.toHexString()
     if (CertifiedPools.isSet(id)) {
@@ -285,6 +335,19 @@ export function handleTransferFeeToOperator(event: TransferFeeToOperator): void 
             factory.save()
         }
     }
+}
+
+export function handleTransferFeeToVault(event: TransferFeeToVault): void {
+    let id = event.address.toHexString()
+    let liquidityPool = LiquidityPool.load(id) as LiquidityPool
+    let token_price = getTokenPrice(liquidityPool.collateralAddress)
+    if (token_price > ZERO_BD) {
+        let factory = Factory.load(FACTORY) as Factory
+        // add vault fee to protocol revenue
+        let vaultFee = convertToDecimal(event.params.vaultFee, BI_18)
+        factory.totalProtocolRevenueUSD = factory.totalProtocolRevenueUSD.plus(vaultFee.times(token_price))
+        factory.save()
+    }  
 }
 
 export function handleTrade(event: TradeEvent): void {
@@ -326,6 +389,20 @@ export function handleTrade(event: TradeEvent): void {
     factory.totalVolumeUSD = factory.totalVolumeUSD.plus(volumeUSD)
     factory.totalSupplySideRevenueUSD = factory.totalSupplySideRevenueUSD.plus(lpFee.times(tokenPrice))
     perp.save()
+
+    // update tvl
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+        let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
+        liquidityPool.collateralAmount = balance
+        if (tokenPrice > ZERO_BD) {
+            let oldCollateralUSD = liquidityPool.collateralUSD
+            liquidityPool.collateralUSD = liquidityPool.collateralAmount.times(tokenPrice)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
+            factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(liquidityPool.collateralUSD)
+            updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
+        }
+        liquidityPool.save()
+    }
     factory.save()
 
     // update trade data
