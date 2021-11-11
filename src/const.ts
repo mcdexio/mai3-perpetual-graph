@@ -14,8 +14,6 @@ export let USDTokens: string[] = [
     "0xfe19f0b51438fd612f6fd59c1dbb3ea319f433ba",
 ]
 
-export let ValueCaptureAddress = "0xb6c33bd07a83ff6a328c246a3cccf6180d278ba4"
-
 export const ETH_ADDRESS = '0x2170ed0880ac9a755fd29b2688956bd959f933f8'
 export const BTC_ADDRESS = '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c'
 export const ETH_PERPETUAL = '0xdb282bbace4e375ff2901b84aceb33016d0d663d-1'

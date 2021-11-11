@@ -4,7 +4,6 @@ type Factory @entity {
 
     perpetualCount: BigInt!
     liquidityPoolCount: BigInt!
-    vaultAddress: String!
 
     # total volume
     totalVolumeUSD: BigDecimal!
