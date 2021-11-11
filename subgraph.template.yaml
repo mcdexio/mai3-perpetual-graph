@@ -101,6 +101,8 @@ templates:
           file: ./abis/LiquidityPool.json
         - name: Oracle
           file: ./abis/Oracle.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: CreatePerpetual(uint256,address,address,address,address,address,int256[9],int256[8])
           handler: handleCreatePerpetual
