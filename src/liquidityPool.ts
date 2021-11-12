@@ -208,7 +208,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     liquidityHistory.save()
 
     // update tvl
-    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
         let factory = Factory.load(FACTORY) as Factory
         let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
@@ -258,7 +258,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     liquidityHistory.save()
 
     // update tvl
-    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
         let factory = Factory.load(FACTORY) as Factory
         let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
@@ -393,7 +393,7 @@ export function handleTrade(event: TradeEvent): void {
     perp.save()
 
     // update tvl
-    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
         liquidityPool.collateralAmount = balance
         if (tokenPrice > ZERO_BD) {
