@@ -218,6 +218,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
             liquidityPool.collateralUSD = liquidityPool.collateralAmount.times(tokenPrice)
             factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
             factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(liquidityPool.collateralUSD)
+            factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
     }
@@ -267,6 +268,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
             liquidityPool.collateralUSD = liquidityPool.collateralAmount.times(tokenPrice)
             factory.totalValueLockedUSD = factory.totalValueLockedUSD.minus(oldCollateralUSD)
             factory.totalValueLockedUSD = factory.totalValueLockedUSD.plus(liquidityPool.collateralUSD)
+            factory.save()
             updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
         }
     }

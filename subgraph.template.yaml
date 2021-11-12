@@ -29,8 +29,6 @@ dataSources:
       eventHandlers:
         - event: CreateLiquidityPool(bytes32,indexed address,indexed address,indexed address,address,address,uint256,bytes)
           handler: handleCreateLiquidityPool
-        - event: SetVault(address,address)
-          handler: handleSetVault
       file: ./src/factory.ts
 
   - kind: ethereum/contract
