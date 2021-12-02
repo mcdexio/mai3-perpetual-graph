@@ -34,3 +34,19 @@ export let DaoPools = new TypedMap<string, string>();
 DaoPools.set("0xdb282bbace4e375ff2901b84aceb33016d0d663d", "BUSD Pool")
 DaoPools.set("0xf6b2d76c248af20009188139660a516e5c4e0532", "ETH Pool")
 DaoPools.set("0x2ea001032b0eb424120b4dec51bf02db0df46c78", "BTCB Pool")
+
+/************************ for arb *******************************************/ 
+// export let CertifiedPools = new TypedMap<string, string>();
+// CertifiedPools.set("0xab324146c49b23658e5b3930e641bdbdf089cbac", "USDC Pool")
+
+// dao operator's pool
+// export let DaoPools = new TypedMap<string, string>();
+// DaoPools.set("0xab324146c49b23658e5b3930e641bdbdf089cbac", "USDC Pool")
+
+/************************ for arb test *******************************************/ 
+// export let CertifiedPools = new TypedMap<string, string>();
+// CertifiedPools.set("0xc32a2dfee97e2babc90a2b5e6aef41e789ef2e13", "USDC Pool")
+
+// dao operator's pool
+// export let DaoPools = new TypedMap<string, string>();
+// DaoPools.set("0xc32a2dfee97e2babc90a2b5e6aef41e789ef2e13", "USDC Pool")

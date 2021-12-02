@@ -146,7 +146,6 @@ type VoteAccount @entity {
     governor: Governor!
     user: User!
     votes: BigDecimal!
-    reward: BigDecimal!
 }
 
 type Governor @entity {
@@ -162,6 +161,20 @@ type Governor @entity {
     periodFinish: BigInt!
     proposals: [Proposal!]! @derivedFrom(field: "governor")
     voteAccounts: [VoteAccount!]! @derivedFrom(field:"governor")
+    tokenRewards: [TokenReward!]! @derivedFrom(field:"governor")
+}
+
+type TokenReward @entity {
+    # governor contract address + "-" + token address
+    id: ID!
+    token: String!
+    governor: Governor!
+    liquidityPool: String!
+    totalReward: BigDecimal!
+    rewardRate: BigDecimal!
+    preRewardRate: BigDecimal!
+    changeRewardBlock: BigInt!
+    periodFinish: BigInt!
 }
 
 type LiquidityHistory @entity {

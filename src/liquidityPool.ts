@@ -211,6 +211,7 @@ export function handleAddLiquidity(event: AddLiquidityEvent): void {
     if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
         let factory = Factory.load(FACTORY) as Factory
         let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+        // liquidityPool.collateralAmount = liquidityPool.collateralAmount.plus(cash)
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
         liquidityPool.collateralAmount = balance
         if (tokenPrice > ZERO_BD) {
@@ -261,6 +262,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidityEvent): void {
     if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
         let factory = Factory.load(FACTORY) as Factory
         let tokenPrice = getTokenPrice(liquidityPool.collateralAddress)
+        // liquidityPool.collateralAmount = liquidityPool.collateralAmount.plus(cash)
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
         liquidityPool.collateralAmount = balance
         if (tokenPrice > ZERO_BD) {
@@ -393,7 +395,7 @@ export function handleTrade(event: TradeEvent): void {
     perp.save()
 
     // update tvl
-    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(18000))) {
+    if (event.block.timestamp > liquidityPool.collateralUpdateTimestamp.plus(BigInt.fromI32(86400))) {
         let balance = getCollateralBalance(liquidityPool.collateralAddress, event.address, liquidityPool.collateralDecimals)
         liquidityPool.collateralAmount = balance
         if (tokenPrice > ZERO_BD) {
@@ -414,6 +416,7 @@ export function handleTrade(event: TradeEvent): void {
     updateTradeSevenDayData(perp as Perpetual, price, AbsBigDecimal(position), event.block.timestamp)
     // update factory trade data
     updateMcdexTradeVolumeData(volumeUSD, event.block.timestamp)
+    updateMcdexTVLData(factory.totalValueLockedUSD, event.block.timestamp)
     updateOpenInterestDayData(perp as Perpetual, event.block.timestamp)
 }
 

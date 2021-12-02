@@ -1,6 +1,6 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
-import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAccount, VoteAccount, Governor } from '../generated/schema'
+import { Perpetual, LiquidityPool, PriceBucket, User, MarginAccount, LiquidityAccount, VoteAccount, Governor, TokenReward } from '../generated/schema'
 
 import { ERC20 as ERC20Contract } from '../generated/Factory/ERC20'
 import { Oracle as OracleContract } from '../generated/Factory/Oracle'
@@ -160,10 +160,27 @@ export function fetchVoteAccount(user: User, governor: Governor): VoteAccount {
     account.user = user.id
     account.governor = governor.id
     account.votes = ZERO_BD
-    account.reward = ZERO_BD
     account.save()
   }
   return account as VoteAccount
+}
+
+export function fetchTokenReward(token: string, governor: Governor): TokenReward {
+  let id = governor.id.concat('-').concat(token)
+  let tokenReward = TokenReward.load(id)
+  if (tokenReward === null) {
+    tokenReward = new TokenReward(id)
+    tokenReward.token = token
+    tokenReward.governor = governor.id
+    tokenReward.liquidityPool = governor.liquidityPool
+    tokenReward.totalReward = ZERO_BD
+    tokenReward.rewardRate = ZERO_BD
+    tokenReward.preRewardRate = ZERO_BD
+    tokenReward.changeRewardBlock = ZERO_BI
+    tokenReward.periodFinish = ZERO_BI
+    tokenReward.save()
+  }
+  return tokenReward as TokenReward
 }
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
@@ -226,6 +243,7 @@ export function fetchCollateralSymbol(address: Address): string {
     collateral = getBscCollateralSymbol(address)
   }
   if (collateral == '') {
+    // return 'UnKnown'
     let contract = ERC20Contract.bind(address)
     let result = contract.try_symbol()
     if (!result.reverted) {
@@ -253,6 +271,8 @@ function getBscCollateralSymbol(address: Address): string {
     return 'MIM'
   } else if (str == '0xbde2494e797894c901744dd11146384980184d7e') {
     return 'TUSDC'
+  } else if (str == '0x1b5a24e705fc84ec7aa27810dbab6349f7ba5cfc') {
+    return 'XCB'
   }
   return ''
 }
@@ -264,6 +284,7 @@ export function fetchOracleUnderlying(address: Address): string {
   }
   
   if (underlying == '') {
+    // return 'UnKnown'
     let contract = OracleContract.bind(address)
     let result = contract.try_underlyingAsset()
     if (!result.reverted) {

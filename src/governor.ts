@@ -1,6 +1,6 @@
 import {BigInt, ethereum, log, Address} from "@graphprotocol/graph-ts"
 
-import {Governor, Proposal, Vote} from '../generated/schema'
+import {Governor, Proposal, Vote, TokenReward} from '../generated/schema'
 
 import {
     ProposalCreated as ProposalCreatedEvent,
@@ -10,6 +10,10 @@ import {
     RewardAdded as RewardAddedEvent,
     RewardRateChanged as RewardRateChangedEvent,
     RewardPaid as RewardPaidEvent,
+    DistributionCreated as DistributionCreatedEvent,
+    RewardAdded1 as RewardAdded1Event,
+    RewardRateChanged1 as RewardRateChanged1Event,
+    RewardPaid1 as RewardPaid1Event,
 } from '../generated/templates/Governor/Governor'
 
 import {
@@ -21,6 +25,7 @@ import {
     fetchVoteAccount,
     ADDRESS_ZERO,
     ZERO_BI,
+    fetchTokenReward
 } from './utils'
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
@@ -111,14 +116,45 @@ export function handleTransfer(event: TransferEvent): void {
     governor.save()
 }
 
+export function handleDistributionCreated(event: DistributionCreatedEvent): void {
+    let governor = Governor.load(event.address.toHexString()) as Governor
+    let token = event.params.token.toHexString()
+    let tokenReward = fetchTokenReward(token, governor)
+    tokenReward.rewardRate = convertToDecimal(event.params.rewardRate, BI_18)
+    tokenReward.totalReward = convertToDecimal(event.params.reward, BI_18)
+    tokenReward.changeRewardBlock = event.block.number
+    tokenReward.save()
+}
+
 export function handleRewardAdded(event: RewardAddedEvent): void {
+    let governor = Governor.load(event.address.toHexString()) as Governor
+    let token = event.params.token.toHexString()
+    let tokenReward = fetchTokenReward(token, governor)
+    tokenReward.totalReward = governor.totalReward.plus(convertToDecimal(event.params.reward, BI_18))
+    tokenReward.periodFinish = event.params.periodFinish
+    tokenReward.changeRewardBlock = event.block.number
+    tokenReward.save()
+}
+
+export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
+    let governor = Governor.load(event.address.toHexString()) as Governor
+    let token = event.params.token.toHexString()
+    let tokenReward = fetchTokenReward(token, governor)
+    tokenReward.rewardRate = convertToDecimal(event.params.currentRate, BI_18)
+    tokenReward.preRewardRate = convertToDecimal(event.params.previousRate, BI_18)
+    tokenReward.periodFinish = event.params.periodFinish
+    tokenReward.changeRewardBlock = event.block.number
+    tokenReward.save()
+}
+
+export function handleRewardAdded1(event: RewardAdded1Event): void {
     let governor = Governor.load(event.address.toHexString()) as Governor
     governor.totalReward = governor.totalReward.plus(convertToDecimal(event.params.reward, BI_18))
     governor.periodFinish = event.params.periodFinish
     governor.save()
 }
 
-export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
+export function handleRewardRateChanged1(event: RewardRateChanged1Event): void {
     let governor = Governor.load(event.address.toHexString()) as Governor
     governor.rewardRate = convertToDecimal(event.params.currentRate, BI_18)
     governor.preRewardRate = convertToDecimal(event.params.previousRate, BI_18)
@@ -127,10 +163,3 @@ export function handleRewardRateChanged(event: RewardRateChangedEvent): void {
     governor.save()
 }
 
-export function handleRewardPaid(event: RewardPaidEvent): void {
-    let governor = Governor.load(event.address.toHexString()) as Governor
-    let user = fetchUser(event.params.user)
-    let account = fetchVoteAccount(user, governor)
-    account.reward = account.reward.plus(convertToDecimal(event.params.reward, BI_18))
-    account.save()
-}

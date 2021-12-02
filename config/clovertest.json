@@ -1,0 +1,13 @@
+{
+    "network": "clover-test",
+    "factory_address": "0x8ac4f074658067663942EA0405825d805a200673",
+    "symbol_address": "0xfcFcf66d525B6D830CD4b8324CEDFf43643D2cF1",
+    "broker_address": "0xdEA04eAd9bcE0bA129120c137117504f6DFaf78F",
+    "reader_address": "0x64B0E209fc44d79131d84edabB67258C83E6141b",
+    "eth_perpetual": "0x465fB17aCc62Efd26D5B3bE9B3FFC984Cebd03d1-1",
+    "eth_token": "0x465fB17aCc62Efd26D5B3bE9B3FFC984Cebd03d1",
+    "btc_perpetual": "0x465fB17aCc62Efd26D5B3bE9B3FFC984Cebd03d1-0",
+    "btc_token": "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c",
+    "usdc_token": "0x524298713Af9B30f4e53b1c60Af528dc4BB1818E",
+    "start_block": 3715746
+}
