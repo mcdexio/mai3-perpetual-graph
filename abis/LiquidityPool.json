@@ -166,6 +166,61 @@
       },
       {
         "indexed": false,
+        "internalType": "int256[9]",
+        "name": "riskParams",
+        "type": "int256[9]"
+      }
+    ],
+    "name": "CreatePerpetual",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "perpetualIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "governor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "shareToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oracle",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256[9]",
+        "name": "baseParams",
+        "type": "int256[9]"
+      },
+      {
+        "indexed": false,
         "internalType": "int256[8]",
         "name": "riskParams",
         "type": "int256[8]"
